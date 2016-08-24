@@ -38,3 +38,6 @@ jspm_packages
 
 # locally created packages
 *.tgz
+
+# build output from tsc
+build/

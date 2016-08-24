@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "description": "Incorporate Git into your Electron application",
   "main": "index.js",
+  "typings": "./build/lib/index.d.ts",
   "scripts": {
+    "compile": "npm run lint && tsc",
+    "lint": "tslint lib/**/*.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -15,5 +18,9 @@
   "bugs": {
     "url": "https://github.com/desktop/git-kitchen-sink/issues"
   },
-  "homepage": "https://github.com/desktop/git-kitchen-sink#readme"
+  "homepage": "https://github.com/desktop/git-kitchen-sink#readme",
+  "dependencies": {
+    "tslint": "^3.15.1",
+    "typescript": "^2.0.0"
+  }
 }
