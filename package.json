@@ -24,10 +24,17 @@
   },
   "homepage": "https://github.com/desktop/git-kitchen-sink#readme",
   "dependencies": {
+    "checksum": "^0.1.1",
+    "decompress": "^4.0.0",
+    "mkdirp": "^0.5.1",
+    "request": "^2.74.0",
+    "temp": "^0.8.3",
     "tslint": "^3.15.1",
     "typescript": "beta"
   },
   "devDependencies": {
-    "@types/node": "^6.0.31"
+    "@types/checksum": "^0.1.29",
+    "@types/node": "^6.0.31",
+    "@types/mkdirp": "^0.3.28"
   }
 }
