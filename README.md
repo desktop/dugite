@@ -13,18 +13,18 @@ import { GitProcess, GitError, GitErrorCode } from 'git-kitchen-sink'
 const pathToRepository = 'C:/path/to/git/repository/'
 
 GitProcess.execWithOutput([ '--version' ], pathToRepository)
-        .then(output => {
-          // TODO: read version
-        })
-        .catch(error => {
-          // TODO: better error handling
-        })
+  .then(output => {
+    // TODO: read version
+  })
+  .catch(error => {
+    // TODO: better error handling
+  })
 ```
 
 Current features:
 
  - package Git within your application
- - make it easy to execute commands
+ - make it easy to execute Git commands
  - macOS and Window support
 
 Potential Roadmap:
