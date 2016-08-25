@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+      "module": "commonjs",
+      "moduleResolution": "node",
+      "target": "es6",
+      "noImplicitAny": true,
+      "noImplicitReturns": true,
+      "noImplicitThis": true,
+      "noFallthroughCasesInSwitch": true,
+      "noUnusedLocals": true,
+      "strictNullChecks": true,
+      "sourceMap": true,
+      "outDir": "./build",
+      "declaration": true,
+      "types" : [ "node" ]
+    },
+    "exclude": [
+        "node_modules",
+        "build"
+    ]
+}

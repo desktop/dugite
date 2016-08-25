@@ -1,0 +1,33 @@
+{
+  "name": "git-kitchen-sink",
+  "version": "1.0.0",
+  "description": "Incorporate Git into your Electron application",
+  "main": "./build/index.js",
+  "typings": "./build/index.d.ts",
+  "scripts": {
+    "compile": "npm run lint && tsc -p ./tsconfig.json",
+    "lint": "tslint lib/**/*.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">= 6",
+    "npm": ">= 3"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/desktop/git-kitchen-sink.git"
+  },
+  "author": "Brendan Forster",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/desktop/git-kitchen-sink/issues"
+  },
+  "homepage": "https://github.com/desktop/git-kitchen-sink#readme",
+  "dependencies": {
+    "tslint": "^3.15.1",
+    "typescript": "beta"
+  },
+  "devDependencies": {
+    "@types/node": "^6.0.31"
+  }
+}
