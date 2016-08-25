@@ -1,0 +1,10 @@
+# obvs
+node_modules/
+
+# in case a package already exists on disk
+*.tgz
+
+# no need to bring in the TS source
+lib
+
+!*.d.ts

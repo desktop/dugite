@@ -5,7 +5,7 @@
   "main": "./build/index.js",
   "typings": "./build/index.d.ts",
   "scripts": {
-    "compile": "npm run lint && tsc",
+    "compile": "npm run lint && tsc -p ./tsconfig.json",
     "lint": "tslint lib/**/*.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
