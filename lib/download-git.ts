@@ -1,6 +1,7 @@
 const decompress = require('decompress')
 const request = require('request')
 const temp = require('temp')
+const ProgressBar = require('progress');
 
 import * as mkdirp from 'mkdirp'
 import * as path from 'path'
@@ -87,7 +88,23 @@ mkdirp(config.outputPath, async function (error) {
 
   const req = request.get(fullUrl, { encoding: null }, callback)
 
-  req.on('data', function(chunk: any) {
-    console.log(`Got some data: ${chunk.length}`)
+  req.on('response', function(res: any) {
+    const len = parseInt(res.headers['content-length'], 10);
+
+    console.log();
+    const bar = new ProgressBar('Downloading Git [:bar] :percent :etas', {
+      complete: '=',
+      incomplete: ' ',
+      width: 20,
+      total: len
+    });
+
+    res.on('data', function(chunk: any) {
+      bar.tick(chunk.length);
+    })
+
+    res.on('end', function () {
+      console.log('\n');
+    });
   })
 })
