@@ -1,10 +1,11 @@
 const decompress = require('decompress')
 const request = require('request')
-const temp = require('temp')
 const ProgressBar = require('progress');
+const tmpdir = require('os-tmpdir')
 
 import * as mkdirp from 'mkdirp'
 import * as path from 'path'
+import * as fs from 'fs'
 
 const baseUrl = process.env.NPM_CONFIG_ELECTRON_MIRROR ||
   process.env.npm_config_electron_mirror ||
@@ -58,7 +59,7 @@ mkdirp(config.outputPath, async function (error) {
     return handleError(fullUrl, error)
   }
 
-  console.log(`retrieving contents at url: ${fullUrl}`)
+  console.log(`Download Git from: ${fullUrl}`)
 
   const callback = function (error: Error, response: any, body: any) {
 
@@ -72,9 +73,10 @@ mkdirp(config.outputPath, async function (error) {
       return handleError(fullUrl, Error(`Non-200 response (${response.statusCode})`))
     }
 
-    // TODO: store contents somewhere so we can replay
+    const dir = tmpdir()
+    const file = path.join(dir, config.fileName)
 
-    temp.createWriteStream(config.fileName).write(body, function(error: Error) {
+    fs.createWriteStream(file).write(body, function(error: Error) {
       // TODO: checksum bytes received
       console.log(`unzipping`)
 
@@ -107,4 +109,5 @@ mkdirp(config.outputPath, async function (error) {
       console.log('\n');
     });
   })
+
 })
