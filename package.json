@@ -7,7 +7,8 @@
   "scripts": {
     "compile": "npm run lint && tsc -p ./tsconfig.json",
     "lint": "tslint lib/**/*.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "node ./build/download-git.js"
   },
   "engines": {
     "node": ">= 6",
