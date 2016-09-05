@@ -25,11 +25,10 @@ const config = {
 }
 
 if (process.platform === 'darwin') {
-  // TODO: put things in here
-  config.upstreamVersion = ''
-  config.fileName = ''
-  config.source = ''
-  config.checksum = ''
+  config.fileName = `Git-macOS-${config.version}-64-bit.zip`
+  // TODO: swap this out for something more official, lol
+  config.source = `https://www.dropbox.com/s/xy7e94h6lnw2vts/${config.fileName}?dl=1`
+  config.checksum = 'adce2f8cdd9954c59ece5d05b8324c8a03a8185c1f2460f3752eca40f9922198'
 } else if (process.platform === 'win32') {
   config.upstreamVersion = `v${config.version}.windows.1`
   config.fileName = `MinGit-${config.version}-64-bit.zip`
