@@ -17,7 +17,7 @@ const baseUrl = process.env.NPM_CONFIG_ELECTRON_MIRROR ||
 const config = {
   baseUrl: baseUrl,
   outputPath: path.join(__dirname, '..', 'git'),
-  version: '2.9.3',
+  version: '2.10.0',
   source: '',
   checksum: '',
   upstreamVersion: '',
@@ -34,7 +34,7 @@ if (process.platform === 'darwin') {
   config.upstreamVersion = `v${config.version}.windows.1`
   config.fileName = `MinGit-${config.version}-64-bit.zip`
   config.source = `https://github.com/git-for-windows/git/releases/download/${config.upstreamVersion}/${config.fileName}`
-  config.checksum = '17e40cb149ce6a348c8e8bbe7f1c1fff00f82882f0e57f32d60ea5c26feeef98'
+  config.checksum = '2e1101ec57da526728704c04792293613f3c5aa18e65f13a4129d00b54de2087'
 }
 
 const fullUrl = config.source
