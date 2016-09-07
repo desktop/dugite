@@ -153,8 +153,9 @@ mkdirp(config.outputPath, async function (error) {
       if (valid) {
         unpackFile(temporaryFile)
       } else {
-        console.log('cached file not valid. aborting...')
-        process.exit(1)
+        console.log('cached file not valid. removing...')
+        rimraf.sync(temporaryFile)
+        downloadAndUnpack()
       }
     })
     return
