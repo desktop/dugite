@@ -65,7 +65,7 @@ const dir = tmpdir()
 const temporaryFile = path.join(dir, config.fileName)
 
 const verifyFile = function(file: string, callback: (valid: boolean) => void) {
-  console.debug(`verifying checksum...`)
+  // console.log(`verifying checksum...`)
 
   checksum.file(file, { algorithm: 'sha256' }, (error: Error, hash: string) => {
     callback(hash === config.checksum)
@@ -73,8 +73,6 @@ const verifyFile = function(file: string, callback: (valid: boolean) => void) {
 }
 
 const unpackFile = function (file: string) {
-  console.debug(`unzipping...`)
-
   unzip(file, function (error: Error) {
     if (error) {
       return handleError(fullUrl, error)
@@ -83,7 +81,6 @@ const unpackFile = function (file: string) {
 }
 
 const downloadCallback = function (error: Error, response: any, body: any) {
-
   if (error) {
     return handleError(fullUrl, error)
   }
@@ -99,10 +96,10 @@ const downloadCallback = function (error: Error, response: any, body: any) {
 
     verifyFile(temporaryFile, valid => {
       if (valid) {
-        console.debug('file valid. unpacking...')
+        // console.log('file valid. unpacking...')
         unpackFile(temporaryFile)
       } else {
-        console.debug('file not valid. aborting...')
+        console.log('file not valid. aborting...')
         process.exit(1)
       }
     })
@@ -110,7 +107,7 @@ const downloadCallback = function (error: Error, response: any, body: any) {
 }
 
 const downloadAndUnpack = () => {
-  console.log(`Download Git from: ${fullUrl}`)
+  console.log(`Downloading Git from: ${fullUrl}`)
 
   const req = request.get(fullUrl, { encoding: null }, downloadCallback)
 
@@ -141,7 +138,7 @@ mkdirp(config.outputPath, async function (error) {
   }
 
   if (fs.existsSync(config.outputPath)) {
-    console.debug(`directory exists at ${config.outputPath}, removing...`)
+    // console.log(`directory exists at ${config.outputPath}, removing...`)
     try {
       rimraf.sync(config.outputPath)
     } catch (err) {
@@ -151,17 +148,19 @@ mkdirp(config.outputPath, async function (error) {
   }
 
   if (fs.existsSync(temporaryFile)) {
+    // console.log(`cached file exists at ${temporaryFile}, removing...`)
     verifyFile(temporaryFile, valid => {
       if (valid) {
         unpackFile(temporaryFile)
       } else {
         console.log('cached file not valid. aborting...')
+        process.exit(1)
       }
     })
     return
   }
 
-  console.log(`file does not exist. downloading...`)
+  // console.log(`file does not exist. downloading...`)
 
   downloadAndUnpack()
 })
