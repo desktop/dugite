@@ -33,3 +33,28 @@ Potential Roadmap:
  - Linux support
  - handle authentication and environment setup
  - ???
+
+
+### Contributing
+
+After cloning down this repository, install the dependencies:
+
+```sh
+npm install
+```
+
+Unfortunately this will fail due to the current `postinstall` script executing
+when it doesn't need to. This requires a compiled JavaScript file that doesn't
+exist in version control.
+
+Running this will get you back to a happy place:
+
+```sh
+npm run build
+```
+
+And then you can create the package yourself:
+
+```sh
+npm pack
+```
