@@ -37,20 +37,13 @@ Potential Roadmap:
 
 ### Contributing
 
-After cloning down this repository, install the dependencies:
+After cloning down this repository, bootstrap your environment:
 
 ```sh
-npm install
-```
-
-Unfortunately this will fail due to the current `postinstall` script executing
-when it doesn't need to. This requires a compiled JavaScript file that doesn't
-exist in version control.
-
-Running this will get you back to a happy place:
-
-```sh
-npm run build
+# on Windows
+./script/bootstrap.sh
+# on macOS
+./script/bootstrap
 ```
 
 And then you can create the package yourself:
