@@ -32,13 +32,15 @@
     "os-tmpdir": "^1.0.1",
     "progress": "^1.1.8",
     "request": "^2.74.0",
+    "rimraf": "^2.5.4",
     "temp": "^0.8.3",
     "tslint": "^3.15.1",
     "typescript": "beta"
   },
   "devDependencies": {
     "@types/checksum": "^0.1.29",
+    "@types/mkdirp": "^0.3.28",
     "@types/node": "^6.0.31",
-    "@types/mkdirp": "^0.3.28"
+    "@types/rimraf": "0.0.27"
   }
 }
