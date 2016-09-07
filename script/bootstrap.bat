@@ -1,9 +1,11 @@
+ECHO OFF
+
 :: install pre-requisites so everything can be built
-npm install typescript@rc -g
-npm install tslint
+CALL npm install typescript@rc -g
+CALL npm install tslint
 
 :: build the artefacts needed so that install works
-npm run build
+CALL npm run build
 
 :: install everything else
-npm install
+CALL npm install
