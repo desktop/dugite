@@ -6,6 +6,7 @@
   "typings": "./build/index.d.ts",
   "scripts": {
     "build": "npm run lint && tsc -p ./tsconfig.json",
+    "prepublish": "npm run build",
     "lint": "tslint lib/**/*.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "postinstall": "node ./build/download-git.js"
