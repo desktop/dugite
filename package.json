@@ -5,9 +5,11 @@
   "main": "./build/index.js",
   "typings": "./build/index.d.ts",
   "scripts": {
-    "compile": "npm run lint && tsc -p ./tsconfig.json",
+    "build": "npm run lint && tsc -p ./tsconfig.json",
+    "prepublish": "npm run build",
     "lint": "tslint lib/**/*.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "node ./build/download-git.js"
   },
   "engines": {
     "node": ">= 6",
@@ -24,10 +26,21 @@
   },
   "homepage": "https://github.com/desktop/git-kitchen-sink#readme",
   "dependencies": {
+    "checksum": "^0.1.1",
+    "decompress": "^4.0.0",
+    "mkdirp": "^0.5.1",
+    "os-tmpdir": "^1.0.1",
+    "progress": "^1.1.8",
+    "request": "^2.74.0",
+    "rimraf": "^2.5.4",
+    "temp": "^0.8.3",
     "tslint": "^3.15.1",
-    "typescript": "beta"
+    "typescript": "rc"
   },
   "devDependencies": {
-    "@types/node": "^6.0.31"
+    "@types/checksum": "^0.1.29",
+    "@types/mkdirp": "^0.3.28",
+    "@types/node": "^6.0.31",
+    "@types/rimraf": "0.0.27"
   }
 }
