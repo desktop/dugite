@@ -7,6 +7,7 @@ import * as mkdirp from 'mkdirp'
 import * as path from 'path'
 import * as fs from 'fs'
 import * as checksum from 'checksum'
+import * as rimraf from 'rimraf'
 
 const baseUrl = process.env.NPM_CONFIG_ELECTRON_MIRROR ||
   process.env.npm_config_electron_mirror ||
@@ -49,8 +50,6 @@ function handleError (url: string, error: Error) {
 }
 
 function unzip(path: string, callback: (err: Error | null) => void) {
-  console.log(`unzipping to ${config.outputPath}`)
-
   const result: Promise<void> = decompress(path, config.outputPath)
 
   result
@@ -66,13 +65,15 @@ const dir = tmpdir()
 const temporaryFile = path.join(dir, config.fileName)
 
 const verifyFile = function(file: string, callback: (valid: boolean) => void) {
+  console.debug(`verifying checksum...`)
+
   checksum.file(file, { algorithm: 'sha256' }, (error: Error, hash: string) => {
     callback(hash === config.checksum)
   })
 }
 
 const unpackFile = function (file: string) {
-  console.log(`unzipping...`)
+  console.debug(`unzipping...`)
 
   unzip(file, function (error: Error) {
     if (error) {
@@ -98,10 +99,10 @@ const downloadCallback = function (error: Error, response: any, body: any) {
 
     verifyFile(temporaryFile, valid => {
       if (valid) {
-        console.log('file valid. unpacking...')
+        console.debug('file valid. unpacking...')
         unpackFile(temporaryFile)
       } else {
-        console.log('file not valid. aborting...')
+        console.debug('file not valid. aborting...')
         process.exit(1)
       }
     })
@@ -139,17 +140,22 @@ mkdirp(config.outputPath, async function (error) {
     return handleError(fullUrl, error)
   }
 
-  console.log(`checking for file ${temporaryFile}...`)
+  if (fs.existsSync(config.outputPath)) {
+    console.debug(`directory exists at ${config.outputPath}, removing...`)
+    try {
+      rimraf.sync(config.outputPath)
+    } catch (err) {
+      console.error(err)
+      return
+    }
+  }
 
   if (fs.existsSync(temporaryFile)) {
-    console.log('file exists. verifying...')
     verifyFile(temporaryFile, valid => {
       if (valid) {
-        console.log('file valid. unpacking...')
         unpackFile(temporaryFile)
       } else {
-        console.log('file not valid. try again...')
-        // downloadAndUnpack()
+        console.log('cached file not valid. aborting...')
       }
     })
     return
