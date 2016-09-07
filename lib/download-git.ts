@@ -48,11 +48,18 @@ function handleError (url: string, error: Error) {
   process.exit(1)
 }
 
-function unzip(path: string, callback: any) {
+function unzip(path: string, callback: (err: Error | null) => void) {
   console.log(`unzipping to ${config.outputPath}`)
-  decompress(path, config.outputPath).then(() => {
-    console.log('done!')
-  })
+
+  const result: Promise<void> = decompress(path, config.outputPath)
+
+  result
+    .then(() => {
+      callback(null)
+    })
+    .catch(err => {
+      callback(err)
+    })
 }
 
 const dir = tmpdir()
