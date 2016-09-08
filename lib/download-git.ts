@@ -28,8 +28,8 @@ const config = {
 if (process.platform === 'darwin') {
   config.fileName = `Git-macOS-${config.version}-64-bit.zip`
   // TODO: swap this out for something more official, lol
-  config.source = `https://www.dropbox.com/s/wik35bpt9z86lg0/${config.fileName}?dl=1`
-  config.checksum = '9b2fde854c72307dcd538e65d47133fc7c158dfe027abbc85f74d9bc11882932'
+  config.source = `https://www.dropbox.com/s/w2l51jsibl90jtd/${config.fileName}?dl=1`
+  config.checksum = '5193a0923a7fc7cadc6d644d83bab184548987079f498cd77ee9df2a4509402e'
 } else if (process.platform === 'win32') {
   config.upstreamVersion = `v${config.version}.windows.1`
   config.fileName = `MinGit-${config.version}-64-bit.zip`
