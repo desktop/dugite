@@ -28,8 +28,8 @@ const config = {
 if (process.platform === 'darwin') {
   config.fileName = `Git-macOS-${config.version}-64-bit.zip`
   // TODO: swap this out for something more official, lol
-  config.source = `https://www.dropbox.com/s/wik35bpt9z86lg0/${config.fileName}?dl=1`
-  config.checksum = '9b2fde854c72307dcd538e65d47133fc7c158dfe027abbc85f74d9bc11882932'
+  config.source = `https://www.dropbox.com/s/w2l51jsibl90jtd/${config.fileName}?dl=1`
+  config.checksum = '5193a0923a7fc7cadc6d644d83bab184548987079f498cd77ee9df2a4509402e'
 } else if (process.platform === 'win32') {
   config.upstreamVersion = `v${config.version}.windows.1`
   config.fileName = `MinGit-${config.version}-64-bit.zip`
@@ -65,7 +65,7 @@ const dir = tmpdir()
 const temporaryFile = path.join(dir, config.fileName)
 
 const verifyFile = function(file: string, callback: (valid: boolean) => void) {
-  console.log(`verifying checksum...`)
+  // console.log(`verifying checksum...`)
 
   checksum.file(file, { algorithm: 'sha256' }, (error: Error, hash: string) => {
     callback(hash === config.checksum)
@@ -96,10 +96,10 @@ const downloadCallback = function (error: Error, response: any, body: any) {
 
     verifyFile(temporaryFile, valid => {
       if (valid) {
-        console.log('file valid. unpacking...')
+        // console.log('file valid. unpacking...')
         unpackFile(temporaryFile)
       } else {
-        console.log('file not valid. aborting...')
+        // console.log('file not valid. aborting...')
         process.exit(1)
       }
     })
@@ -138,7 +138,7 @@ mkdirp(config.outputPath, async function (error) {
   }
 
   if (fs.existsSync(config.outputPath)) {
-    console.log(`directory exists at ${config.outputPath}, removing...`)
+    // console.log(`directory exists at ${config.outputPath}, removing...`)
     try {
       rimraf.sync(config.outputPath)
     } catch (err) {
@@ -148,12 +148,12 @@ mkdirp(config.outputPath, async function (error) {
   }
 
   if (fs.existsSync(temporaryFile)) {
-    console.log(`cached file exists at ${temporaryFile}, verifying...`)
+    // console.log(`cached file exists at ${temporaryFile}, verifying...`)
     verifyFile(temporaryFile, valid => {
       if (valid) {
         unpackFile(temporaryFile)
       } else {
-        console.log('cached file not valid. removing...')
+        // console.log('cached file not valid. removing...')
         rimraf.sync(temporaryFile)
         downloadAndUnpack()
       }
@@ -161,7 +161,7 @@ mkdirp(config.outputPath, async function (error) {
     return
   }
 
-  console.log(`file does not exist. downloading...`)
+  // console.log(`file does not exist. downloading...`)
 
   downloadAndUnpack()
 })
