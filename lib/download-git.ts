@@ -65,7 +65,7 @@ const dir = tmpdir()
 const temporaryFile = path.join(dir, config.fileName)
 
 const verifyFile = function(file: string, callback: (valid: boolean) => void) {
-  console.log(`verifying checksum...`)
+  // console.log(`verifying checksum...`)
 
   checksum.file(file, { algorithm: 'sha256' }, (error: Error, hash: string) => {
     callback(hash === config.checksum)
@@ -96,10 +96,10 @@ const downloadCallback = function (error: Error, response: any, body: any) {
 
     verifyFile(temporaryFile, valid => {
       if (valid) {
-        console.log('file valid. unpacking...')
+        // console.log('file valid. unpacking...')
         unpackFile(temporaryFile)
       } else {
-        console.log('file not valid. aborting...')
+        // console.log('file not valid. aborting...')
         process.exit(1)
       }
     })
@@ -138,7 +138,7 @@ mkdirp(config.outputPath, async function (error) {
   }
 
   if (fs.existsSync(config.outputPath)) {
-    console.log(`directory exists at ${config.outputPath}, removing...`)
+    // console.log(`directory exists at ${config.outputPath}, removing...`)
     try {
       rimraf.sync(config.outputPath)
     } catch (err) {
@@ -148,12 +148,12 @@ mkdirp(config.outputPath, async function (error) {
   }
 
   if (fs.existsSync(temporaryFile)) {
-    console.log(`cached file exists at ${temporaryFile}, verifying...`)
+    // console.log(`cached file exists at ${temporaryFile}, verifying...`)
     verifyFile(temporaryFile, valid => {
       if (valid) {
         unpackFile(temporaryFile)
       } else {
-        console.log('cached file not valid. removing...')
+        // console.log('cached file not valid. removing...')
         rimraf.sync(temporaryFile)
         downloadAndUnpack()
       }
@@ -161,7 +161,7 @@ mkdirp(config.outputPath, async function (error) {
     return
   }
 
-  console.log(`file does not exist. downloading...`)
+  // console.log(`file does not exist. downloading...`)
 
   downloadAndUnpack()
 })
