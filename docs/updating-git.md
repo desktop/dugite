@@ -38,19 +38,26 @@ You will probably have to update these values as part of updating Git:
  - `config.source` - the location of the archive to download. This is retrieved during an `npm install` and unpacked to the `git` folder inside your package.
  - `config.checksum` - the SHA256 checksum of the file. If the packager hasn't documented this, you should download the file yourself and generate this to verify the contents haven't changed.
 
-On macOS: `shasum -a 256 {path-to-file}`
-On Windows (PowerShell): `$(certutil -hashfile {path-to-file} SHA256)[1] -replace " ", ""`
+On macOS:
 
-After that, you should test it out for the platform you're currently using:
+```sh
+shasum -a 256 {path-to-file}
+```
+
+On Windows (PowerShell):
+
+```
+$(certutil -hashfile {path-to-file} SHA256)[1] -replace " ", ""
+```
+
+After that, you should test out the script for the platform you're currently running. This script will recompile the Typescript code and then download Git to your local machine.
 
 ```sh
 npm run build
 node ./build/download-git.js
 ```
 
-You should see it unpack the new version of Git to your `git` folder.
-
-As each platform is organized slightly differently on disk, you should verify it's unpacked successfully:
+If it was successful, the new version of Git will be located under `git` folder in this repository's root. As each platform is organized slightly differently on disk, you should verify it's unpacked successfully:
 
 On macOS:
 
