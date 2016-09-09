@@ -2,7 +2,8 @@
 
 When a new version of Git is released, this package needs to update a couple of
 pieces to consume this new version. Ideally we should update all supported
-platforms to the same version, to ensure things
+platforms to the same version, to ensure consumers of the package get the same
+behaviour across different platforms.
 
 The most important part is in [`lib/download-git.ts`](https://github.com/desktop/git-kitchen-sink/blob/master/lib/download-git.ts)
 as this lists where to retrieve Git from, based on your platform.
