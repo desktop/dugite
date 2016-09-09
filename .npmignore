@@ -7,7 +7,12 @@ node_modules/
 # no need to bring in the TS source
 lib
 
+# except we should include the typescript definitions
 !*.d.ts
 
-# oh god, don't pack this, like ever
+
+# no need to pull in docs
+docs
+
+# Git will be downloaded at install time, don't include in package
 git/
