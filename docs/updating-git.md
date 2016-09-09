@@ -13,7 +13,7 @@ The first thing to update is the root `config.version` entry:
 const config = {
   baseUrl: baseUrl,
   outputPath: path.join(__dirname, '..', 'git'),
-  version: '2.10.0', //
+  version: '2.10.0', // change this version to the latest public release of Git
   source: '',
   checksum: '',
   upstreamVersion: '',
