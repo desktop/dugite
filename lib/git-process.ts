@@ -121,6 +121,7 @@ export class GitProcess {
             // https://github.com/git/git/blob/1f66975deb8402131fbf7c14330d0c7cdebaeaa2/diff-no-index.c#L300
             console.debug(logMessage())
             resolve(output)
+            return
           }
         }
 
