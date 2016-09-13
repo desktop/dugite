@@ -41,7 +41,7 @@ After cloning down this repository, bootstrap your environment:
 
 ```sh
 # on Windows
-./script/bootstrap.sh
+.\script\bootstrap.bat
 # on macOS
 ./script/bootstrap
 ```
