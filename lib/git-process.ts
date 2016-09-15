@@ -77,25 +77,35 @@ export class GitProcess {
   public static execWithOutput(args: string[], path: string, customEnv?: Object, processCb?: (process: cp.ChildProcess) => void): Promise<string> {
     return new Promise<string>(function(resolve, reject) {
       const gitLocation = GitProcess.resolveGitBinary()
-      const startTime = performance.now()
-      const logMessage = () => {
-        const rawTime = performance.now() - startTime
 
-        let timing = ''
-        if (rawTime > 50) {
-          const time = (rawTime / 1000).toFixed(3)
-          timing = ` (took ${time}s)`
+      let logMessage: () => string
+      if (typeof performance === "undefined") {
+        logMessage = () => ''
+      } else {
+        const startTime = performance.now()
+        logMessage = () => {
+          const rawTime = performance.now() - startTime
+
+          let timing = ''
+          if (rawTime > 50) {
+            const time = (rawTime / 1000).toFixed(3)
+            timing = ` (took ${time}s)`
+          }
+
+          return `executing: git ${args.join(' ')}${timing}`
         }
-
-        return `executing: git ${args.join(' ')}${timing}`
       }
+
       const env = Object.assign({}, process.env, {
         GIT_EXEC_PATH: GitProcess.resolveGitExecPath(),
       }, customEnv)
 
       const spawnedProcess = cp.execFile(gitLocation, args, { cwd: path, encoding: 'utf8', env }, function(err, output, stdErr) {
         if (!err) {
-          console.debug(logMessage())
+          if (console.debug) {
+            console.debug(logMessage())
+          }
+
           resolve(output)
           return
         }
