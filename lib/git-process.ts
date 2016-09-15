@@ -108,6 +108,17 @@ export class GitProcess {
         PATH: envPath
       }, customEnv)
 
+      if (process.platform === 'win32') {
+        // while reading the environment variable is case-insensitive
+        // you can create a hash with multiple values, which means the
+        // wrong value might be used when spawning the child process
+        //
+        // this ensures we only ever supply one value for PATH
+        if (env.Path) {
+          delete env.Path
+        }
+      }
+
       const spawnedProcess = cp.execFile(gitLocation, args, { cwd: path, encoding: 'utf8', env }, function(err, output, stdErr) {
         if (!err) {
           if (console.debug) {
