@@ -96,8 +96,16 @@ export class GitProcess {
         }
       }
 
+      let envPath: string = process.env.PATH || ''
+
+      if (process.platform === 'win32') {
+        const gitDir = GitProcess.resolveGitDir()
+        envPath = `${gitDir}\\mingw64\\bin;${envPath}`
+      }
+
       const env = Object.assign({}, process.env, {
         GIT_EXEC_PATH: GitProcess.resolveGitExecPath(),
+        PATH: envPath
       }, customEnv)
 
       const spawnedProcess = cp.execFile(gitLocation, args, { cwd: path, encoding: 'utf8', env }, function(err, output, stdErr) {
