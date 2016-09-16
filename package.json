@@ -5,9 +5,10 @@
   "main": "./build/lib/index.js",
   "typings": "./build/lib/index.d.ts",
   "scripts": {
-    "build": "npm run lint && tsc -p ./tsconfig.json",
-    "prepublish": "npm run build",
+    "clean": "rimraf build",
     "lint": "tslint lib/**/*.ts",
+    "build": "npm run clean && npm run lint && tsc -p ./tsconfig.json",
+    "prepublish": "npm run build",
     "test": "mocha --require ts-node/register test/*.ts",
     "postinstall": "node ./build/lib/download-git.js"
   },
