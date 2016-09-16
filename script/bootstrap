@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # install pre-requisites so everything can be built
-npm install typescript@rc -g
+npm install typescript@rc
 npm install rimraf
 npm install tslint
 
