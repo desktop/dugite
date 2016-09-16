@@ -1,0 +1,28 @@
+notifications:
+  email:
+    on_success: never
+    on_failure: change
+
+os:
+  - osx
+
+branches:
+  only:
+    - master
+
+language: node_js
+node_js:
+  - "node"
+
+cache:
+  timeout: 600
+  directories:
+    - node_modules
+    - $HOME/.electron
+
+install:
+  - npm install
+
+script:
+  - npm run build
+  - npm test
