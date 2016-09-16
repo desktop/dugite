@@ -18,7 +18,7 @@ version: "{build}"
 install:
   - npm install -g npm
   - ps: Install-Product node $env:nodejs_version
-  - npm install
+  - script\bootstrap.bat
 
 build_script:
   - npm run build

@@ -21,7 +21,7 @@ cache:
     - $HOME/.electron
 
 install:
-  - npm install
+  - script/bootstrap
 
 script:
   - npm run build
