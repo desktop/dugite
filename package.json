@@ -8,9 +8,9 @@
     "clean": "rimraf build",
     "lint": "tslint lib/**/*.ts",
     "build": "npm run clean && npm run lint && tsc -p ./tsconfig.json",
-    "prepublish": "npm run build",
+    "prepublish": "node ./build/lib/download-git.js",
     "test": "mocha --require ts-node/register test/*.ts",
-    "postinstall": "node ./build/lib/download-git.js"
+    "postinstall": "npm run build"
   },
   "engines": {
     "node": ">= 6",
