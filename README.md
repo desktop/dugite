@@ -37,13 +37,10 @@ Potential Roadmap:
 
 ### Contributing
 
-After cloning down this repository, bootstrap your environment:
+After cloning down this repository, run:
 
 ```sh
-# on Windows
-.\script\bootstrap.bat
-# on macOS
-./script/bootstrap
+npm install
 ```
 
 And then you can create the package yourself:
