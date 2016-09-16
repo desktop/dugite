@@ -2,6 +2,7 @@
 
 # install pre-requisites so everything can be built
 npm install typescript@rc -g
+npm install rimraf
 npm install tslint
 
 # build the artefacts needed so that install works
