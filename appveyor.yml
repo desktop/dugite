@@ -24,4 +24,4 @@ build_script:
   - npm run build
 
 test_script:
-  - npm test
+  - TEST=1 npm test

@@ -35,7 +35,11 @@ export class GitProcess {
    *  Find the path to the embedded Git environment
    */
   private static resolveGitDir(): string {
-    return path.join(__dirname, '..', '..', 'git')
+    if (process.env.TEST) {
+      return path.join(__dirname, '..', 'git')
+    } else {
+      return path.join(__dirname, '..', '..', 'git')
+    }
   }
 
   /**
