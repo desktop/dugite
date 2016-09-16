@@ -17,7 +17,7 @@ const baseUrl = process.env.NPM_CONFIG_ELECTRON_MIRROR ||
 
 const config = {
   baseUrl: baseUrl,
-  outputPath: path.join(__dirname, '..', 'git'),
+  outputPath: path.join(__dirname, '..', '..', 'git'),
   version: '2.10.0',
   source: '',
   checksum: '',
