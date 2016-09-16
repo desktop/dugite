@@ -5,14 +5,18 @@ node_modules/
 *.tgz
 
 # no need to bring in the TS source
-lib
+/lib
+
+# don't ship tests
+test
 
 # except we should include the typescript definitions
 !*.d.ts
 
+# skip the other folders too
+/docs
+/script
 
-# no need to pull in docs
-docs
 
 # Git will be downloaded at install time, don't include in package
 git/
