@@ -105,7 +105,7 @@ export class GitProcess {
 
       const env = Object.assign({}, process.env, {
         GIT_EXEC_PATH: GitProcess.resolveGitExecPath(),
-        PATH: envPath
+        PATH: envPath,
       }, customEnv)
 
       if (process.platform === 'win32') {
