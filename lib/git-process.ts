@@ -77,25 +77,54 @@ export class GitProcess {
   public static execWithOutput(args: string[], path: string, customEnv?: Object, processCb?: (process: cp.ChildProcess) => void): Promise<string> {
     return new Promise<string>(function(resolve, reject) {
       const gitLocation = GitProcess.resolveGitBinary()
-      const startTime = performance.now()
-      const logMessage = () => {
-        const rawTime = performance.now() - startTime
 
-        let timing = ''
-        if (rawTime > 50) {
-          const time = (rawTime / 1000).toFixed(3)
-          timing = ` (took ${time}s)`
+      let logMessage: () => string
+      if (typeof performance === "undefined") {
+        logMessage = () => ''
+      } else {
+        const startTime = performance.now()
+        logMessage = () => {
+          const rawTime = performance.now() - startTime
+
+          let timing = ''
+          if (rawTime > 50) {
+            const time = (rawTime / 1000).toFixed(3)
+            timing = ` (took ${time}s)`
+          }
+
+          return `executing: git ${args.join(' ')}${timing}`
         }
-
-        return `executing: git ${args.join(' ')}${timing}`
       }
+
+      let envPath: string = process.env.PATH || ''
+
+      if (process.platform === 'win32') {
+        const gitDir = GitProcess.resolveGitDir()
+        envPath = `${gitDir}\\mingw64\\bin;${envPath}`
+      }
+
       const env = Object.assign({}, process.env, {
         GIT_EXEC_PATH: GitProcess.resolveGitExecPath(),
+        PATH: envPath,
       }, customEnv)
+
+      if (process.platform === 'win32') {
+        // while reading the environment variable is case-insensitive
+        // you can create a hash with multiple values, which means the
+        // wrong value might be used when spawning the child process
+        //
+        // this ensures we only ever supply one value for PATH
+        if (env.Path) {
+          delete env.Path
+        }
+      }
 
       const spawnedProcess = cp.execFile(gitLocation, args, { cwd: path, encoding: 'utf8', env }, function(err, output, stdErr) {
         if (!err) {
-          console.debug(logMessage())
+          if (console.debug) {
+            console.debug(logMessage())
+          }
+
           resolve(output)
           return
         }
