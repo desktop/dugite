@@ -10,7 +10,7 @@
     "build": "npm run clean && npm run lint && tsc -p ./tsconfig.json",
     "prepublish": "npm run build",
     "test": "mocha --require ts-node/register test/*.ts",
-    "postinstall": "node ./build/lib/download-git.js"
+    "postinstall": "node ./lib/download-git.js"
   },
   "engines": {
     "node": ">= 6",
