@@ -1,0 +1,28 @@
+os: Visual Studio 2015
+
+environment:
+  nodejs_version: "6"
+
+cache:
+  - node_modules
+  - '%USERPROFILE%\.electron'
+
+branches:
+  only:
+    - master
+
+skip_tags: true
+
+version: "{build}"
+
+install:
+  - npm install -g npm
+  - ps: Install-Product node $env:nodejs_version
+  - npm install
+
+build_script:
+  - npm run build
+
+test_script:
+  - set TEST=1
+  - npm test

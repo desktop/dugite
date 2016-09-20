@@ -15,7 +15,6 @@ test
 
 # skip the other folders too
 /docs
-/script
 
 
 # Git will be downloaded at install time, don't include in package
