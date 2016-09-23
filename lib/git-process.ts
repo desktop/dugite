@@ -123,7 +123,13 @@ export class GitProcess {
         }
       }
 
-      const spawnedProcess = cp.execFile(gitLocation, args, { cwd: path, encoding: 'utf8', env }, function(err, output, stdErr) {
+      const opts = {
+        cwd: path,
+        encoding: 'utf8',
+        maxBuffer: 10 * 1024 * 1024,
+        env
+      }
+      const spawnedProcess = cp.execFile(gitLocation, args, opts, function(err, output, stdErr) {
         if (!err) {
           if (console.debug) {
             console.debug(logMessage())
