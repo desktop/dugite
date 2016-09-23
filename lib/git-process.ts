@@ -135,22 +135,22 @@ export class GitProcess {
             console.debug(logMessage())
           }
 
-          resolve(output)
+          resolve(output.toString())
           return
         }
 
         if ((err as any).code) {
-          console.error(stdErr)
+          console.error(stdErr.toString())
           console.error(err)
 
           // TODO: handle more error codes
           const code: number = (err as any).code
           if (code === gitNotFoundErrorCode) {
-            reject(new GitError(GitErrorCode.NotFound, stdErr))
+            reject(new GitError(GitErrorCode.NotFound, stdErr.toString()))
             return
           }
 
-          if (code === gitChangesExistErrorCode && output !== '') {
+          if (code === gitChangesExistErrorCode && output.toString() !== '') {
             // `git diff` seems to emulate the exit codes from `diff`
             // irrespective of whether you set --exit-code
             //
@@ -162,7 +162,7 @@ export class GitProcess {
             // citation in source:
             // https://github.com/git/git/blob/1f66975deb8402131fbf7c14330d0c7cdebaeaa2/diff-no-index.c#L300
             console.debug(logMessage())
-            resolve(output)
+            resolve(output.toString())
             return
           }
         }
