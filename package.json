@@ -9,7 +9,7 @@
     "lint": "tslint lib/**/*.ts",
     "build": "npm run clean && npm run lint && tsc -p ./tsconfig.json",
     "prepublish": "npm run build",
-    "test": "mocha --require ts-node/register test/*.ts",
+    "test": "TEST=1 mocha --require ts-node/register test/*.ts",
     "postinstall": "node ./script/download-git.js"
   },
   "engines": {
