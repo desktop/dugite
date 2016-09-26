@@ -123,6 +123,11 @@ export class GitProcess {
         }
       }
 
+      // Explicitly annotate opts since typescript is unable to infer the correct
+      // signature for execFile when options is passed as an opaque hash. The type
+      // definition for execFile currently infers based on the encoding parameter
+      // which could change between declaration time and being passed to execFile.
+      // See https://git.io/vixyQ
       const opts: ExecOptionsWithStringEncoding = {
         cwd: path,
         encoding: 'utf8',
