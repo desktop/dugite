@@ -1,11 +1,8 @@
 import * as path from 'path'
 import { execFile, ChildProcess, ExecOptionsWithStringEncoding } from 'child_process'
 
-const gitNotFoundErrorCode: number = 128
-const gitChangesExistErrorCode: number = 1
-
 export enum GitErrorCode {
-  NotFound
+  NotFound = 128
 }
 
 /**
@@ -145,35 +142,14 @@ export class GitProcess {
           return
         }
 
-        if ((err as any).code) {
-          console.error(stdErr)
-          console.error(err)
-
-          // TODO: handle more error codes
-          const code: number = (err as any).code
-          if (code === gitNotFoundErrorCode) {
-            reject(new GitError(GitErrorCode.NotFound, stdErr))
-            return
-          }
-
-          if (code === gitChangesExistErrorCode && output !== '') {
-            // `git diff` seems to emulate the exit codes from `diff`
-            // irrespective of whether you set --exit-code
-            //
-            // this is the behaviour:
-            // - 0 if no changes found
-            // - 1 if changes found
-            // -   and error otherwise
-            //
-            // citation in source:
-            // https://github.com/git/git/blob/1f66975deb8402131fbf7c14330d0c7cdebaeaa2/diff-no-index.c#L300
-            console.debug(logMessage())
-            resolve(output)
-            return
-          }
+        const code = (err as any).code
+        if (code === GitErrorCode.NotFound) {
+          reject(new GitError(GitErrorCode.NotFound, stdErr))
+          return
         }
 
         console.error(logMessage())
+        console.error(stdErr)
         console.error(err)
         reject(err)
       })
