@@ -1,5 +1,5 @@
 import * as path from 'path'
-import * as cp from 'child_process'
+import { execFile, ChildProcess, ExecOptionsWithStringEncoding } from 'child_process'
 
 const gitNotFoundErrorCode: number = 128
 const gitChangesExistErrorCode: number = 1
@@ -71,14 +71,14 @@ export class GitProcess {
   /**
    *  Execute a command using the embedded Git environment
    */
-  public static exec(args: string[], path: string, customEnv?: Object, processCb?: (process: cp.ChildProcess) => void): Promise<void> {
+  public static exec(args: string[], path: string, customEnv?: Object, processCb?: (process: ChildProcess) => void): Promise<void> {
     return GitProcess.execWithOutput(args, path, customEnv, processCb)
   }
 
   /**
    *  Execute a command and read the output using the embedded Git environment
    */
-  public static execWithOutput(args: string[], path: string, customEnv?: Object, processCb?: (process: cp.ChildProcess) => void): Promise<string> {
+  public static execWithOutput(args: string[], path: string, customEnv?: Object, processCb?: (process: ChildProcess) => void): Promise<string> {
     return new Promise<string>(function(resolve, reject) {
       const gitLocation = GitProcess.resolveGitBinary()
 
@@ -123,34 +123,40 @@ export class GitProcess {
         }
       }
 
-      const opts = {
+      // Explicitly annotate opts since typescript is unable to infer the correct
+      // signature for execFile when options is passed as an opaque hash. The type
+      // definition for execFile currently infers based on the encoding parameter
+      // which could change between declaration time and being passed to execFile.
+      // See https://git.io/vixyQ
+      const opts: ExecOptionsWithStringEncoding = {
         cwd: path,
         encoding: 'utf8',
         maxBuffer: 10 * 1024 * 1024,
         env
       }
-      const spawnedProcess = cp.execFile(gitLocation, args, opts, function(err, output, stdErr) {
+
+      const spawnedProcess = execFile(gitLocation, args, opts, function(err, output, stdErr) {
         if (!err) {
           if (console.debug) {
             console.debug(logMessage())
           }
 
-          resolve(output.toString())
+          resolve(output)
           return
         }
 
         if ((err as any).code) {
-          console.error(stdErr.toString())
+          console.error(stdErr)
           console.error(err)
 
           // TODO: handle more error codes
           const code: number = (err as any).code
           if (code === gitNotFoundErrorCode) {
-            reject(new GitError(GitErrorCode.NotFound, stdErr.toString()))
+            reject(new GitError(GitErrorCode.NotFound, stdErr))
             return
           }
 
-          if (code === gitChangesExistErrorCode && output.toString() !== '') {
+          if (code === gitChangesExistErrorCode && output !== '') {
             // `git diff` seems to emulate the exit codes from `diff`
             // irrespective of whether you set --exit-code
             //
@@ -162,7 +168,7 @@ export class GitProcess {
             // citation in source:
             // https://github.com/git/git/blob/1f66975deb8402131fbf7c14330d0c7cdebaeaa2/diff-no-index.c#L300
             console.debug(logMessage())
-            resolve(output.toString())
+            resolve(output)
             return
           }
         }
