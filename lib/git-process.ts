@@ -1,5 +1,5 @@
 import * as path from 'path'
-import * as cp from 'child_process'
+import { execFile, ChildProcess } from 'child_process'
 
 const gitNotFoundErrorCode: number = 128
 const gitChangesExistErrorCode: number = 1
@@ -71,14 +71,14 @@ export class GitProcess {
   /**
    *  Execute a command using the embedded Git environment
    */
-  public static exec(args: string[], path: string, customEnv?: Object, processCb?: (process: cp.ChildProcess) => void): Promise<void> {
+  public static exec(args: string[], path: string, customEnv?: Object, processCb?: (process: ChildProcess) => void): Promise<void> {
     return GitProcess.execWithOutput(args, path, customEnv, processCb)
   }
 
   /**
    *  Execute a command and read the output using the embedded Git environment
    */
-  public static execWithOutput(args: string[], path: string, customEnv?: Object, processCb?: (process: cp.ChildProcess) => void): Promise<string> {
+  public static execWithOutput(args: string[], path: string, customEnv?: Object, processCb?: (process: ChildProcess) => void): Promise<string> {
     return new Promise<string>(function(resolve, reject) {
       const gitLocation = GitProcess.resolveGitBinary()
 
@@ -129,7 +129,8 @@ export class GitProcess {
         maxBuffer: 10 * 1024 * 1024,
         env
       }
-      const spawnedProcess = cp.execFile(gitLocation, args, opts, function(err, output, stdErr) {
+
+      const spawnedProcess = execFile(gitLocation, args, opts, function(err, output, stdErr) {
         if (!err) {
           if (console.debug) {
             console.debug(logMessage())
