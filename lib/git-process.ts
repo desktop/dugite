@@ -138,7 +138,7 @@ export class GitProcess {
       }
 
       const spawnedProcess = execFile(gitLocation, args, opts, function(err, stdout, stderr) {
-        const code = (err as any).code || 0
+        const code = err ? (err as any).code : 0
         if (code === GitErrorCode.NotFound) {
           reject(new GitError(GitErrorCode.NotFound, stderr))
         } else {
