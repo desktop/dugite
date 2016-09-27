@@ -1,31 +1,6 @@
 import * as path from 'path'
 import { execFile, ChildProcess, ExecOptionsWithStringEncoding } from 'child_process'
-
-export enum GitErrorCode {
-  NotFound = 128
-}
-
-/**
- * Encapsulate the error from Git for callers to handle
- */
-export class GitError extends Error {
-  /**
-   * The error code returned from the Git process
-   */
-  public readonly errorCode: GitErrorCode
-
-  /**
-   * The error text returned from the Git process
-   */
-  public readonly errorOutput: string
-
-  public constructor(errorCode: number, errorOutput: string) {
-    super()
-
-    this.errorCode = errorCode
-    this.errorOutput = errorOutput
-  }
-}
+import { GitError, GitErrorRegexes, GitNotFoundExitCode } from './errors'
 
 export class GitProcess {
   /**
@@ -143,8 +118,8 @@ export class GitProcess {
         }
 
         const code = (err as any).code
-        if (code === GitErrorCode.NotFound) {
-          reject(new GitError(GitErrorCode.NotFound, stdErr))
+        if (code === GitNotFoundExitCode) {
+          reject(new Error('Git could not be found. This is most likely a problem in git-kitchen-sink itself.'))
           return
         }
 
@@ -158,5 +133,17 @@ export class GitProcess {
         processCb(spawnedProcess)
       }
     })
+  }
+
+  /** Try to parse an error type from stderr. */
+  public static parseError(stderr: string): GitError | null {
+    for (const regex in GitErrorRegexes) {
+      if (stderr.match(regex)) {
+        const error: GitError = (GitErrorRegexes as any)[regex]
+        return error
+      }
+    }
+
+    return null
   }
 }
