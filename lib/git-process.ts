@@ -1,9 +1,6 @@
 import * as path from 'path'
 import { execFile, ChildProcess, ExecOptionsWithStringEncoding } from 'child_process'
-
-export enum GitErrorCode {
-  NotFound = 128
-}
+import { GitError, GitErrorRegexes, GitNotFoundExitCode } from './errors'
 
 /** The result of shelling out to git. */
 export interface IResult {
@@ -15,28 +12,6 @@ export interface IResult {
 
   /** The exit code of the git process. */
   readonly exitCode: number
-}
-
-/**
- * Encapsulate the error from Git for callers to handle
- */
-export class GitError extends Error {
-  /**
-   * The error code returned from the Git process
-   */
-  public readonly errorCode: GitErrorCode
-
-  /**
-   * The error text returned from the Git process
-   */
-  public readonly errorOutput: string
-
-  public constructor(errorCode: number, errorOutput: string) {
-    super()
-
-    this.errorCode = errorCode
-    this.errorOutput = errorOutput
-  }
 }
 
 export class GitProcess {
@@ -139,28 +114,41 @@ export class GitProcess {
 
       const spawnedProcess = execFile(gitLocation, args, opts, function(err, stdout, stderr) {
         const code = err ? (err as any).code : 0
-        if (code === GitErrorCode.NotFound) {
-          reject(new GitError(GitErrorCode.NotFound, stderr))
-        } else {
-          if (console.debug && startTime) {
-            const rawTime = performance.now() - startTime
+        if (code === GitNotFoundExitCode) {
+          reject(new Error('Git could not be found. This is most likely a problem in git-kitchen-sink itself.'))
+          return
+        }
 
-            let timing = ''
-            if (rawTime > 50) {
-              const time = (rawTime / 1000).toFixed(3)
-              timing = ` (took ${time}s)`
-            }
+        if (console.debug && startTime) {
+          const rawTime = performance.now() - startTime
 
-            console.debug(`executing: git ${args.join(' ')}${timing}`)
+          let timing = ''
+          if (rawTime > 50) {
+            const time = (rawTime / 1000).toFixed(3)
+            timing = ` (took ${time}s)`
           }
 
-          resolve({ stdout, stderr, exitCode: code })
+          console.debug(`executing: git ${args.join(' ')}${timing}`)
         }
+
+        resolve({ stdout, stderr, exitCode: code })
       })
 
       if (processCb) {
         processCb(spawnedProcess)
       }
     })
+  }
+
+  /** Try to parse an error type from stderr. */
+  public static parseError(stderr: string): GitError | null {
+    for (const regex in GitErrorRegexes) {
+      if (stderr.match(regex)) {
+        const error: GitError = (GitErrorRegexes as any)[regex]
+        return error
+      }
+    }
+
+    return null
   }
 }
