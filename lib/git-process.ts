@@ -2,6 +2,18 @@ import * as path from 'path'
 import { execFile, ChildProcess, ExecOptionsWithStringEncoding } from 'child_process'
 import { GitError, GitErrorRegexes, GitNotFoundExitCode } from './errors'
 
+/** The result of shelling out to git. */
+export interface IResult {
+  /** The standard output from git. */
+  readonly stdout: string
+
+  /** The standard error output from git. */
+  readonly stderr: string
+
+  /** The exit code of the git process. */
+  readonly exitCode: number
+}
+
 export class GitProcess {
   /**
    *  Find the path to the embedded Git environment
@@ -41,35 +53,28 @@ export class GitProcess {
   }
 
   /**
-   *  Execute a command using the embedded Git environment
+   * Execute a command using the embedded Git environment
+   *
+   * The returned promise will only reject when git cannot be found. See the
+   * result's `stderr` and `exitCode` for any potential error information.
    */
   public static exec(args: string[], path: string, customEnv?: Object, processCb?: (process: ChildProcess) => void): Promise<void> {
     return GitProcess.execWithOutput(args, path, customEnv, processCb)
   }
 
   /**
-   *  Execute a command and read the output using the embedded Git environment
+   * Execute a command and read the output using the embedded Git environment.
+   *
+   * The returned promise will only reject when git cannot be found. See the
+   * result's `stderr` and `exitCode` for any potential error information.
    */
-  public static execWithOutput(args: string[], path: string, customEnv?: Object, processCb?: (process: ChildProcess) => void): Promise<string> {
-    return new Promise<string>(function(resolve, reject) {
+  public static execWithOutput(args: string[], path: string, customEnv?: Object, processCb?: (process: ChildProcess) => void): Promise<IResult> {
+    return new Promise<IResult>(function(resolve, reject) {
       const gitLocation = GitProcess.resolveGitBinary()
 
-      let logMessage: () => string
-      if (typeof performance === "undefined") {
-        logMessage = () => ''
-      } else {
-        const startTime = performance.now()
-        logMessage = () => {
-          const rawTime = performance.now() - startTime
-
-          let timing = ''
-          if (rawTime > 50) {
-            const time = (rawTime / 1000).toFixed(3)
-            timing = ` (took ${time}s)`
-          }
-
-          return `executing: git ${args.join(' ')}${timing}`
-        }
+      let startTime: number | null = null
+      if (typeof performance !== "undefined") {
+        startTime = performance.now()
       }
 
       let envPath: string = process.env.PATH || ''
@@ -107,26 +112,26 @@ export class GitProcess {
         env
       }
 
-      const spawnedProcess = execFile(gitLocation, args, opts, function(err, output, stdErr) {
-        if (!err) {
-          if (console.debug) {
-            console.debug(logMessage())
-          }
-
-          resolve(output)
-          return
-        }
-
-        const code = (err as any).code
+      const spawnedProcess = execFile(gitLocation, args, opts, function(err, stdout, stderr) {
+        const code = err ? (err as any).code : 0
         if (code === GitNotFoundExitCode) {
           reject(new Error('Git could not be found. This is most likely a problem in git-kitchen-sink itself.'))
           return
         }
 
-        console.error(logMessage())
-        console.error(stdErr)
-        console.error(err)
-        reject(err)
+        if (console.debug && startTime) {
+          const rawTime = performance.now() - startTime
+
+          let timing = ''
+          if (rawTime > 50) {
+            const time = (rawTime / 1000).toFixed(3)
+            timing = ` (took ${time}s)`
+          }
+
+          console.debug(`executing: git ${args.join(' ')}${timing}`)
+        }
+
+        resolve({ stdout, stderr, exitCode: code })
       })
 
       if (processCb) {
