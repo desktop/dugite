@@ -7,10 +7,10 @@ export enum GitErrorCode {
 
 /** The result of shelling out to git. */
 export interface IResult {
-  /** The stdout from git. */
+  /** The standard output from git. */
   readonly stdout: string
 
-  /** The stderr from git. */
+  /** The standard error output from git. */
   readonly stderr: string
 
   /** The exit code of the git process. */
