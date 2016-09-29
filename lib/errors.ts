@@ -60,4 +60,5 @@ export const GitErrorRegexes = {
 }
 
 /** The exit code when git can't be found. */
-export const GitNotFoundExitCode = 128
+export const GitNotFoundExitCode = 127
+export const RepositoryNotFoundExitCode = 128
