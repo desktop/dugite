@@ -1,6 +1,8 @@
 import * as path from 'path'
+import * as fs from 'fs'
+
 import { execFile, ChildProcess, ExecOptionsWithStringEncoding } from 'child_process'
-import { GitError, GitErrorRegexes, GitNotFoundExitCode } from './errors'
+import { GitError, GitErrorRegexes, NotFoundExitCode } from './errors'
 
 /** The result of shelling out to git. */
 export interface IResult {
@@ -50,6 +52,15 @@ export class GitProcess {
     }
 
     throw new Error('Git not supported on platform: ' + process.platform)
+  }
+
+  private static pathExists(path: string): Boolean {
+    try {
+        fs.accessSync(path, (fs.F_OK as any));
+        return true
+    } catch (e) {
+        return false
+    }
   }
 
   /**
@@ -114,7 +125,12 @@ export class GitProcess {
 
       const spawnedProcess = execFile(gitLocation, args, opts, function(err, stdout, stderr) {
         const code = err ? (err as any).code : 0
-        if (code === GitNotFoundExitCode) {
+        if (code === NotFoundExitCode) {
+          if (GitProcess.pathExists(path) === false) {
+            reject(new Error('Unable to find path to repository on disk.'))
+            return
+          }
+
           reject(new Error('Git could not be found. This is most likely a problem in git-kitchen-sink itself.'))
           return
         }
