@@ -3,7 +3,7 @@ import { execFile, ChildProcess, ExecOptionsWithStringEncoding } from 'child_pro
 import { GitError, GitErrorRegexes, GitNotFoundExitCode } from './errors'
 
 /** The result of shelling out to git. */
-export interface IResult {
+export interface IGitResult {
   /** The standard output from git. */
   readonly stdout: string
 
@@ -68,8 +68,8 @@ export class GitProcess {
    * The returned promise will only reject when git cannot be found. See the
    * result's `stderr` and `exitCode` for any potential error information.
    */
-  public static execWithOutput(args: string[], path: string, customEnv?: Object, processCb?: (process: ChildProcess) => void): Promise<IResult> {
-    return new Promise<IResult>(function(resolve, reject) {
+  public static execWithOutput(args: string[], path: string, customEnv?: Object, processCb?: (process: ChildProcess) => void): Promise<IGitResult> {
+    return new Promise<IGitResult>(function(resolve, reject) {
       const gitLocation = GitProcess.resolveGitBinary()
 
       let startTime: number | null = null
