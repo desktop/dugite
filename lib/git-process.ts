@@ -56,7 +56,7 @@ export class GitProcess {
 
   private static pathExists(path: string): Boolean {
     try {
-        fs.accessSync(path, (fs.F_OK as any));
+        fs.accessSync(path, (fs as any).F_OK);
         return true
     } catch (e) {
         return false
