@@ -60,5 +60,6 @@ export const GitErrorRegexes = {
 }
 
 /** The exit code when git can't be found. */
-export const GitNotFoundExitCode = 127
+export const GitNotFoundExitCode = "ENOENT"
+/** The exit code when the directory used is not a Git repository. */
 export const RepositoryNotFoundExitCode = 128
