@@ -59,5 +59,7 @@ export const GitErrorRegexes = {
   "fatal: A branch named '(.+)' already exists.": GitError.BranchAlreadyExists,
 }
 
-/** The exit code when git can't be found. */
-export const GitNotFoundExitCode = 128
+/** The exit code for 'Error No Entry' which could mean many things */
+export const NotFoundExitCode = "ENOENT"
+/** The exit code when the directory used is not a Git repository. */
+export const RepositoryNotFoundExitCode = 128
