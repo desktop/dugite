@@ -1,2 +1,2 @@
-export { GitProcess } from './git-process'
+export { GitProcess, IGitResult } from './git-process'
 export { GitError } from './errors'
