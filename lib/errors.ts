@@ -61,5 +61,3 @@ export const GitErrorRegexes = {
 
 /** The exit code for 'Error No Entry' which could mean many things */
 export const NotFoundExitCode = "ENOENT"
-/** The exit code when the directory used is not a Git repository. */
-export const RepositoryNotFoundExitCode = 128
