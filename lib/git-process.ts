@@ -83,22 +83,12 @@ export class GitProcess {
   }
 
   /**
-   * Execute a command using the embedded Git environment
-   *
-   * The returned promise will only reject when git cannot be found. See the
-   * result's `stderr` and `exitCode` for any potential error information.
-   */
-  public static exec(args: string[], path: string, options?: IGitExecutionOptions): Promise<void> {
-    return GitProcess.execWithOutput(args, path, options)
-  }
-
-  /**
    * Execute a command and read the output using the embedded Git environment.
    *
-   * The returned promise will only reject when git cannot be found. See the
-   * result's `stderr` and `exitCode` for any potential error information.
+   * The returned promise will only reject when the git executable failed to launch.
+   * See the result's `stderr` and `exitCode` for any potential error information.
    */
-  public static execWithOutput(args: string[], path: string, options?: IGitExecutionOptions): Promise<IGitResult> {
+  public static exec(args: string[], path: string, options?: IGitExecutionOptions): Promise<IGitResult> {
     return new Promise<IGitResult>(function(resolve, reject) {
       const gitLocation = GitProcess.resolveGitBinary()
 
