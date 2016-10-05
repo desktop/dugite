@@ -16,6 +16,25 @@ export interface IGitResult {
   readonly exitCode: number
 }
 
+/**
+ * A set of configuration options that can be passed when
+ * executing a git command.
+ */
+export interface IGitExecutionOptions {
+  /**
+   * An optional collection of key-value pairs which will be
+   * set as environment variables before executing the git
+   * process.
+   */
+  readonly env?: Object,
+
+  /**
+   * An optional callback which will be invoked with the child
+   * process instance immediately after spawning the git process.
+   */
+  readonly processCallback?: (process: ChildProcess) => void
+}
+
 export class GitProcess {
   /**
    *  Find the path to the embedded Git environment
@@ -69,8 +88,8 @@ export class GitProcess {
    * The returned promise will only reject when git cannot be found. See the
    * result's `stderr` and `exitCode` for any potential error information.
    */
-  public static exec(args: string[], path: string, customEnv?: Object, processCb?: (process: ChildProcess) => void): Promise<void> {
-    return GitProcess.execWithOutput(args, path, customEnv, processCb)
+  public static exec(args: string[], path: string, options?: IGitExecutionOptions): Promise<void> {
+    return GitProcess.execWithOutput(args, path, options)
   }
 
   /**
@@ -79,7 +98,7 @@ export class GitProcess {
    * The returned promise will only reject when git cannot be found. See the
    * result's `stderr` and `exitCode` for any potential error information.
    */
-  public static execWithOutput(args: string[], path: string, customEnv?: Object, processCb?: (process: ChildProcess) => void): Promise<IGitResult> {
+  public static execWithOutput(args: string[], path: string, options?: IGitExecutionOptions): Promise<IGitResult> {
     return new Promise<IGitResult>(function(resolve, reject) {
       const gitLocation = GitProcess.resolveGitBinary()
 
@@ -98,7 +117,7 @@ export class GitProcess {
       const env = Object.assign({}, process.env, {
         GIT_EXEC_PATH: GitProcess.resolveGitExecPath(),
         PATH: envPath,
-      }, customEnv)
+      }, options ? options.env : { })
 
       if (process.platform === 'win32') {
         // while reading the environment variable is case-insensitive
@@ -116,14 +135,14 @@ export class GitProcess {
       // definition for execFile currently infers based on the encoding parameter
       // which could change between declaration time and being passed to execFile.
       // See https://git.io/vixyQ
-      const opts: ExecOptionsWithStringEncoding = {
+      const execOptions: ExecOptionsWithStringEncoding = {
         cwd: path,
         encoding: 'utf8',
         maxBuffer: 10 * 1024 * 1024,
         env
       }
 
-      const spawnedProcess = execFile(gitLocation, args, opts, function(err, stdout, stderr) {
+      const spawnedProcess = execFile(gitLocation, args, execOptions, function(err, stdout, stderr) {
         const code = err ? (err as any).code : 0
         if (code === NotFoundExitCode) {
           if (GitProcess.pathExists(path) === false) {
@@ -150,8 +169,8 @@ export class GitProcess {
         resolve({ stdout, stderr, exitCode: code })
       })
 
-      if (processCb) {
-        processCb(spawnedProcess)
+      if (options && options.processCallback) {
+        options.processCallback(spawnedProcess)
       }
     })
   }
