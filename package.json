@@ -9,6 +9,7 @@
     "lint": "tslint lib/**/*.ts",
     "build": "npm run clean && npm run lint && tsc -p ./tsconfig.json",
     "prepublish": "npm run build",
+    "postpublish": "git push && git push --tags",
     "test": "cross-env TEST=1 mocha --require ts-node/register test/*.ts",
     "postinstall": "node ./script/download-git.js"
   },
