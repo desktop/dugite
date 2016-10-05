@@ -16,6 +16,10 @@ export interface IGitResult {
   readonly exitCode: number
 }
 
+/**
+ * A set of configuration options that can be passed when
+ * executing a git command.
+ */
 export interface IGitExecutionOptions {
   /**
    * An optional collection of key-value pairs which will be
