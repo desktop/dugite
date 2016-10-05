@@ -2,7 +2,6 @@ import * as chai from 'chai'
 const expect = chai.expect
 
 import * as path from 'path'
-
 import { GitProcess, GitError } from '../lib'
 
 const temp = require('temp').track()
