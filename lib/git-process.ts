@@ -1,7 +1,7 @@
 import * as path from 'path'
 import * as fs from 'fs'
 
-import { execFile, ChildProcess, ExecOptionsWithStringEncoding } from 'child_process'
+import { execFile, ExecOptionsWithStringEncoding } from 'child_process'
 import { GitError, GitErrorRegexes, NotFoundExitCode } from './errors'
 
 /** The result of shelling out to git. */
@@ -29,10 +29,17 @@ export interface IGitExecutionOptions {
   readonly env?: Object,
 
   /**
-   * An optional callback which will be invoked with the child
-   * process instance immediately after spawning the git process.
+   * An optional string or buffer which will be written to
+   * the child process stdin stream immediately immediately
+   * after spawning the process.
    */
-  readonly processCallback?: (process: ChildProcess) => void
+  readonly stdin?: string | Buffer
+
+  /**
+   * The encoding to use when writing to stdin, if the stdin
+   * parameter is a string.
+   */
+  readonly stdinEncoding?: string
 }
 
 export class GitProcess {
@@ -142,8 +149,9 @@ export class GitProcess {
         resolve({ stdout, stderr, exitCode: code })
       })
 
-      if (options && options.processCallback) {
-        options.processCallback(spawnedProcess)
+      if (options && options.stdin) {
+        // See https://github.com/nodejs/node/blob/7b5ffa46fe4d2868c1662694da06eb55ec744bde/test/parallel/test-stdin-pipe-large.js
+        spawnedProcess.stdin.end(options.stdin, options.stdinEncoding)
       }
     })
   }
