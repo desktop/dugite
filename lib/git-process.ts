@@ -92,11 +92,6 @@ export class GitProcess {
     return new Promise<IGitResult>(function(resolve, reject) {
       const gitLocation = GitProcess.resolveGitBinary()
 
-      let startTime: number | null = null
-      if (typeof performance !== "undefined") {
-        startTime = performance.now()
-      }
-
       let envPath: string = process.env.PATH || ''
 
       if (process.platform === 'win32') {
@@ -142,18 +137,6 @@ export class GitProcess {
 
           reject(new Error('Git could not be found. This is most likely a problem in git-kitchen-sink itself.'))
           return
-        }
-
-        if (console.debug && startTime) {
-          const rawTime = performance.now() - startTime
-
-          let timing = ''
-          if (rawTime > 50) {
-            const time = (rawTime / 1000).toFixed(3)
-            timing = ` (took ${time}s)`
-          }
-
-          console.debug(`executing: git ${args.join(' ')}${timing}`)
         }
 
         resolve({ stdout, stderr, exitCode: code })
