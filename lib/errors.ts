@@ -27,6 +27,7 @@ export enum GitError {
   NonFastForwardMergeIntoEmptyHead,
   PatchDoesNotApply,
   BranchAlreadyExists,
+  BadRevision,
 }
 
 /** A mapping from regexes to the git error they identify. */
@@ -57,6 +58,7 @@ export const GitErrorRegexes = {
   "fatal: Non-fast-forward commit does not make sense into an empty head": GitError.NonFastForwardMergeIntoEmptyHead,
   "error: (.+): (patch does not apply|already exists in working directory)": GitError.PatchDoesNotApply,
   "fatal: A branch named '(.+)' already exists.": GitError.BranchAlreadyExists,
+  "fatal: bad revision '(.*)'": GitError.BadRevision,
 }
 
 /** The exit code for 'Error No Entry' which could mean many things */
