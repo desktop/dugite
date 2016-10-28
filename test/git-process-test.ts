@@ -37,5 +37,10 @@ describe('git-process', () => {
       const error = GitProcess.parseError('fatal: Authentication failed')
       expect(error).to.equal(GitError.SSHAuthenticationFailed)
     })
+
+    it('can parse bad revision errors', () => {
+      const error = GitProcess.parseError("fatal: bad revision 'beta..origin/beta'")
+      expect(error).to.equal(GitError.BadRevision)
+    })
   })
 })
