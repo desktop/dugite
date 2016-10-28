@@ -1,8 +1,9 @@
 import * as path from 'path'
 import * as fs from 'fs'
 
-import { execFile, ChildProcess, ExecOptionsWithStringEncoding } from 'child_process'
+import { execFile, ExecOptionsWithStringEncoding } from 'child_process'
 import { GitError, GitErrorRegexes, NotFoundExitCode } from './errors'
+import { ChildProcess } from 'child_process'
 
 /** The result of shelling out to git. */
 export interface IGitResult {
@@ -14,6 +15,41 @@ export interface IGitResult {
 
   /** The exit code of the git process. */
   readonly exitCode: number
+}
+
+/**
+ * A set of configuration options that can be passed when
+ * executing a git command.
+ */
+export interface IGitExecutionOptions {
+  /**
+   * An optional collection of key-value pairs which will be
+   * set as environment variables before executing the git
+   * process.
+   */
+  readonly env?: Object,
+
+  /**
+   * An optional string or buffer which will be written to
+   * the child process stdin stream immediately immediately
+   * after spawning the process.
+   */
+  readonly stdin?: string | Buffer
+
+  /**
+   * The encoding to use when writing to stdin, if the stdin
+   * parameter is a string.
+   */
+  readonly stdinEncoding?: string
+
+  /**
+   * An optional callback which will be invoked with the child
+   * process instance after spawning the git process.
+   *
+   * Note that if the stdin parameter was specified the stdin
+   * stream will be closed by the time this callback fires.
+   */
+   readonly processCallback?: (process: ChildProcess) => void
 }
 
 export class GitProcess {
@@ -64,29 +100,14 @@ export class GitProcess {
   }
 
   /**
-   * Execute a command using the embedded Git environment
-   *
-   * The returned promise will only reject when git cannot be found. See the
-   * result's `stderr` and `exitCode` for any potential error information.
-   */
-  public static exec(args: string[], path: string, customEnv?: Object, processCb?: (process: ChildProcess) => void): Promise<void> {
-    return GitProcess.execWithOutput(args, path, customEnv, processCb)
-  }
-
-  /**
    * Execute a command and read the output using the embedded Git environment.
    *
-   * The returned promise will only reject when git cannot be found. See the
-   * result's `stderr` and `exitCode` for any potential error information.
+   * The returned promise will only reject when the git executable failed to launch.
+   * See the result's `stderr` and `exitCode` for any potential error information.
    */
-  public static execWithOutput(args: string[], path: string, customEnv?: Object, processCb?: (process: ChildProcess) => void): Promise<IGitResult> {
+  public static exec(args: string[], path: string, options?: IGitExecutionOptions): Promise<IGitResult> {
     return new Promise<IGitResult>(function(resolve, reject) {
       const gitLocation = GitProcess.resolveGitBinary()
-
-      let startTime: number | null = null
-      if (typeof performance !== "undefined") {
-        startTime = performance.now()
-      }
 
       let envPath: string = process.env.PATH || ''
 
@@ -98,7 +119,7 @@ export class GitProcess {
       const env = Object.assign({}, process.env, {
         GIT_EXEC_PATH: GitProcess.resolveGitExecPath(),
         PATH: envPath,
-      }, customEnv)
+      }, options ? options.env : { })
 
       if (process.platform === 'win32') {
         // while reading the environment variable is case-insensitive
@@ -116,14 +137,14 @@ export class GitProcess {
       // definition for execFile currently infers based on the encoding parameter
       // which could change between declaration time and being passed to execFile.
       // See https://git.io/vixyQ
-      const opts: ExecOptionsWithStringEncoding = {
+      const execOptions: ExecOptionsWithStringEncoding = {
         cwd: path,
         encoding: 'utf8',
         maxBuffer: 10 * 1024 * 1024,
         env
       }
 
-      const spawnedProcess = execFile(gitLocation, args, opts, function(err, stdout, stderr) {
+      const spawnedProcess = execFile(gitLocation, args, execOptions, function(err, stdout, stderr) {
         const code = err ? (err as any).code : 0
         if (code === NotFoundExitCode) {
           if (GitProcess.pathExists(path) === false) {
@@ -135,23 +156,16 @@ export class GitProcess {
           return
         }
 
-        if (console.debug && startTime) {
-          const rawTime = performance.now() - startTime
-
-          let timing = ''
-          if (rawTime > 50) {
-            const time = (rawTime / 1000).toFixed(3)
-            timing = ` (took ${time}s)`
-          }
-
-          console.debug(`executing: git ${args.join(' ')}${timing}`)
-        }
-
         resolve({ stdout, stderr, exitCode: code })
       })
 
-      if (processCb) {
-        processCb(spawnedProcess)
+      if (options && options.stdin) {
+        // See https://github.com/nodejs/node/blob/7b5ffa46fe4d2868c1662694da06eb55ec744bde/test/parallel/test-stdin-pipe-large.js
+        spawnedProcess.stdin.end(options.stdin, options.stdinEncoding)
+      }
+
+      if (options && options.processCallback) {
+        options.processCallback(spawnedProcess)
       }
     })
   }

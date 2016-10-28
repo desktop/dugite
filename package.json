@@ -1,6 +1,6 @@
 {
   "name": "git-kitchen-sink",
-  "version": "1.9.0",
+  "version": "1.11.0",
   "description": "Incorporate Git into your Electron application",
   "main": "./build/lib/index.js",
   "typings": "./build/lib/index.d.ts",
@@ -8,7 +8,7 @@
     "clean": "rimraf build",
     "lint": "tslint lib/**/*.ts",
     "build": "npm run clean && npm run lint && tsc -p ./tsconfig.json",
-    "prepublish": "npm run build",
+    "prepublish": "npm run build && npm run test",
     "test": "cross-env TEST=1 mocha --require ts-node/register test/*.ts",
     "postinstall": "node ./script/download-git.js"
   },
