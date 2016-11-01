@@ -53,7 +53,7 @@ function handleError (url, error) {
 
 function extract (source, callback) {
   if (path.extname(source) === '.zip') {
-    console.log('extracting zip file')
+    // console.log('extracting zip file')
     let options = { }
     options.plugins = [
       decompressUnzip()
@@ -68,7 +68,7 @@ function extract (source, callback) {
       })
 
   } else {
-    console.log('extracting tgz file')
+    // console.log('extracting tgz file')
     const extractor = tar.Extract({path: config.outputPath})
       .on('error', function (error) { callback(error) })
       .on('end', function () { callback() })
@@ -113,10 +113,10 @@ const downloadCallback = function (error, response, body) {
 
     verifyFile(temporaryFile, valid => {
       if (valid) {
-        console.log('file valid. unpacking...')
+        // console.log('file valid. unpacking...')
         unpackFile(temporaryFile)
       } else {
-        console.log('file not valid. aborting...')
+        // console.log('file not valid. aborting...')
         process.exit(1)
       }
     })
@@ -155,7 +155,7 @@ mkdirp(config.outputPath, function (error) {
   }
 
   if (fs.existsSync(config.outputPath)) {
-    console.log(`directory exists at ${config.outputPath}, removing...`)
+    //console.log(`directory exists at ${config.outputPath}, removing...`)
     try {
       rimraf.sync(config.outputPath)
     } catch (err) {
@@ -165,12 +165,12 @@ mkdirp(config.outputPath, function (error) {
   }
 
   if (fs.existsSync(temporaryFile)) {
-    console.log(`cached file exists at ${temporaryFile}, verifying...`)
+    //console.log(`cached file exists at ${temporaryFile}, verifying...`)
     verifyFile(temporaryFile, valid => {
       if (valid) {
         unpackFile(temporaryFile)
       } else {
-        console.log('cached file not valid. removing...')
+        //console.log('cached file not valid. removing...')
         rimraf.sync(temporaryFile)
         downloadAndUnpack()
       }
@@ -178,7 +178,7 @@ mkdirp(config.outputPath, function (error) {
     return
   }
 
-  console.log(`file does not exist. downloading...`)
+  //console.log(`file does not exist. downloading...`)
 
   downloadAndUnpack()
 })
