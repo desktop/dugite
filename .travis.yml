@@ -3,14 +3,10 @@ notifications:
     on_success: never
     on_failure: change
 
-matrix:
-  include:
-    - os: linux
-      dist: trusty
-      sudo: false
-      group: beta
-    - os: osx
-
+os:
+  - linux
+  - osx
+  
 branches:
   only:
     - master
