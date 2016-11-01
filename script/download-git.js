@@ -8,6 +8,12 @@ const fs = require('fs')
 const checksum = require('checksum')
 const rimraf = require('rimraf')
 
+const decompressUnzip = require('decompress-unzip')
+const decompressTargz = require('decompress-targz')
+const targz = require('tar.gz')
+const tar = require('tar')
+const zlib = require('zlib')
+
 const config = {
   outputPath: path.join(__dirname, '..', 'git'),
   version: '2.10.0',
@@ -45,8 +51,21 @@ function handleError (url, error) {
   process.exit(1)
 }
 
-function unzip (path, callback) {
-  const result = decompress(path, config.outputPath)
+function extract (source, callback) {
+
+  let options = { }
+
+  if (path.extname(source) === '.zip') {
+    options.plugins = [
+      decompressUnzip()
+    ]
+  } else {
+    options.plugins = [
+      decompressTargz()
+    ]
+  }
+
+  const result = decompress(source, config.outputPath, options)
 
   result
     .then(() => {
@@ -61,15 +80,13 @@ const dir = tmpdir()
 const temporaryFile = path.join(dir, config.fileName)
 
 const verifyFile = function (file, callback) {
-  // console.log(`verifying checksum...`)
-
   checksum.file(file, { algorithm: 'sha256' }, (_, hash) => {
     callback(hash === config.checksum)
   })
 }
 
 const unpackFile = function (file) {
-  unzip(file, function (error) {
+  extract(file, function (error) {
     if (error) {
       return handleError(fullUrl, error)
     }
@@ -92,10 +109,10 @@ const downloadCallback = function (error, response, body) {
 
     verifyFile(temporaryFile, valid => {
       if (valid) {
-        // console.log('file valid. unpacking...')
+        console.log('file valid. unpacking...')
         unpackFile(temporaryFile)
       } else {
-        // console.log('file not valid. aborting...')
+        console.log('file not valid. aborting...')
         process.exit(1)
       }
     })
@@ -134,7 +151,7 @@ mkdirp(config.outputPath, function (error) {
   }
 
   if (fs.existsSync(config.outputPath)) {
-    // console.log(`directory exists at ${config.outputPath}, removing...`)
+    console.log(`directory exists at ${config.outputPath}, removing...`)
     try {
       rimraf.sync(config.outputPath)
     } catch (err) {
@@ -144,12 +161,12 @@ mkdirp(config.outputPath, function (error) {
   }
 
   if (fs.existsSync(temporaryFile)) {
-    // console.log(`cached file exists at ${temporaryFile}, verifying...`)
+    console.log(`cached file exists at ${temporaryFile}, verifying...`)
     verifyFile(temporaryFile, valid => {
       if (valid) {
         unpackFile(temporaryFile)
       } else {
-        // console.log('cached file not valid. removing...')
+        console.log('cached file not valid. removing...')
         rimraf.sync(temporaryFile)
         downloadAndUnpack()
       }
@@ -157,7 +174,7 @@ mkdirp(config.outputPath, function (error) {
     return
   }
 
-  // console.log(`file does not exist. downloading...`)
+  console.log(`file does not exist. downloading...`)
 
   downloadAndUnpack()
 })
