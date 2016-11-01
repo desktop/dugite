@@ -52,28 +52,32 @@ function handleError (url, error) {
 }
 
 function extract (source, callback) {
-
-  let options = { }
-
   if (path.extname(source) === '.zip') {
+    console.log('extracting zip file')
+    let options = { }
     options.plugins = [
       decompressUnzip()
     ]
+    const result = decompress(source, config.outputPath, options)
+    result
+      .then(() => {
+        callback(null)
+      })
+      .catch(err => {
+        callback(err)
+      })
+
   } else {
-    options.plugins = [
-      decompressTargz()
-    ]
+    console.log('extracting tgz file')
+    const extractor = tar.Extract({path: config.outputPath})
+      .on('error', function (error) { callback(error) })
+      .on('end', function () { callback() })
+
+    fs.createReadStream(source)
+      .on('error', function (error) { callback(error) })
+      .pipe(zlib.Gunzip())
+      .pipe(extractor)
   }
-
-  const result = decompress(source, config.outputPath, options)
-
-  result
-    .then(() => {
-      callback(null)
-    })
-    .catch(err => {
-      callback(err)
-    })
 }
 
 const dir = tmpdir()
