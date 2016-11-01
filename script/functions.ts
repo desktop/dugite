@@ -297,7 +297,7 @@ export class Downloader {
           total: len
         })
 
-        res.on('data', function (chunk) {
+        res.on('data', (chunk: string | Buffer) => {
           bar.tick(chunk.length)
         })
 
