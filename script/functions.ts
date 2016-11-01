@@ -40,7 +40,8 @@ const verifyFile = (file: string, expected: string): Promise<boolean> => {
 
 const LFSAliases: { [key: string]: string | null } = {
   'win32': 'Windows AMD64',
-  'darwin': 'Mac AMD64'
+  'darwin': 'Mac AMD64',
+  'linux': 'Linux AMD64'
 }
 
 export class Config {
@@ -94,7 +95,23 @@ export class Config {
         outputVersion
       }
     } else {
-      return null
+      const fileName = `git-${gitVersion}-ubuntu.tar.gz`
+      return {
+        git: {
+          version: gitVersion,
+          fileName: fileName,
+          // NOTE: update these details if the place hosting the Git bits has changed
+          source: `https://www.dropbox.com/s/te0grj36xm9dkic/${fileName}?dl=1`,
+          checksum: '1e67dbd01de8d719a56d082c3ed42e52f2c38dc8ac8f65259b8660e028f85a30',
+        },
+        lfs: {
+          version: gitLfsVersion,
+          checksum: '2c1de8d00759587a93eb78b24c42192a76909d817214d4abc312135c345fbaca',
+          url: foundGitLFS.url,
+          fileName: foundGitLFS.fileName
+        },
+        outputVersion
+      }
     }
   }
 }
@@ -127,10 +144,10 @@ export class FileOperations {
 }
 
 export class Archiver {
-  public static extract = (source: string, destination: string, extension?: string): Promise<void> => {
+  public static extract = (source: string, destination: string, extension?: string, strip: boolean = false): Promise<void> => {
     let options = {
         // strip any leading directory information
-        strip: 1,
+        strip: strip ? 1 : 0,
         // if a extension provided, let's filter on it
         filter: (file: { path: string} ) => extension === undefined
           ? true
@@ -143,10 +160,13 @@ export class Archiver {
   public static unpackGitLFS = (platform: string, source: string, destination: string): Promise<void> => {
     if (platform === 'win32') {
       const nestedPath = path.join(destination, 'mingw64', 'libexec', 'git-core')
-      return Archiver.extract(source, nestedPath, '.exe')
+      return Archiver.extract(source, nestedPath, '.exe', true)
     } else if (platform === 'darwin') {
       const nestedPath = path.join(destination, 'libexec', 'git-core')
-      return Archiver.extract(source, nestedPath, '')
+      return Archiver.extract(source, nestedPath, '', true)
+    } else if (platform === 'linux') {
+      const nestedPath = path.join(destination, 'libexec', 'git-core')
+      return Archiver.extract(source, nestedPath, '', true)
     } else {
       return Promise.reject(`unable to unpack Git LFS as platform '${platform}' is not currently supported`)
     }
