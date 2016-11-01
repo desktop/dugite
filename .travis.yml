@@ -3,8 +3,12 @@ notifications:
     on_success: never
     on_failure: change
 
-os:
-  - osx
+matrix:
+  include:
+    - os: linux
+      dist: trusty
+      sudo: false
+    - os: osx
 
 branches:
   only:
@@ -12,7 +16,7 @@ branches:
 
 language: node_js
 node_js:
-  - "node"
+  - "6"
 
 cache:
   timeout: 600
