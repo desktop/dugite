@@ -30,7 +30,7 @@ if (process.platform === 'darwin') {
 } else if (process.platform === 'linux') {
   // TODO: these versions are out of sync, whatever
   config.fileName = `git-2.10.1-ubuntu.tgz`
-  config.source = `https://www.dropbox.com/s/te0grj36xm9dkic/${config.fileName}?dl=0`
+  config.source = `https://www.dropbox.com/s/te0grj36xm9dkic/${config.fileName}?dl=1`
   config.checksum = '1e67dbd01de8d719a56d082c3ed42e52f2c38dc8ac8f65259b8660e028f85a30'
 }
 const fullUrl = config.source
