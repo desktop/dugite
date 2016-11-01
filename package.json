@@ -6,8 +6,11 @@
   "typings": "./build/lib/index.d.ts",
   "scripts": {
     "clean": "rimraf build",
-    "lint": "tslint lib/**/*.ts",
+    "lint": "tslint lib/**/*.ts script/**/*.ts",
     "build": "npm run clean && npm run lint && tsc -p ./tsconfig.json",
+    "pack-win": "npm run build && node ./build/script/package.js win32",
+    "pack-mac": "npm run build && node ./build/script/package.js darwin",
+    "pack": "npm run pack-win && npm run pack-mac",
     "prepublish": "npm run build && npm run test",
     "test": "cross-env TEST=1 mocha --require ts-node/register test/*.ts",
     "postinstall": "node ./script/download-git.js"
@@ -38,10 +41,12 @@
   },
   "devDependencies": {
     "@types/chai": "^3.4.30",
-    "@types/checksum": "^0.1.29",
-    "@types/mkdirp": "^0.3.28",
+    "@types/checksum": "^0.1.30",
+    "@types/mkdirp": "^0.3.29",
     "@types/mocha": "^2.2.29",
     "@types/node": "^6.0.31",
+    "@types/progress": "^1.1.28",
+    "@types/request": "0.0.32",
     "@types/rimraf": "0.0.27",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.3.0",
