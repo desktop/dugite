@@ -8,6 +8,7 @@ matrix:
     - os: linux
       dist: trusty
       sudo: false
+      group: beta
     - os: osx
 
 branches:
