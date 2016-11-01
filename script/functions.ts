@@ -7,9 +7,9 @@ import * as checksum from 'checksum'
 import * as rimraf from 'rimraf'
 
 const decompress = require('decompress')
+const decompressUnzip = require('decompress-unzip')
 const targz = require('tar.gz')
 const tar = require('tar')
-const unzip = require('unzip')
 const zlib = require('zlib')
 
 import { gitVersion, gitLfsVersion } from './versions'
@@ -177,17 +177,13 @@ export class Archiver {
 
   // TODO: once all upstream releases are done with `tgz` this code will not be necessary
   public static extractZip = (source: string, destination: string): Promise<void> => {
-    return new Promise((resolve, reject) => {
-      const extractor = unzip.Extract({ path: destination })
-        .on('error', (error: Error) => reject(error))
-        .on('end', () => resolve())
-
-      fs.createReadStream(source)
-        .on('error', (error: Error) => reject(error))
-        .pipe(extractor)
-    })
+    let options = {
+      plugins: [
+        decompressUnzip()
+      ]
+    }
+    return decompress(source, destination, options)
   }
-
 
   public static unpackGitLFS = (platform: string, source: string, destination: string): Promise<void> => {
     if (platform === 'win32') {
@@ -226,11 +222,26 @@ export class Archiver {
     await Archiver.unpackGitLFS(platform, temporaryGitLFSDownload, temporaryGitDirectory)
   }
 
-  public static create = (directory: string, output: string): Promise<void> => {
-    let read = targz().createReadStream(directory);
-    let write = fs.createWriteStream(output);
+  public static create = (directory: string, file: string): Promise<void> => {
+    const read = targz().createReadStream(directory);
+    const write = fs.createWriteStream(file);
     read.pipe(write);
     return Promise.resolve()
+  }
+
+  public static output = (file: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      checksum.file(file, { algorithm: 'sha256' }, (err: Error, hash: string) => {
+
+      if (err) {
+        reject(err)
+      }
+
+        console.log(`File: ${file}`)
+        console.log(`SHA256: ${hash}`)
+        resolve()
+      })
+    })
   }
 }
 
