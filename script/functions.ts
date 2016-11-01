@@ -9,6 +9,7 @@ import * as rimraf from 'rimraf'
 const decompress = require('decompress')
 const targz = require('tar.gz')
 const tar = require('tar')
+const unzip = require('unzip')
 const zlib = require('zlib')
 
 import { gitVersion, gitLfsVersion } from './versions'
@@ -161,18 +162,32 @@ export class Archiver {
 
   // because Git packages may contain symlinks, we're gonna use some more
   // low-level libraries to ensure we preserve them when unpacking
-  public static extract = (source: string, destination: string): Promise<void> => {
+  public static extractGzip = (source: string, destination: string): Promise<void> => {
     return new Promise((resolve, reject) => {
       const extractor = tar.Extract({path: destination})
         .on('error', (error: Error) => reject(error))
-        .on('end', () => resolve());
+        .on('end', () => resolve())
 
       fs.createReadStream(source)
         .on('error', (error: Error) => reject(error))
         .pipe(zlib.Gunzip())
-        .pipe(extractor);
+        .pipe(extractor)
     })
   }
+
+  // TODO: once all upstream releases are done with `tgz` this code will not be necessary
+  public static extractZip = (source: string, destination: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const extractor = unzip.Extract({ path: destination })
+        .on('error', (error: Error) => reject(error))
+        .on('end', () => resolve())
+
+      fs.createReadStream(source)
+        .on('error', (error: Error) => reject(error))
+        .pipe(extractor)
+    })
+  }
+
 
   public static unpackGitLFS = (platform: string, source: string, destination: string): Promise<void> => {
     if (platform === 'win32') {
@@ -194,7 +209,11 @@ export class Archiver {
       rimraf.sync(directory)
     }
 
-    return Archiver.extract(source, directory)
+    if (path.extname(source) === '.zip') {
+      return Archiver.extractZip(source, directory)
+    } else {
+      return Archiver.extractGzip(source, directory)
+    }
   }
 
   public static async unpackAll (platform: string, config: EnvironmentConfig, temporaryDirectory: string): Promise<void> {
