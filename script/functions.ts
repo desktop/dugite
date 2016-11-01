@@ -8,6 +8,8 @@ import * as rimraf from 'rimraf'
 
 const decompress = require('decompress')
 const targz = require('tar.gz')
+const tar = require('tar')
+const zlib = require('zlib')
 
 import { gitVersion, gitLfsVersion } from './versions'
 
@@ -144,7 +146,7 @@ export class FileOperations {
 }
 
 export class Archiver {
-  public static extract = (source: string, destination: string, extension?: string, strip: boolean = false): Promise<void> => {
+  public static extractWithOptions = (source: string, destination: string, extension?: string, strip: boolean = false): Promise<void> => {
     let options = {
         // strip any leading directory information
         strip: strip ? 1 : 0,
@@ -157,16 +159,31 @@ export class Archiver {
     return decompress(source, destination, options)
   }
 
+  // because Git packages may contain symlinks, we're gonna use some more
+  // low-level libraries
+  public static extract = (source: string, destination: string): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const extractor = tar.Extract({path: destination})
+        .on('error', (error: Error) => reject(error))
+        .on('end', () => resolve());
+
+      fs.createReadStream(source)
+        .on('error', (error: Error) => reject(error))
+        .pipe(zlib.Gunzip())
+        .pipe(extractor);
+    })
+  }
+
   public static unpackGitLFS = (platform: string, source: string, destination: string): Promise<void> => {
     if (platform === 'win32') {
       const nestedPath = path.join(destination, 'mingw64', 'libexec', 'git-core')
-      return Archiver.extract(source, nestedPath, '.exe', true)
+      return Archiver.extractWithOptions(source, nestedPath, '.exe', true)
     } else if (platform === 'darwin') {
       const nestedPath = path.join(destination, 'libexec', 'git-core')
-      return Archiver.extract(source, nestedPath, '', true)
+      return Archiver.extractWithOptions(source, nestedPath, '', true)
     } else if (platform === 'linux') {
       const nestedPath = path.join(destination, 'libexec', 'git-core')
-      return Archiver.extract(source, nestedPath, '', true)
+      return Archiver.extractWithOptions(source, nestedPath, '', true)
     } else {
       return Promise.reject(`unable to unpack Git LFS as platform '${platform}' is not currently supported`)
     }
