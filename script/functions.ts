@@ -230,9 +230,9 @@ export class Archiver {
     return new Promise((resolve, reject) => {
       checksum.file(file, { algorithm: 'sha256' }, (err: Error, hash: string) => {
 
-      if (err) {
-        reject(err)
-      }
+        if (err) {
+          reject(err)
+        }
 
         console.log(`File: ${file}`)
         console.log(`SHA256: ${hash}`)
