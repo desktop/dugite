@@ -12,7 +12,7 @@ const fail = (error: Error) => {
 }
 
 if (process.argv.length < 2) {
-  console.log('node ./package.js [win32|darwin]')
+  console.log('node ./package.js [win32|darwin|linux]')
   process.exit(-1)
 }
 
