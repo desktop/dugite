@@ -189,10 +189,7 @@ export class Archiver {
     if (platform === 'win32') {
       const nestedPath = path.join(destination, 'mingw64', 'libexec', 'git-core')
       return Archiver.extractAndFlatten(source, nestedPath, '.exe')
-    } else if (platform === 'darwin') {
-      const nestedPath = path.join(destination, 'libexec', 'git-core')
-      return Archiver.extractAndFlatten(source, nestedPath, '')
-    } else if (platform === 'linux') {
+    } else if (platform === 'darwin' || platform === 'linux') {
       const nestedPath = path.join(destination, 'libexec', 'git-core')
       return Archiver.extractAndFlatten(source, nestedPath, '')
     } else {
