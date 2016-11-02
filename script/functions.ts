@@ -154,7 +154,7 @@ export class Archiver {
         // strip any leading directory information
         strip: 1,
         // only extract a given set of file extensions
-        filter: (file: { path: string} ) => path.extname(file.path) === extension
+        filter: (file: { path: string } ) => path.extname(file.path) === extension
     }
 
     return decompress(source, destination, options)
