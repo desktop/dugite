@@ -6,7 +6,7 @@ const tmpdir = require('os-tmpdir')
 import { Archiver } from './archiver'
 import { Downloader } from './downloader'
 import { Config } from './config'
-import { cleanupAll } from './functions'
+import { cleanupAll } from './cleanup-all'
 
 const fail = (error: Error) => {
   const message = error.message || error
