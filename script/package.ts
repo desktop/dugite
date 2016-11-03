@@ -6,7 +6,7 @@ const tmpdir = require('os-tmpdir')
 import { Archiver } from './archiver'
 import { Downloader } from './downloader'
 import { Config } from './config'
-import { FileOperations } from './functions'
+import { cleanupAll } from './functions'
 
 const fail = (error: Error) => {
   const message = error.message || error
@@ -38,7 +38,7 @@ Config.getConfig(platform)
       const destinationFile = `git-kitchen-sink-${platform}-v${config.outputVersion}.tgz`
       const destination = path.join(root, destinationFile)
 
-      return FileOperations.cleanupAll(temporaryGitDirectory)
+      return cleanupAll(temporaryGitDirectory)
         .then(() => Downloader.downloadGit(config, root))
         .then(() => Downloader.downloadGitLFS(config!, root))
         .then(() => Archiver.unpackAll(platform, config!, root))
