@@ -120,7 +120,7 @@ export class Config {
 }
 
 export class FileOperations {
-  public static cleanupAll = (directory: string): Promise<void> => {
+  public static cleanupAll(directory: string): Promise<void> {
 
     if (!fs.existsSync(directory)) {
       return Promise.resolve()
@@ -149,7 +149,7 @@ export class FileOperations {
 export class Archiver {
   // leaving this option around as Git LFS has a whole bunch of variation
   // with how it's archived that we need to workaround here
-  public static extractAndFlatten = (source: string, destination: string, extension: string): Promise<void> => {
+  public static extractAndFlatten(source: string, destination: string, extension: string): Promise<void> {
     let options = {
         // strip any leading directory information
         strip: 1,
@@ -162,7 +162,7 @@ export class Archiver {
 
   // because Git packages may contain symlinks, we're gonna use some more
   // low-level libraries to ensure we preserve them when unpacking
-  public static extractGzip = (source: string, destination: string): Promise<void> => {
+  public static extractGzip(source: string, destination: string): Promise<void> {
     return new Promise((resolve, reject) => {
       const extractor = tar.Extract({path: destination})
         .on('error', (error: Error) => reject(error))
@@ -176,7 +176,7 @@ export class Archiver {
   }
 
   // TODO: once all upstream releases are done with `tgz` this code will not be necessary
-  public static extractZip = (source: string, destination: string): Promise<void> => {
+  public static extractZip(source: string, destination: string): Promise<void> {
     let options = {
       plugins: [
         decompressUnzip()
@@ -185,7 +185,7 @@ export class Archiver {
     return decompress(source, destination, options)
   }
 
-  public static unpackGitLFS = (platform: string, source: string, destination: string): Promise<void> => {
+  public static unpackGitLFS(platform: string, source: string, destination: string): Promise<void> {
     if (platform === 'win32') {
       const nestedPath = path.join(destination, 'mingw64', 'libexec', 'git-core')
       return Archiver.extractAndFlatten(source, nestedPath, '.exe')
@@ -197,7 +197,7 @@ export class Archiver {
     }
   }
 
-  public static unpackGit = (source: string, directory: string): Promise<void> => {
+  public static unpackGit(source: string, directory: string): Promise<void> {
     if (fs.existsSync(directory)) {
       rimraf.sync(directory)
     }
@@ -209,7 +209,7 @@ export class Archiver {
     }
   }
 
-  public static async unpackAll (platform: string, config: EnvironmentConfig, temporaryDirectory: string): Promise<void> {
+  public static async unpackAll(platform: string, config: EnvironmentConfig, temporaryDirectory: string): Promise<void> {
     const temporaryGitDownload = path.join(temporaryDirectory, config.git.fileName)
     const temporaryGitDirectory = path.join(temporaryDirectory, platform, config.git.version)
 
@@ -219,14 +219,14 @@ export class Archiver {
     await Archiver.unpackGitLFS(platform, temporaryGitLFSDownload, temporaryGitDirectory)
   }
 
-  public static create = (directory: string, file: string): Promise<void> => {
+  public static create(directory: string, file: string): Promise<void> {
     const read = targz().createReadStream(directory);
     const write = fs.createWriteStream(file);
     read.pipe(write);
     return Promise.resolve()
   }
 
-  public static output = (file: string): Promise<void> => {
+  public static output(file: string): Promise<void> {
     return new Promise((resolve, reject) => {
       checksum.file(file, { algorithm: 'sha256' }, (err: Error, hash: string) => {
 
@@ -249,11 +249,12 @@ export interface GitLFSLookup {
 
 export interface Asset {
   browser_download_url: string,
-  name: string
+  name: string,
+  label: string,
 }
 
 export class Downloader {
-  private static getReleaseAssets = (owner: string, repo: string, tag: string): Promise<ReadonlyArray<Asset>>=> {
+  private static getReleaseAssets(owner: string, repo: string, tag: string): Promise<ReadonlyArray<Asset>> {
     const url = `https://api.github.com/repos/${owner}/${repo}/releases/tags/${tag}`
 
     // TODO: look for environment variable for a GitHub token
@@ -285,12 +286,12 @@ export class Downloader {
     })
   }
 
-  public static resolveGitLFSForPlatform = async (version: string, platform: string): Promise<GitLFSLookup> => {
+  public static async resolveGitLFSForPlatform(version: string, platform: string): Promise<GitLFSLookup> {
 
     const assets = await Downloader.getReleaseAssets('github', 'git-lfs', `v${version}`)
 
     const label = platform
-    const asset = assets.find((a: any) => a.label === label)
+    const asset = assets.find(a => a.label === label)
     if (!asset) {
       return Promise.reject(`unable to find asset on Git-LFS release: ${label}`)
     }
@@ -298,7 +299,7 @@ export class Downloader {
     return Promise.resolve({ url: asset.browser_download_url, fileName: asset.name })
   }
 
-  private static download = function (alias: string, url: string, destination: string): Promise<void> {
+  private static download(alias: string, url: string, destination: string): Promise<void> {
     return new Promise((resolve, reject) => {
       console.log(`Downloading ${url}`)
 
@@ -352,7 +353,7 @@ export class Downloader {
     })
   }
 
-  public static downloadGit = async (config: EnvironmentConfig, temporaryDirectory: string): Promise<void> => {
+  public static async downloadGit(config: EnvironmentConfig, temporaryDirectory: string): Promise<void> {
 
     const destination = path.join(temporaryDirectory, config.git.fileName)
 
@@ -375,7 +376,7 @@ export class Downloader {
     }
   }
 
-  public static downloadGitLFS = async (config: EnvironmentConfig, temporaryDirectory: string): Promise<void> => {
+  public static async downloadGitLFS(config: EnvironmentConfig, temporaryDirectory: string): Promise<void> {
 
     const url = config.lfs.url
     const destination = path.join(temporaryDirectory, config.lfs.fileName)
