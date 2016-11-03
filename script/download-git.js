@@ -8,14 +8,13 @@ const fs = require('fs')
 const checksum = require('checksum')
 const rimraf = require('rimraf')
 
-const baseUrl = process.env.NPM_CONFIG_ELECTRON_MIRROR ||
-  process.env.npm_config_electron_mirror ||
-  process.env.ELECTRON_MIRROR ||
-  process.env.electron_mirror ||
-  'https://github.com/electron/electron/releases/download/v'
+const decompressUnzip = require('decompress-unzip')
+const decompressTargz = require('decompress-targz')
+const targz = require('tar.gz')
+const tar = require('tar')
+const zlib = require('zlib')
 
 const config = {
-  baseUrl: baseUrl,
   outputPath: path.join(__dirname, '..', 'git'),
   version: '2.10.0',
   source: '',
@@ -34,8 +33,12 @@ if (process.platform === 'darwin') {
   config.fileName = `MinGit-${config.version}-64-bit.zip`
   config.source = `https://github.com/git-for-windows/git/releases/download/${config.upstreamVersion}/${config.fileName}`
   config.checksum = '2e1101ec57da526728704c04792293613f3c5aa18e65f13a4129d00b54de2087'
+} else if (process.platform === 'linux') {
+  // TODO: these versions are out of sync, whatever
+  config.fileName = `git-2.10.1-ubuntu.tgz`
+  config.source = `https://www.dropbox.com/s/te0grj36xm9dkic/${config.fileName}?dl=1`
+  config.checksum = '1e67dbd01de8d719a56d082c3ed42e52f2c38dc8ac8f65259b8660e028f85a30'
 }
-
 const fullUrl = config.source
 
 function handleError (url, error) {
@@ -48,31 +51,44 @@ function handleError (url, error) {
   process.exit(1)
 }
 
-function unzip (path, callback) {
-  const result = decompress(path, config.outputPath)
+function extract (source, callback) {
+  if (path.extname(source) === '.zip') {
+    let options = { }
+    options.plugins = [
+      decompressUnzip()
+    ]
+    const result = decompress(source, config.outputPath, options)
+    result
+      .then(() => {
+        callback(null)
+      })
+      .catch(err => {
+        callback(err)
+      })
 
-  result
-    .then(() => {
-      callback(null)
-    })
-    .catch(err => {
-      callback(err)
-    })
+  } else {
+    const extractor = tar.Extract({path: config.outputPath})
+      .on('error', function (error) { callback(error) })
+      .on('end', function () { callback() })
+
+    fs.createReadStream(source)
+      .on('error', function (error) { callback(error) })
+      .pipe(zlib.Gunzip())
+      .pipe(extractor)
+  }
 }
 
 const dir = tmpdir()
 const temporaryFile = path.join(dir, config.fileName)
 
 const verifyFile = function (file, callback) {
-  // console.log(`verifying checksum...`)
-
   checksum.file(file, { algorithm: 'sha256' }, (_, hash) => {
     callback(hash === config.checksum)
   })
 }
 
 const unpackFile = function (file) {
-  unzip(file, function (error) {
+  extract(file, function (error) {
     if (error) {
       return handleError(fullUrl, error)
     }
@@ -95,10 +111,8 @@ const downloadCallback = function (error, response, body) {
 
     verifyFile(temporaryFile, valid => {
       if (valid) {
-        // console.log('file valid. unpacking...')
         unpackFile(temporaryFile)
       } else {
-        // console.log('file not valid. aborting...')
         process.exit(1)
       }
     })
@@ -137,7 +151,6 @@ mkdirp(config.outputPath, function (error) {
   }
 
   if (fs.existsSync(config.outputPath)) {
-    // console.log(`directory exists at ${config.outputPath}, removing...`)
     try {
       rimraf.sync(config.outputPath)
     } catch (err) {
@@ -147,20 +160,16 @@ mkdirp(config.outputPath, function (error) {
   }
 
   if (fs.existsSync(temporaryFile)) {
-    // console.log(`cached file exists at ${temporaryFile}, verifying...`)
     verifyFile(temporaryFile, valid => {
       if (valid) {
         unpackFile(temporaryFile)
       } else {
-        // console.log('cached file not valid. removing...')
         rimraf.sync(temporaryFile)
         downloadAndUnpack()
       }
     })
     return
   }
-
-  // console.log(`file does not exist. downloading...`)
 
   downloadAndUnpack()
 })

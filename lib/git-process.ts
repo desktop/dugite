@@ -69,7 +69,7 @@ export class GitProcess {
    */
   private static resolveGitBinary(): string {
     const gitDir = GitProcess.resolveGitDir()
-    if (process.platform === 'darwin') {
+    if (process.platform === 'darwin' || process.platform === 'linux') {
       return path.join(gitDir, 'bin', 'git')
     } else if (process.platform === 'win32') {
       return path.join(gitDir, 'cmd', 'git.exe')
@@ -81,7 +81,7 @@ export class GitProcess {
   /** Find the path to the embedded git exec path. */
   private static resolveGitExecPath(): string {
     const gitDir = GitProcess.resolveGitDir()
-    if (process.platform === 'darwin') {
+    if (process.platform === 'darwin' || process.platform === 'linux') {
       return path.join(gitDir, 'libexec', 'git-core')
     } else if (process.platform === 'win32') {
       return path.join(gitDir, 'mingw64', 'libexec', 'git-core')
