@@ -3,7 +3,10 @@ import * as fs from 'fs'
 
 const tmpdir = require('os-tmpdir')
 
-import { Downloader, Archiver, FileOperations, Config } from './functions'
+import { Archiver } from './archiver'
+import { Downloader } from './downloader'
+import { Config } from './config'
+import { FileOperations } from './functions'
 
 const fail = (error: Error) => {
   const message = error.message || error
