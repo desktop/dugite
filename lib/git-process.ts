@@ -156,6 +156,12 @@ export class GitProcess {
           return
         }
 
+        if (err) {
+          if (err.message === 'stdout maxBuffer exceeded') {
+            reject(new Error('The output from the command could not fit into the allocated stdout buffer. Set options.maxBuffer to a larger value than the default (10MB).'))
+          }
+        }
+
         resolve({ stdout, stderr, exitCode: code })
       })
 
