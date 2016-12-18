@@ -14,40 +14,42 @@ describe('git-process', () => {
     expect(result.stdout.length).to.be.greaterThan(0)
   })
 
-  it('returns exit code when folder is empty', async () => {
-    const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
-    const result = await GitProcess.exec([ 'show', 'HEAD' ], testRepoPath)
-    expect(result.exitCode).to.equal(128)
-  })
+  describe('exitCode', () => {
+    it('returns exit code when folder is empty', async () => {
+      const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
+      const result = await GitProcess.exec([ 'show', 'HEAD' ], testRepoPath)
+      expect(result.exitCode).to.equal(128)
+    })
 
-  it('returns expected error code for initial commit when creating diff', async () => {
-    const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
-    await GitProcess.exec([ 'init' ], testRepoPath)
+    it('returns expected error code for initial commit when creating diff', async () => {
+      const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
+      await GitProcess.exec([ 'init' ], testRepoPath)
 
-    const file = path.join(testRepoPath, 'new-file.md')
-    fs.writeFileSync(file, 'this is a new file')
-    const result = await GitProcess.exec([ 'diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md' ], testRepoPath)
+      const file = path.join(testRepoPath, 'new-file.md')
+      fs.writeFileSync(file, 'this is a new file')
+      const result = await GitProcess.exec([ 'diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md' ], testRepoPath)
 
-    expect(result.exitCode).to.equal(1)
-    expect (result.stdout.length).to.be.greaterThan(0)
-  })
+      expect(result.exitCode).to.equal(1)
+      expect (result.stdout.length).to.be.greaterThan(0)
+    })
 
-  it('returns expected error code for repository with history when creating diff', async () => {
-    const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
-    await GitProcess.exec([ 'init' ], testRepoPath)
+    it('returns expected error code for repository with history when creating diff', async () => {
+      const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
+      await GitProcess.exec([ 'init' ], testRepoPath)
 
-    const readme = path.join(testRepoPath, 'README.md')
-    fs.writeFileSync(readme, 'hello world!')
-    await GitProcess.exec([ 'add', '.' ], testRepoPath)
+      const readme = path.join(testRepoPath, 'README.md')
+      fs.writeFileSync(readme, 'hello world!')
+      await GitProcess.exec([ 'add', '.' ], testRepoPath)
 
-    const commit = await GitProcess.exec([ 'commit', '-F',  '-' ], testRepoPath, { stdin: 'hello world!' })
-    expect(commit.exitCode).to.eq(0)
+      const commit = await GitProcess.exec([ 'commit', '-F',  '-' ], testRepoPath, { stdin: 'hello world!' })
+      expect(commit.exitCode).to.eq(0)
 
-    const file = path.join(testRepoPath, 'new-file.md')
-    fs.writeFileSync(file, 'this is a new file')
-    const result = await GitProcess.exec([ 'diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md' ], testRepoPath)
-    expect(result.exitCode).to.equal(1)
-    expect(result.stdout.length).to.be.greaterThan(0)
+      const file = path.join(testRepoPath, 'new-file.md')
+      fs.writeFileSync(file, 'this is a new file')
+      const result = await GitProcess.exec([ 'diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md' ], testRepoPath)
+      expect(result.exitCode).to.equal(1)
+      expect(result.stdout.length).to.be.greaterThan(0)
+    })
   })
 
   describe('errors', () => {
