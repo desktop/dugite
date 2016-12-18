@@ -4,6 +4,8 @@ const expect = chai.expect
 import * as path from 'path'
 import * as fs from 'fs'
 
+import * as crypto from 'crypto'
+
 import { GitProcess, GitError } from '../lib'
 
 const temp = require('temp').track()
@@ -49,6 +51,25 @@ describe('git-process', () => {
       const result = await GitProcess.exec([ 'diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md' ], testRepoPath)
       expect(result.exitCode).to.equal(1)
       expect(result.stdout.length).to.be.greaterThan(0)
+    })
+
+    it('throws error when exceeding the output range', async () => {
+      const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
+      await GitProcess.exec([ 'init' ], testRepoPath)
+
+      // NOTE: if we change the default buffer size in git-process
+      // this test may no longer fail as expected - see https://git.io/v1dq3
+      const output = crypto.randomBytes(10*1024*1024).toString('hex')
+      const file = path.join(testRepoPath, 'new-file.md')
+      fs.writeFileSync(file, output)
+
+      let throws = false
+      try {
+        await GitProcess.exec([ 'diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md' ], testRepoPath)
+      } catch (e) {
+        throws = true
+      }
+      expect(throws).to.be.true
     })
   })
 
