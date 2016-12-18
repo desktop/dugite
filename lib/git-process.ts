@@ -43,6 +43,14 @@ export interface IGitExecutionOptions {
   readonly stdinEncoding?: string
 
   /**
+   * The size the output buffer to allocate to the spawned process. Set this
+   * if you are anticipating a large amount of output.
+   *
+   * If not specified, this will be 10MB (10485760 bytes) which
+   */
+  readonly maxBuffer?: number
+
+  /**
    * An optional callback which will be invoked with the child
    * process instance after spawning the git process.
    *
@@ -140,7 +148,7 @@ export class GitProcess {
       const execOptions: ExecOptionsWithStringEncoding = {
         cwd: path,
         encoding: 'utf8',
-        maxBuffer: 10 * 1024 * 1024,
+        maxBuffer: options ? options.maxBuffer : 10 * 1024 * 1024,
         env
       }
 
