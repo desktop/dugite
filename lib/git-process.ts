@@ -46,7 +46,8 @@ export interface IGitExecutionOptions {
    * The size the output buffer to allocate to the spawned process. Set this
    * if you are anticipating a large amount of output.
    *
-   * If not specified, this will be 10MB (10485760 bytes) which
+   * If not specified, this will be 10MB (10485760 bytes) which should be
+   * enough for most Git operations.
    */
   readonly maxBuffer?: number
 
