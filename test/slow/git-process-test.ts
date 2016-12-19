@@ -51,7 +51,7 @@ describe('git-process', () => {
 
   describe('fetch', () => {
     it('returns exit code and error when repository doesn\'t exist', async () => {
-      const testRepoPath = await initialize('desktop-git-fetch-valid')
+      const testRepoPath = await initialize('desktop-git-fetch-failure')
 
       // GitHub will prompt for (and validate) credentials for non-public
       // repositories, to prevent leakage of information.
@@ -66,7 +66,6 @@ describe('git-process', () => {
       const options = {
         env: setupNoAuth()
       }
-
       const result = await GitProcess.exec([ 'fetch', 'origin' ], testRepoPath, options)
       expect(result.exitCode).to.equal(128)
       const error = GitProcess.parseError(result.stderr)
@@ -74,7 +73,7 @@ describe('git-process', () => {
     })
 
     it('returns exit code and error when repository requires credentials', async () => {
-      const testRepoPath = await initialize('desktop-git-fetch-valid')
+      const testRepoPath = await initialize('desktop-git-fetch-failure')
       const addRemote = await GitProcess.exec([ 'remote', 'add', 'origin', 'https://github.com/shiftkey/repository-private.git'], testRepoPath)
       expect(addRemote.exitCode).to.equal(0)
 
