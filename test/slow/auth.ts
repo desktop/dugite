@@ -19,10 +19,14 @@ export function setupAskPass(username?: string, password?: string): Object {
     // supported since Git 2.3, this is used to ensure we never interactively prompt
     // for credentials - even as a fallback
     GIT_TERMINAL_PROMPT: '0',
+    // by setting HOME to an empty value Git won't look at ~ for any global
+    // configuration values. This means we won't accidentally use a
+    // credential.helper value if it's been set by the current user
+    HOME: '',
     TEST_USERNAME: username,
     TEST_PASSWORD: password,
     ASKPASS_MAIN: getAskPassScriptPath(),
-    GIT_ASKPASS: getAskPassTrampolinePath()
+    GIT_ASKPASS: getAskPassTrampolinePath(),
   }
 }
 
@@ -30,6 +34,10 @@ export function setupNoAuth(): Object {
   return {
     // supported since Git 2.3, this is used to ensure we never interactively prompt
     // for credentials - even as a fallback
-    GIT_TERMINAL_PROMPT: '0'
+    GIT_TERMINAL_PROMPT: '0',
+    // by setting HOME to an empty value Git won't look at ~ for any global
+    // configuration values. This means we won't accidentally use a
+    // credential.helper value if it's been set by the current user
+    HOME: '',
   }
 }
