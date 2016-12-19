@@ -27,10 +27,21 @@ describe('git-process', () => {
       it('returns exit code and error when repository doesn\'t exist', async () => {
         const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
         const options = { 
-          env: setupAskPass('error', 'error')
+          env: {
+            // supported since Git 2.3, this is used to ensure we never interactively prompt
+            // for credentials - even as a fallback
+            GIT_TERMINAL_PROMPT: '0'
+          }
         }
-        console.log(JSON.stringify(options.env))
-        const result = await GitProcess.exec([ 'clone', '--', 'https://github.com/shiftkey/repository-does-not-exist.git', '.'], testRepoPath, options)
+
+        // GitHub will prompt for (and validate) credentials for non-public
+        // repositories, to prevent leakage of information.
+        // Bitbucket will not prompt for credentials, and will immediately
+        // return whether this non-public repository exists.
+        //
+        // This is an easier to way to test for the specific error than to
+        // pass live account credentials to Git.
+        const result = await GitProcess.exec([ 'clone', '--', 'https://bitbucket.org/shiftkey/testing-non-existent.git', '.'], testRepoPath, options)
         expect(result.exitCode).to.equal(128)
         const error = GitProcess.parseError(result.stderr)
         expect(error).to.equal(GitError.HTTPSRepositoryNotFound)
@@ -41,13 +52,10 @@ describe('git-process', () => {
         const options = { 
           env: setupAskPass('error', 'error')
         }
-        console.log(JSON.stringify(options.env))
         const result = await GitProcess.exec([ 'clone', '--', 'https://github.com/shiftkey/repository-private.git', '.'], testRepoPath, options)
-        console.log(`output: ${result.stdout}`)
-        console.log(`error: ${result.stderr}`)
         expect(result.exitCode).to.equal(128)
         const error = GitProcess.parseError(result.stderr)
-        expect(error).to.equal(GitError.HTTPSRepositoryNotFound)
+        expect(error).to.equal(GitError.HTTPSAuthenticationFailed)
       })
     })
 
