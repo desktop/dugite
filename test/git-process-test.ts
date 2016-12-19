@@ -23,53 +23,63 @@ describe('git-process', () => {
       expect(result.exitCode).to.equal(128)
     })
 
-    it('returns expected error code for initial commit when creating diff', async () => {
-      const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
-      await GitProcess.exec([ 'init' ], testRepoPath)
-
-      const file = path.join(testRepoPath, 'new-file.md')
-      fs.writeFileSync(file, 'this is a new file')
-      const result = await GitProcess.exec([ 'diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md' ], testRepoPath)
-
-      expect(result.exitCode).to.equal(1)
-      expect (result.stdout.length).to.be.greaterThan(0)
+    describe('clone', () => {
+      it('returns exit code when repository doesn\'t exist', async () => {
+        const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
+        const result = await GitProcess.exec([ 'clone', '--', '.'], testRepoPath)
+        expect(result.exitCode).to.equal(128)
+      })
     })
 
-    it('returns expected error code for repository with history when creating diff', async () => {
-      const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
-      await GitProcess.exec([ 'init' ], testRepoPath)
+    describe('diff', () => {
+      it('returns expected error code for initial commit when creating diff', async () => {
+        const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
+        await GitProcess.exec([ 'init' ], testRepoPath)
 
-      const readme = path.join(testRepoPath, 'README.md')
-      fs.writeFileSync(readme, 'hello world!')
-      await GitProcess.exec([ 'add', '.' ], testRepoPath)
+        const file = path.join(testRepoPath, 'new-file.md')
+        fs.writeFileSync(file, 'this is a new file')
+        const result = await GitProcess.exec([ 'diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md' ], testRepoPath)
 
-      const commit = await GitProcess.exec([ 'commit', '-F',  '-' ], testRepoPath, { stdin: 'hello world!' })
-      expect(commit.exitCode).to.eq(0)
+        expect(result.exitCode).to.equal(1)
+        expect (result.stdout.length).to.be.greaterThan(0)
+      })
 
-      const file = path.join(testRepoPath, 'new-file.md')
-      fs.writeFileSync(file, 'this is a new file')
-      const result = await GitProcess.exec([ 'diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md' ], testRepoPath)
-      expect(result.exitCode).to.equal(1)
-      expect(result.stdout.length).to.be.greaterThan(0)
-    })
+      it('returns expected error code for repository with history when creating diff', async () => {
+        const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
+        await GitProcess.exec([ 'init' ], testRepoPath)
 
-    it('throws error when exceeding the output range', async () => {
-      const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
-      await GitProcess.exec([ 'init' ], testRepoPath)
+        const readme = path.join(testRepoPath, 'README.md')
+        fs.writeFileSync(readme, 'hello world!')
+        await GitProcess.exec([ 'add', '.' ], testRepoPath)
 
-      // NOTE: if we change the default buffer size in git-process
-      // this test may no longer fail as expected - see https://git.io/v1dq3
-      const output = crypto.randomBytes(10*1024*1024).toString('hex')
-      const file = path.join(testRepoPath, 'new-file.md')
-      fs.writeFileSync(file, output)
+        const commit = await GitProcess.exec([ 'commit', '--author="Some User <some.user@email.com>"', '-F',  '-' ], testRepoPath, { stdin: 'hello world!' })
+        expect(commit.exitCode).to.eq(0)
 
-      let throws = false
-      try {
-        await GitProcess.exec([ 'diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md' ], testRepoPath)
-      } catch (e) {
-        throws = true
-      }
-      expect(throws).to.be.true
+        const file = path.join(testRepoPath, 'new-file.md')
+        fs.writeFileSync(file, 'this is a new file')
+        const result = await GitProcess.exec([ 'diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md' ], testRepoPath)
+        expect(result.exitCode).to.equal(1)
+        expect(result.stdout.length).to.be.greaterThan(0)
+      })
+
+      it('throws error when exceeding the output range', async () => {
+        const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
+        await GitProcess.exec([ 'init' ], testRepoPath)
+
+        // NOTE: if we change the default buffer size in git-process
+        // this test may no longer fail as expected - see https://git.io/v1dq3
+        const output = crypto.randomBytes(10*1024*1024).toString('hex')
+        const file = path.join(testRepoPath, 'new-file.md')
+        fs.writeFileSync(file, output)
+
+        let throws = false
+        try {
+          await GitProcess.exec([ 'diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md' ], testRepoPath)
+        } catch (e) {
+          throws = true
+        }
+        expect(throws).to.be.true
+      })
     })
   })
 
