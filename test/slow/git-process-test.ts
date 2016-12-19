@@ -37,5 +37,14 @@ describe('git-process', () => {
       const error = GitProcess.parseError(result.stderr)
       expect(error).to.equal(GitError.HTTPSAuthenticationFailed)
     })
+
+    it('returns exit code when successful', async () => {
+      const testRepoPath = temp.mkdirSync('desktop-git-clone-valid')
+      const options = {
+        env: setupNoAuth()
+      }
+      const result = await GitProcess.exec([ 'clone', '--', 'https://github.com/shiftkey/friendly-bassoon.git', '.'], testRepoPath, options)
+      expect(result.exitCode).to.equal(0)
+    })
   })
 })
