@@ -6,7 +6,7 @@ import * as fs from 'fs'
 import * as crypto from 'crypto'
 
 import { GitProcess, GitError } from '../../lib'
-import { initalize } from '../helpers'
+import { initialize } from '../helpers'
 
 const temp = require('temp').track()
 
@@ -25,7 +25,7 @@ describe('git-process', () => {
 
     describe('diff', () => {
       it('returns expected error code for initial commit when creating diff', async () => {
-        const testRepoPath = await initalize('blank-no-commits')
+        const testRepoPath = await initialize('blank-no-commits')
 
         const file = path.join(testRepoPath, 'new-file.md')
         fs.writeFileSync(file, 'this is a new file')
@@ -36,7 +36,7 @@ describe('git-process', () => {
       })
 
       it('returns expected error code for repository with history when creating diff', async () => {
-        const testRepoPath = await initalize('blank-then-commit')
+        const testRepoPath = await initialize('blank-then-commit')
         const readme = path.join(testRepoPath, 'README.md')
         fs.writeFileSync(readme, 'hello world!')
         await GitProcess.exec([ 'add', '.' ], testRepoPath)
