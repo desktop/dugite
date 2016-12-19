@@ -48,11 +48,14 @@ describe('git-process', () => {
         const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
         await GitProcess.exec([ 'init' ], testRepoPath)
 
+        await GitProcess.exec([ 'config', 'user.email', '"some.user@email.com"' ], testRepoPath)
+        await GitProcess.exec([ 'config', 'user.name', '"Some User"' ], testRepoPath)
+
         const readme = path.join(testRepoPath, 'README.md')
         fs.writeFileSync(readme, 'hello world!')
         await GitProcess.exec([ 'add', '.' ], testRepoPath)
 
-        const commit = await GitProcess.exec([ 'commit', '--author="Some User <some.user@email.com>"', '-F',  '-' ], testRepoPath, { stdin: 'hello world!' })
+        const commit = await GitProcess.exec([ 'commit', '-F',  '-' ], testRepoPath, { stdin: 'hello world!' })
         expect(commit.exitCode).to.eq(0)
 
         const file = path.join(testRepoPath, 'new-file.md')
