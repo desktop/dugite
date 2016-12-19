@@ -6,7 +6,7 @@ import * as fs from 'fs'
 import * as crypto from 'crypto'
 
 import { GitProcess, GitError } from '../lib'
-import { initalize } from './helpers'
+import { initalize, setupAskPass } from './helpers'
 
 const temp = require('temp').track()
 
@@ -26,7 +26,25 @@ describe('git-process', () => {
     describe('clone', () => {
       it('returns exit code and error when repository doesn\'t exist', async () => {
         const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
-        const result = await GitProcess.exec([ 'clone', '--', 'https://github.com/shiftkey/repository-does-not-exist.git', '.'], testRepoPath)
+        const options = { 
+          env: setupAskPass('error', 'error')
+        }
+        console.log(JSON.stringify(options.env))
+        const result = await GitProcess.exec([ 'clone', '--', 'https://github.com/shiftkey/repository-does-not-exist.git', '.'], testRepoPath, options)
+        expect(result.exitCode).to.equal(128)
+        const error = GitProcess.parseError(result.stderr)
+        expect(error).to.equal(GitError.HTTPSRepositoryNotFound)
+      })
+
+      it('returns exit code and error when repository requires credentials', async () => {
+        const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
+        const options = { 
+          env: setupAskPass('error', 'error')
+        }
+        console.log(JSON.stringify(options.env))
+        const result = await GitProcess.exec([ 'clone', '--', 'https://github.com/shiftkey/repository-private.git', '.'], testRepoPath, options)
+        console.log(`output: ${result.stdout}`)
+        console.log(`error: ${result.stderr}`)
         expect(result.exitCode).to.equal(128)
         const error = GitProcess.parseError(result.stderr)
         expect(error).to.equal(GitError.HTTPSRepositoryNotFound)
