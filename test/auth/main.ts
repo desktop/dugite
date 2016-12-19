@@ -1,4 +1,3 @@
-
 /** Parse the GIT_ASKPASS prompt and determine the appropriate response. */
 export function responseForPrompt(prompt: string): string | null {
   const username: string | null = process.env.TEST_USERNAME
@@ -18,16 +17,8 @@ export function responseForPrompt(prompt: string): string | null {
   return null
 }
 
-console.log(`args: ${JSON.stringify(process.argv)}`)
-console.log(`env: ${JSON.stringify(process.env)}`)
-
 const prompt = process.argv[2]
 const response = responseForPrompt(prompt)
 if (response) {
   process.stdout.write(response)
-  // HACK: do we have a terminal here (and thus shouldn't end stdout eagerly?)
-  const stdout = process.stdout as any
-  if (!stdout.isTTY) {
-    process.stdout.end()
-  }
 }
