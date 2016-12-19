@@ -33,6 +33,7 @@ export enum GitError {
 /** A mapping from regexes to the git error they identify. */
 export const GitErrorRegexes = {
   "ERROR: ([\\s\\S]+?)\\n+\\[EPOLICYKEYAGE\\]\\n+fatal: Could not read from remote repository.": GitError.SSHKeyAuditUnverified,
+  "fatal: Authentication failed for 'https://": GitError.HTTPSAuthenticationFailed,
   "fatal: Authentication failed": GitError.SSHAuthenticationFailed,
   "fatal: Could not read from remote repository.": GitError.SSHPermissionDenied,
   "The requested URL returned error: 403": GitError.HTTPSAuthenticationFailed,
