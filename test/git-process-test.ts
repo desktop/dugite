@@ -24,10 +24,12 @@ describe('git-process', () => {
     })
 
     describe('clone', () => {
-      it('returns exit code when repository doesn\'t exist', async () => {
+      it('returns exit code and error when repository doesn\'t exist', async () => {
         const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
-        const result = await GitProcess.exec([ 'clone', '--', '.'], testRepoPath)
+        const result = await GitProcess.exec([ 'clone', '--', 'https://github.com/shiftkey/repository-does-not-exist.git', '.'], testRepoPath)
         expect(result.exitCode).to.equal(128)
+        const error = GitProcess.parseError(result.stderr)
+        expect(error).to.equal(GitError.HTTPSRepositoryNotFound)
       })
     })
 
