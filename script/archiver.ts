@@ -28,7 +28,7 @@ export class Archiver {
   // because Git packages may contain symlinks, we're gonna use some more
   // low-level libraries to ensure we preserve them when unpacking
   public static extractGzip(source: string, destination: string): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       const extractor = tar.Extract({path: destination})
         .on('error', (error: Error) => reject(error))
         .on('end', () => resolve())
@@ -92,7 +92,7 @@ export class Archiver {
   }
 
   public static output(file: string): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       checksum.file(file, { algorithm: 'sha256' }, (err: Error, hash: string) => {
 
         if (err) {

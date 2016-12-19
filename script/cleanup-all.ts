@@ -7,7 +7,7 @@ export function cleanupAll(directory: string): Promise<void> {
     return Promise.resolve()
   }
 
-  return new Promise((resolve, reject) => {
+  return new Promise<void>((resolve, reject) => {
     mkdirp(directory, (error: Error) => {
       if (error) {
         reject(error)

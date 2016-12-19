@@ -16,7 +16,6 @@ skip_tags: true
 version: "{build}"
 
 install:
-  - npm install -g npm
   - ps: Install-Product node $env:nodejs_version
   - npm install
 

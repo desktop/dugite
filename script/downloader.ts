@@ -76,7 +76,7 @@ export class Downloader {
   }
 
   private static download(alias: string, url: string, destination: string): Promise<void> {
-    return new Promise((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       console.log(`Downloading ${url}`)
 
       const options = {
