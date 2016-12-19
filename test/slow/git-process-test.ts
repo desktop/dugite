@@ -2,7 +2,7 @@ import * as chai from 'chai'
 const expect = chai.expect
 
 import { GitProcess, GitError } from '../../lib'
-import { setupAskPass } from '../helpers'
+import { setupAskPass, setupNoAuth } from './auth'
 
 const temp = require('temp').track()
 
@@ -10,12 +10,8 @@ describe('git-process', () => {
     describe('clone', () => {
       it('returns exit code and error when repository doesn\'t exist', async () => {
         const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
-        const options = { 
-          env: {
-            // supported since Git 2.3, this is used to ensure we never interactively prompt
-            // for credentials - even as a fallback
-            GIT_TERMINAL_PROMPT: '0'
-          }
+        const options = {
+          env: setupNoAuth()
         }
 
         // GitHub will prompt for (and validate) credentials for non-public
@@ -33,10 +29,12 @@ describe('git-process', () => {
 
       it('returns exit code and error when repository requires credentials', async () => {
         const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
-        const options = { 
+        const options = {
           env: setupAskPass('error', 'error')
         }
         const result = await GitProcess.exec([ 'clone', '--', 'https://github.com/shiftkey/repository-private.git', '.'], testRepoPath, options)
+        console.log(`stdout: ${result.stdout}`)
+        console.log(`stderr: ${result.stderr}`)
         expect(result.exitCode).to.equal(128)
         const error = GitProcess.parseError(result.stderr)
         expect(error).to.equal(GitError.HTTPSAuthenticationFailed)
