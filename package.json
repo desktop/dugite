@@ -13,7 +13,7 @@
     "pack-linux": "npm run build && node ./build/script/package.js linux",
     "pack": "npm run pack-win && npm run pack-mac && npm run pack-linux",
     "prepublish": "npm run build && npm run test",
-    "test": "cross-env TEST=1 mocha -t 10000ms --require ts-node/register test/*.ts",
+    "test": "cross-env TEST=1 mocha -t 10000ms --require ts-node/register test/*.ts test/auth/*.ts",
     "postinstall": "node ./script/download-git.js"
   },
   "engines": {
