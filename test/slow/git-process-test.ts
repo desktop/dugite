@@ -1,6 +1,8 @@
 import * as chai from 'chai'
 const expect = chai.expect
 
+import * as os from 'os'
+
 import { GitProcess, GitError } from '../../lib'
 import { setupAskPass, setupNoAuth } from './auth'
 
@@ -8,7 +10,7 @@ const temp = require('temp').track()
 
 describe('git-process', () => {
   before(async () => {
-    const homeDirectory = ''
+    const homeDirectory = os.homedir()
     const config = await GitProcess.exec([ 'config', 'credential.helper' ], homeDirectory)
     if (config.exitCode === 0) {
       const configValue = config.stdout.trim()
