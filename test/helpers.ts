@@ -14,20 +14,16 @@ export async function initalize(repositoryName: string) : Promise<string> {
 
 function getAskPassScriptPath(): string {
   const projectRoot = Path.dirname(__dirname)
-  const path = Path.join(projectRoot, 'build', 'test', 'auth', `main.js`)
-  console.log(`script path: ${path}`)
-  return path
+  return Path.join(projectRoot, 'build', 'test', 'auth', `main.js`)
 }
 
 function getAskPassTrampolinePath(): string {
   const isWindows = process.platform === 'win32'
   const extension = isWindows ? 'bat' : 'sh'
-  const path = Path.resolve(__dirname, 'auth', `ask-pass.${extension}`)
-  console.log(`trampoline: ${path}`)
-  return path
+  return Path.resolve(__dirname, 'auth', `ask-pass.${extension}`)
 }
 
-export function setupAskPass(username: string, password: string): Object {
+export function setupAskPass(username?: string, password?: string): Object {
   return { 
     TEST_USERNAME: username,
     TEST_PASSWORD: password,
