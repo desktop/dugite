@@ -5,8 +5,8 @@ import * as path from 'path'
 import * as fs from 'fs'
 import * as crypto from 'crypto'
 
-import { GitProcess, GitError } from '../lib'
-import { initalize, setupAskPass } from './helpers'
+import { GitProcess, GitError } from '../../lib'
+import { initalize, setupAskPass } from '../helpers'
 
 const temp = require('temp').track()
 
