@@ -1,25 +1,12 @@
 import * as chai from 'chai'
 const expect = chai.expect
 
-import * as os from 'os'
-
 import { GitProcess, GitError } from '../../lib'
 import { setupAskPass, setupNoAuth } from './auth'
 
 const temp = require('temp').track()
 
 describe('git-process', () => {
-  before(async () => {
-    const homeDirectory = os.homedir()
-    const config = await GitProcess.exec([ 'config', 'credential.helper' ], homeDirectory)
-    if (config.exitCode === 0) {
-      const configValue = config.stdout.trim()
-      console.warn(`WARNING:`)
-      console.warn(`You have a credential helper enabled: credential.helper=${configValue}`)
-      console.warn(`This will affect some of the test methods defined here`)
-    }
-  })
-
   describe('clone', () => {
     it('returns exit code and error when repository doesn\'t exist', async () => {
       const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
@@ -46,8 +33,6 @@ describe('git-process', () => {
         env: setupAskPass('error', 'error')
       }
       const result = await GitProcess.exec([ 'clone', '--', 'https://github.com/shiftkey/repository-private.git', '.'], testRepoPath, options)
-      console.log(`stdout: ${result.stdout}`)
-      console.log(`stderr: ${result.stderr}`)
       expect(result.exitCode).to.equal(128)
       const error = GitProcess.parseError(result.stderr)
       expect(error).to.equal(GitError.HTTPSAuthenticationFailed)
