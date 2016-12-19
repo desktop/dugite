@@ -1,7 +1,7 @@
 import * as chai from 'chai'
 const expect = chai.expect
 
-import { GitProcess } from '../lib'
+import { GitProcess } from '../../lib'
 
 const temp = require('temp').track()
 
