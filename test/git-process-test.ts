@@ -6,6 +6,7 @@ import * as fs from 'fs'
 import * as crypto from 'crypto'
 
 import { GitProcess, GitError } from '../lib'
+import { initalize } from './helpers'
 
 const temp = require('temp').track()
 
@@ -32,8 +33,7 @@ describe('git-process', () => {
 
     describe('diff', () => {
       it('returns expected error code for initial commit when creating diff', async () => {
-        const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
-        await GitProcess.exec([ 'init' ], testRepoPath)
+        const testRepoPath = await initalize('blank-no-commits')
 
         const file = path.join(testRepoPath, 'new-file.md')
         fs.writeFileSync(file, 'this is a new file')
@@ -44,12 +44,7 @@ describe('git-process', () => {
       })
 
       it('returns expected error code for repository with history when creating diff', async () => {
-        const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
-        await GitProcess.exec([ 'init' ], testRepoPath)
-
-        await GitProcess.exec([ 'config', 'user.email', '"some.user@email.com"' ], testRepoPath)
-        await GitProcess.exec([ 'config', 'user.name', '"Some User"' ], testRepoPath)
-
+        const testRepoPath = await initalize('blank-then-commit')
         const readme = path.join(testRepoPath, 'README.md')
         fs.writeFileSync(readme, 'hello world!')
         await GitProcess.exec([ 'add', '.' ], testRepoPath)
@@ -65,8 +60,7 @@ describe('git-process', () => {
       })
 
       it('throws error when exceeding the output range', async () => {
-        const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
-        await GitProcess.exec([ 'init' ], testRepoPath)
+        const testRepoPath = temp.mkdirSync('blank-then-large-file')
 
         // NOTE: if we change the default buffer size in git-process
         // this test may no longer fail as expected - see https://git.io/v1dq3
