@@ -43,6 +43,15 @@ export interface IGitExecutionOptions {
   readonly stdinEncoding?: string
 
   /**
+   * The size the output buffer to allocate to the spawned process. Set this
+   * if you are anticipating a large amount of output.
+   *
+   * If not specified, this will be 10MB (10485760 bytes) which should be
+   * enough for most Git operations.
+   */
+  readonly maxBuffer?: number
+
+  /**
    * An optional callback which will be invoked with the child
    * process instance after spawning the git process.
    *
@@ -140,7 +149,7 @@ export class GitProcess {
       const execOptions: ExecOptionsWithStringEncoding = {
         cwd: path,
         encoding: 'utf8',
-        maxBuffer: 10 * 1024 * 1024,
+        maxBuffer: options ? options.maxBuffer : 10 * 1024 * 1024,
         env
       }
 
@@ -154,6 +163,15 @@ export class GitProcess {
 
           reject(new Error('Git could not be found. This is most likely a problem in git-kitchen-sink itself.'))
           return
+        }
+
+        if (code === undefined && err) {
+          // Git has returned an output that couldn't fit in the specified buffer
+          // as we don't know how many bytes it requires, rethrow the error with
+          // details about what it was previously set to...
+          if (err.message === 'stdout maxBuffer exceeded') {
+            reject(new Error(`The output from the command could not fit into the allocated stdout buffer. Set options.maxBuffer to a larger value than ${execOptions.maxBuffer} bytes`))
+          }
         }
 
         resolve({ stdout, stderr, exitCode: code })
