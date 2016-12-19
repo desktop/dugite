@@ -1,14 +1,17 @@
 import * as Path from 'path'
 
 function getAskPassScriptPath(): string {
-  const projectRoot = Path.dirname(__dirname)
+  const testRoot = Path.dirname(__dirname)
+  const projectRoot = Path.dirname(testRoot)
   return Path.join(projectRoot, 'build', 'test', 'auth', `main.js`)
 }
 
 function getAskPassTrampolinePath(): string {
   const isWindows = process.platform === 'win32'
   const extension = isWindows ? 'bat' : 'sh'
-  return Path.resolve(__dirname, 'auth', `ask-pass.${extension}`)
+  const testRoot = Path.dirname(__dirname)
+  const projectRoot = Path.dirname(testRoot)
+  return Path.join(projectRoot, 'test', 'auth', `ask-pass.${extension}`)
 }
 
 export function setupAskPass(username?: string, password?: string): Object {
