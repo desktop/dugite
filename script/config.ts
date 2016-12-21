@@ -1,4 +1,4 @@
-import { gitVersion, gitLfsVersion } from './versions'
+import { gitVersion, gitLfsVersion, buildNumber } from './versions'
 import { Downloader } from './downloader'
 
 export interface EnvironmentConfig {
@@ -26,7 +26,7 @@ const LFSAliases: { [key: string]: string | null } = {
 export class Config {
   public static async getConfig(platform: string): Promise<EnvironmentConfig | null> {
 
-    const outputVersion = `${gitVersion}-1`
+    const outputVersion = `${gitVersion}-${buildNumber}`
     const lfsPlatform = LFSAliases[platform] || undefined
 
     if (lfsPlatform === undefined) {
