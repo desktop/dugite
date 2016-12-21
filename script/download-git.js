@@ -16,28 +16,28 @@ const zlib = require('zlib')
 
 const config = {
   outputPath: path.join(__dirname, '..', 'git'),
-  version: '2.10.0',
+  version: '2.11.0',
   source: '',
   checksum: '',
   upstreamVersion: '',
   fileName: ''
 }
 
+config.fileName = `git-kitchen-sink-${process.platform}-v${config.version}-2.zip`
+
+// TODO: swap these out for official release URLs when we make the repository public
+
 if (process.platform === 'darwin') {
-  config.fileName = `Git-macOS-${config.version}-64-bit.zip`
-  // TODO: swap this out for something more official, lol
-  config.source = `https://www.dropbox.com/s/w2l51jsibl90jtd/${config.fileName}?dl=1`
-  config.checksum = '5193a0923a7fc7cadc6d644d83bab184548987079f498cd77ee9df2a4509402e'
+  config.source = `https://www.dropbox.com/s/pd1q8gqttvhgm59/${config.fileName}?dl=1`
+  config.checksum = '0c2e0535f86de75c58cf0c815cd3e1e7a172d32537fcfdc4f452745613586a4f'
 } else if (process.platform === 'win32') {
-  config.upstreamVersion = `v${config.version}.windows.1`
-  config.fileName = `MinGit-${config.version}-64-bit.zip`
-  config.source = `https://github.com/git-for-windows/git/releases/download/${config.upstreamVersion}/${config.fileName}`
-  config.checksum = '2e1101ec57da526728704c04792293613f3c5aa18e65f13a4129d00b54de2087'
+  config.source = `https://www.dropbox.com/s/wjbs9p8959nt8w4/${config.fileName}?dl=1`
+  config.checksum = '45158f9172889ff3020562788473d235cca1ca3281d955111b0b44fec71013e8'
 } else if (process.platform === 'linux') {
-  // TODO: these versions are out of sync, whatever
-  config.fileName = `git-2.10.1-ubuntu.tgz`
-  config.source = `https://www.dropbox.com/s/te0grj36xm9dkic/${config.fileName}?dl=1`
-  config.checksum = '1e67dbd01de8d719a56d082c3ed42e52f2c38dc8ac8f65259b8660e028f85a30'
+  // switching this to Ubuntu to ensure it's clear what we're installing here
+  config.fileName = `git-kitchen-sink-ubuntu-v${config.version}-2.zip`
+  config.source = `https://www.dropbox.com/s/cm69onplkfixwfy/${config.fileName}?dl=1`
+  config.checksum = '8723719b1dfb461715b39f88f048dfc1444b617fa1673dde0c17bdf6e70605ae'
 }
 const fullUrl = config.source
 
@@ -53,11 +53,7 @@ function handleError (url, error) {
 
 function extract (source, callback) {
   if (path.extname(source) === '.zip') {
-    let options = { }
-    options.plugins = [
-      decompressUnzip()
-    ]
-    const result = decompress(source, config.outputPath, options)
+    const result = decompress(source, config.outputPath)
     result
       .then(() => {
         callback(null)
