@@ -85,8 +85,10 @@ export class Archiver {
   }
 
   public static create(directory: string, file: string): Promise<void> {
-    const read = targz().createReadStream(directory);
     const write = fs.createWriteStream(file);
+    const read = targz({}, {
+      fromBase: true // do not include top level directory
+    }).createReadStream(directory);
     read.pipe(write);
     return Promise.resolve()
   }
