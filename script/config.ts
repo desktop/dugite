@@ -37,18 +37,18 @@ export class Config {
 
 
     if (platform === 'darwin') {
-      const fileName = `Git-macOS-${gitVersion}-64-bit.zip`
+      const fileName = `Git-${gitVersion}-macOS-64-bit.zip`
       return {
         git: {
           version: gitVersion,
           fileName: fileName,
           // NOTE: update these details if the place hosting the Git bits has changed
-          source: `https://www.dropbox.com/s/w2l51jsibl90jtd/${fileName}?dl=1`,
-          checksum: '5193a0923a7fc7cadc6d644d83bab184548987079f498cd77ee9df2a4509402e',
+          source: `https://www.dropbox.com/s/iagqr9h8cli4i4f/${fileName}?dl=1`,
+          checksum: '00e352dcd5649de32a141f7e4b3b1d9590ab7b5b5353b049b669685176cab1cf',
         },
         lfs: {
           version: gitLfsVersion,
-          checksum: '66801312c377b77e31f39d28c61d74cd4731ad26a2cc6cf50dccf0acf0691d7c',
+          checksum: '248cd9ed2f9bbd347bd398f73ce8ca73613bb48a3b0882440e0b40e83fb2d3fa',
           url: foundGitLFS.url,
           fileName: foundGitLFS.fileName
         },
@@ -63,11 +63,11 @@ export class Config {
           fileName: fileName,
           // NOTE: update these details if the place hosting the Git bits has changed
           source: `https://github.com/git-for-windows/git/releases/download/${upstreamVersion}/${fileName}`,
-          checksum: 'a7268f4ab447e62940347d52fe01321403cfa3e9e94b8e5cac4d6ded28962d64',
+          checksum: 'f31b0135e11e425555fb34779da3345ce8d32490fdd0a33b6f5ae8d74bae20b6',
         },
         lfs: {
           version: gitLfsVersion,
-          checksum: 'cebbcd8f138834e0ba42f468dc8707845217524fb98fe16c7c06aa0afc984115',
+          checksum: '75266d8798f7bb16dc163a7fef7f6145f53a7f740f098e10c8a8bdef56b4fc78',
           url: foundGitLFS.url,
           fileName: foundGitLFS.fileName
         },
@@ -85,7 +85,7 @@ export class Config {
         },
         lfs: {
           version: gitLfsVersion,
-          checksum: '2c1de8d00759587a93eb78b24c42192a76909d817214d4abc312135c345fbaca',
+          checksum: 'cc21d28433a6eefef8287db6fb09e857b96a139ddcd3f228ff70a482e5dd226d',
           url: foundGitLFS.url,
           fileName: foundGitLFS.fileName
         },
