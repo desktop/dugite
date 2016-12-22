@@ -8,12 +8,14 @@ import * as crypto from 'crypto'
 import { GitProcess, GitError } from '../../lib'
 import { initialize } from '../helpers'
 
+import { gitVersion } from '../../script/versions'
+
 const temp = require('temp').track()
 
 describe('git-process', () => {
   it('can launch git', async () => {
     const result = await GitProcess.exec([ '--version' ], __dirname)
-    expect(result.stdout.length).to.be.greaterThan(0)
+    expect(result.stdout).to.contain(`git version ${gitVersion}`)
   })
 
   describe('exitCode', () => {
