@@ -22,6 +22,9 @@ cache:
     - $HOME/.electron
 
 install:
+  - which git
+  - git --version
+  - echo $PATH
   - npm install
   - npm run build
 
