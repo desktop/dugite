@@ -34,7 +34,7 @@ if (process.platform === 'darwin') {
   // switching this to Ubuntu to ensure it's clear what we're installing here
   config.fileName = `git-kitchen-sink-ubuntu-v${config.version}-2.tgz`
   config.source = `https://www.dropbox.com/s/cm69onplkfixwfy/${config.fileName}?dl=1`
-  config.checksum = 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+  config.checksum = 'd05e382548a7fa1d94e61fa1faf83e7bca8fd2041a365dea726629d5882cef71'
 }
 const fullUrl = config.source
 
