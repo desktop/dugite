@@ -80,7 +80,7 @@ export class Config {
           fileName: fileName,
           // NOTE: update these details if the place hosting the Git bits has changed
           source: `https://www.dropbox.com/s/te0grj36xm9dkic/${fileName}?dl=1`,
-          checksum: '1e67dbd01de8d719a56d082c3ed42e52f2c38dc8ac8f65259b8660e028f85a30',
+          checksum: '3b4b34df5d03e2fd48cf021dbd58dc3391b2e6d18dfd52bf5e4ec875df059909',
         },
         lfs: {
           version: gitLfsVersion,
