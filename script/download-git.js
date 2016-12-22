@@ -8,9 +8,6 @@ const fs = require('fs')
 const checksum = require('checksum')
 const rimraf = require('rimraf')
 
-const decompressUnzip = require('decompress-unzip')
-const decompressTargz = require('decompress-targz')
-const targz = require('tar.gz')
 const tar = require('tar')
 const zlib = require('zlib')
 
