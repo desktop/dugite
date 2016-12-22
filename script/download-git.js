@@ -32,12 +32,12 @@ if (process.platform === 'darwin') {
   config.checksum = '0c2e0535f86de75c58cf0c815cd3e1e7a172d32537fcfdc4f452745613586a4f'
 } else if (process.platform === 'win32') {
   config.source = `https://www.dropbox.com/s/wjbs9p8959nt8w4/${config.fileName}?dl=1`
-  config.checksum = '45158f9172889ff3020562788473d235cca1ca3281d955111b0b44fec71013e8'
+  config.checksum = '8723719b1dfb461715b39f88f048dfc1444b617fa1673dde0c17bdf6e70605ae'
 } else if (process.platform === 'linux') {
   // switching this to Ubuntu to ensure it's clear what we're installing here
   config.fileName = `git-kitchen-sink-ubuntu-v${config.version}-2.zip`
   config.source = `https://www.dropbox.com/s/cm69onplkfixwfy/${config.fileName}?dl=1`
-  config.checksum = '8723719b1dfb461715b39f88f048dfc1444b617fa1673dde0c17bdf6e70605ae'
+  config.checksum = '45158f9172889ff3020562788473d235cca1ca3281d955111b0b44fec71013e8'
 }
 const fullUrl = config.source
 
@@ -79,6 +79,10 @@ const temporaryFile = path.join(dir, config.fileName)
 
 const verifyFile = function (file, callback) {
   checksum.file(file, { algorithm: 'sha256' }, (_, hash) => {
+    const isValid = hash === config.checksum
+    if (!isValid) {
+      console.log(`DEBUG: expected checksums to be equal: ${hash} === ${config.checksum}`)
+    }
     callback(hash === config.checksum)
   })
 }
