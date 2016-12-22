@@ -20,21 +20,21 @@ const config = {
   fileName: ''
 }
 
-config.fileName = `git-kitchen-sink-${process.platform}-v${config.version}-2.tgz`
+config.fileName = `git-kitchen-sink-${process.platform}-v${config.version}-3.tgz`
 
 // TODO: swap these out for official release URLs when we make the repository public
 
 if (process.platform === 'darwin') {
-  config.source = `https://www.dropbox.com/s/pd1q8gqttvhgm59/${config.fileName}?dl=1`
-  config.checksum = '0416eefdf160b7f176b1cdd5f5bb36a07968240769b76645f7959a3b91906f98'
+  config.source = `https://www.dropbox.com/s/7jwwjw8cj1q5wad/${config.fileName}?dl=1`
+  config.checksum = '943c9cbb6b124aa8b49d7fba57e07d449ac24f47897712dc7be98b6be4cf32be'
 } else if (process.platform === 'win32') {
-  config.source = `https://www.dropbox.com/s/wjbs9p8959nt8w4/${config.fileName}?dl=1`
-  config.checksum = '8723719b1dfb461715b39f88f048dfc1444b617fa1673dde0c17bdf6e70605ae'
+  config.source = `https://www.dropbox.com/s/ugcvpqpyxifyuma/${config.fileName}?dl=1`
+  config.checksum = 'bd1d27888989b18075da236d827956f07e0637afd41587f38ae7077452291cb5'
 } else if (process.platform === 'linux') {
   // switching this to Ubuntu to ensure it's clear what we're installing here
-  config.fileName = `git-kitchen-sink-ubuntu-v${config.version}-2.tgz`
-  config.source = `https://www.dropbox.com/s/cm69onplkfixwfy/${config.fileName}?dl=1`
-  config.checksum = 'd05e382548a7fa1d94e61fa1faf83e7bca8fd2041a365dea726629d5882cef71'
+  config.fileName = `git-kitchen-sink-ubuntu-v${config.version}-3.tgz`
+  config.source = `https://www.dropbox.com/s/bdkz2ly44b4meei/${config.fileName}?dl=1`
+  config.checksum = '6c5284f97a9a5d9bc32a1db51395027a25fa8c2ebcbb4e2a1df88c31d225090b'
 }
 const fullUrl = config.source
 
