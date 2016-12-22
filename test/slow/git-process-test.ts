@@ -2,7 +2,7 @@ import * as chai from 'chai'
 const expect = chai.expect
 
 import { GitProcess, GitError } from '../../lib'
-import { initialize } from '../helpers'
+import { initialize, verify } from '../helpers'
 import { setupAskPass, setupNoAuth } from './auth'
 
 const temp = require('temp').track()
@@ -23,7 +23,9 @@ describe('git-process', () => {
       // This is an easier to way to test for the specific error than to
       // pass live account credentials to Git.
       const result = await GitProcess.exec([ 'clone', '--', 'https://bitbucket.org/shiftkey/testing-non-existent.git', '.'], testRepoPath, options)
-      expect(result.exitCode).to.equal(128)
+      verify(result, r => {
+        expect(r.exitCode).to.equal(128)
+      })
       const error = GitProcess.parseError(result.stderr)
       expect(error).to.equal(GitError.HTTPSRepositoryNotFound)
     })
@@ -34,7 +36,9 @@ describe('git-process', () => {
         env: setupAskPass('error', 'error')
       }
       const result = await GitProcess.exec([ 'clone', '--', 'https://github.com/shiftkey/repository-private.git', '.'], testRepoPath, options)
-      expect(result.exitCode).to.equal(128)
+      verify(result, r => {
+        expect(r.exitCode).to.equal(128)
+      })
       const error = GitProcess.parseError(result.stderr)
       expect(error).to.equal(GitError.HTTPSAuthenticationFailed)
     })
@@ -45,7 +49,9 @@ describe('git-process', () => {
         env: setupNoAuth()
       }
       const result = await GitProcess.exec([ 'clone', '--', 'https://github.com/shiftkey/friendly-bassoon.git', '.'], testRepoPath, options)
-      expect(result.exitCode).to.equal(0)
+      verify(result, r => {
+        expect(r.exitCode).to.equal(0)
+      })
     })
   })
 
@@ -61,13 +67,18 @@ describe('git-process', () => {
       // This is an easier to way to test for the specific error than to
       // pass live account credentials to Git.
       const addRemote = await GitProcess.exec([ 'remote', 'add', 'origin', 'https://bitbucket.org/shiftkey/testing-non-existent.git'], testRepoPath)
-      expect(addRemote.exitCode).to.equal(0)
+      verify(addRemote, r => {
+        expect(r.exitCode).to.equal(0)
+      })
 
       const options = {
         env: setupNoAuth()
       }
       const result = await GitProcess.exec([ 'fetch', 'origin' ], testRepoPath, options)
-      expect(result.exitCode).to.equal(128)
+      verify(result, r => {
+        expect(r.exitCode).to.equal(128)
+      })
+
       const error = GitProcess.parseError(result.stderr)
       expect(error).to.equal(GitError.HTTPSRepositoryNotFound)
     })
@@ -75,13 +86,17 @@ describe('git-process', () => {
     it('returns exit code and error when repository requires credentials', async () => {
       const testRepoPath = await initialize('desktop-git-fetch-failure')
       const addRemote = await GitProcess.exec([ 'remote', 'add', 'origin', 'https://github.com/shiftkey/repository-private.git'], testRepoPath)
-      expect(addRemote.exitCode).to.equal(0)
+      verify(addRemote, r => {
+        expect(r.exitCode).to.equal(0)
+      })
 
       const options = {
         env: setupAskPass('error', 'error')
       }
       const result = await GitProcess.exec([ 'fetch', 'origin' ], testRepoPath, options)
-      expect(result.exitCode).to.equal(128)
+      verify(result, r => {
+        expect(r.exitCode).to.equal(128)
+      })
       const error = GitProcess.parseError(result.stderr)
       expect(error).to.equal(GitError.HTTPSAuthenticationFailed)
     })
@@ -89,13 +104,17 @@ describe('git-process', () => {
     it('returns exit code when successful', async () => {
       const testRepoPath = await initialize('desktop-git-fetch-valid')
       const addRemote = await GitProcess.exec([ 'remote', 'add', 'origin', 'https://github.com/shiftkey/friendly-bassoon.git'], testRepoPath)
-      expect(addRemote.exitCode).to.equal(0)
+      verify(addRemote, r => {
+        expect(r.exitCode).to.equal(0)
+      })
 
       const options = {
         env: setupNoAuth()
       }
       const result = await GitProcess.exec([ 'fetch', 'origin' ], testRepoPath, options)
-      expect(result.exitCode).to.equal(0)
+      verify(result, r => {
+        expect(r.exitCode).to.equal(0)
+      })
     })
   })
 })
