@@ -26,7 +26,7 @@ config.fileName = `git-kitchen-sink-${process.platform}-v${config.version}-2.tgz
 
 if (process.platform === 'darwin') {
   config.source = `https://www.dropbox.com/s/pd1q8gqttvhgm59/${config.fileName}?dl=1`
-  config.checksum = 'd40358768b1912d41a189d2908f0842c5dd2f2b3264b40b86ca4a9e580dc3539'
+  config.checksum = '0416eefdf160b7f176b1cdd5f5bb36a07968240769b76645f7959a3b91906f98'
 } else if (process.platform === 'win32') {
   config.source = `https://www.dropbox.com/s/wjbs9p8959nt8w4/${config.fileName}?dl=1`
   config.checksum = '8723719b1dfb461715b39f88f048dfc1444b617fa1673dde0c17bdf6e70605ae'
