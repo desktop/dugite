@@ -73,14 +73,14 @@ export class Config {
         outputVersion
       }
     } else {
-      const fileName = `git-${gitVersion}-ubuntu.tar.gz`
+      const fileName = `git-${gitVersion}-ubuntu-2.zip`
       return {
         git: {
           version: gitVersion,
           fileName: fileName,
           // NOTE: update these details if the place hosting the Git bits has changed
-          source: `https://www.dropbox.com/s/te0grj36xm9dkic/${fileName}?dl=1`,
-          checksum: '3b4b34df5d03e2fd48cf021dbd58dc3391b2e6d18dfd52bf5e4ec875df059909',
+          source: `https://www.dropbox.com/s/2d7et1y30rb3jpb/${fileName}?dl=1`,
+          checksum: '16c6b5e6c2ea3368a206811ba39cce7b45232e17f509c9f1ec75fe5d8060891b',
         },
         lfs: {
           version: gitLfsVersion,
