@@ -20,21 +20,21 @@ const config = {
   fileName: ''
 }
 
-config.fileName = `git-kitchen-sink-${process.platform}-v${config.version}-3.tgz`
+config.fileName = `git-kitchen-sink-${process.platform}-v${config.version}-4.tgz`
 
 // TODO: swap these out for official release URLs when we make the repository public
 
 if (process.platform === 'darwin') {
-  config.source = `https://www.dropbox.com/s/7jwwjw8cj1q5wad/${config.fileName}?dl=1`
-  config.checksum = '943c9cbb6b124aa8b49d7fba57e07d449ac24f47897712dc7be98b6be4cf32be'
+  config.source = `https://www.dropbox.com/s/ptcehk7vj4z3lrt/${config.fileName}?dl=1`
+  config.checksum = '0c44d19faf60770dc9e0fb75a6ccfedc03ca3b9f7d8249c4a1548fdc8c353ee8'
 } else if (process.platform === 'win32') {
   config.source = `https://www.dropbox.com/s/ugcvpqpyxifyuma/${config.fileName}?dl=1`
   config.checksum = 'bd1d27888989b18075da236d827956f07e0637afd41587f38ae7077452291cb5'
 } else if (process.platform === 'linux') {
   // switching this to Ubuntu to ensure it's clear what we're installing here
   config.fileName = `git-kitchen-sink-ubuntu-v${config.version}-3.tgz`
-  config.source = `https://www.dropbox.com/s/bdkz2ly44b4meei/${config.fileName}?dl=1`
-  config.checksum = '6c5284f97a9a5d9bc32a1db51395027a25fa8c2ebcbb4e2a1df88c31d225090b'
+  config.source = `https://www.dropbox.com/s/b44mdzsa2fxejtg/${config.fileName}?dl=1`
+  config.checksum = '78ca7314e5f6d98b774f548821da5323673c722f4b1cd7243fd03a604096134a'
 }
 const fullUrl = config.source
 
