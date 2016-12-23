@@ -141,6 +141,16 @@ export class GitProcess {
         }
       }
 
+      if (process.platform === 'linux') {
+        // when running Git from an arbitrary location, it won't
+        // be able to resolve these templates (default files to
+        // include in a new repository) unless the environment variable
+        // is set based from the current directory
+        const gitDir = GitProcess.resolveGitDir()
+        const templateDir = `${gitDir}/share/git-core/templates`
+        env.GIT_TEMPLATE_DIR = templateDir
+      }
+
       // Explicitly annotate opts since typescript is unable to infer the correct
       // signature for execFile when options is passed as an opaque hash. The type
       // definition for execFile currently infers based on the encoding parameter
