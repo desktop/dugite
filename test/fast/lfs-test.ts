@@ -6,7 +6,6 @@ import { GitProcess } from '../../lib'
 const temp = require('temp').track()
 
 describe('lfs', () => {
-
   it('can be resolved', async () => {
     const testRepoPath = temp.mkdirSync('desktop-git-lfs')
     const result = await GitProcess.exec([ 'lfs' ], testRepoPath)

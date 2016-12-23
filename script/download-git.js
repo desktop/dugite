@@ -84,9 +84,6 @@ const temporaryFile = path.join(dir, config.fileName)
 const verifyFile = function (file, callback) {
   checksum.file(file, { algorithm: 'sha256' }, (_, hash) => {
     const isValid = hash === config.checksum
-    if (!isValid) {
-      console.log(`DEBUG: expected checksums to be equal: ${hash} === ${config.checksum}`)
-    }
     callback(hash === config.checksum)
   })
 }
@@ -117,6 +114,7 @@ const downloadCallback = function (error, response, body) {
       if (valid) {
         unpackFile(temporaryFile)
       } else {
+        console.log(`checksum verification failed, refusing to unpack...`)
         process.exit(1)
       }
     })
