@@ -14,11 +14,11 @@ export function verify(result: IGitResult, callback: (result: IGitResult) => voi
   try {
     callback(result)
   } catch (e) {
-    console.log('error encountered while verifying')
-    console.log('poking at response from Git:')
-    console.log(`exitCode: ${result.exitCode}`)
-    console.log(`stdout: ${result.stdout.trim()}`)
-    console.log(`stderr: ${result.stderr.trim()}`)
+    console.log('error encountered while verifying; poking at response from Git:')
+    console.log(` - exitCode: ${result.exitCode}`)
+    console.log(` - stdout: ${result.stdout.trim()}`)
+    console.log(` - stderr: ${result.stderr.trim()}`)
+    console.log()
     throw e
   }
 }
