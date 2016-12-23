@@ -21,7 +21,15 @@ const config = {
   fileName: ''
 }
 
-config.fileName = `git-kitchen-sink-${process.platform}-v${config.version}-${config.build}.tgz`
+function formatPlatform(platform) {
+  // switching this to Ubuntu to ensure it's clear what we're installing here
+  if (platform === 'linux') {
+    return 'ubuntu'
+  }
+  return platform
+}
+
+config.fileName = `git-kitchen-sink-${formatPlatform(process.platform)}-v${config.version}-${config.build}.tgz`
 
 // TODO: swap these out for official release URLs when we make the repository public
 
