@@ -77,7 +77,6 @@ describe('git-process', () => {
         } catch (e) {
           throws = true
         }
-
         expect(throws).to.be.true
       })
     })
