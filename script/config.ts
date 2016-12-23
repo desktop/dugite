@@ -36,14 +36,14 @@ export class Config {
     const foundGitLFS = await Downloader.resolveGitLFSForPlatform(gitLfsVersion, lfsPlatform)
 
     if (platform === 'darwin') {
-      const fileName = `git-${gitVersion}-macOS-3.zip`
+      const fileName = `git-${gitVersion}-macOS-4.zip`
       return {
         git: {
           version: gitVersion,
           fileName: fileName,
           // NOTE: update these details if the place hosting the Git bits has changed
-          source: `https://www.dropbox.com/s/53n7s0es7qonk85/${fileName}?dl=1`,
-          checksum: '5e0f6402b076a8b1556ea8c87b6f3ba4a1ec42d3ea5613a04c7b6faf2e52e480',
+          source: `https://www.dropbox.com/s/ljm6cb8aeqsfcs7/${fileName}?dl=1`,
+          checksum: 'a0d08e2fd6e8a8bde3e7053f5defecf12b380408159ed326a7e16b6d675a177b',
         },
         lfs: {
           version: gitLfsVersion,
@@ -73,14 +73,14 @@ export class Config {
         outputVersion
       }
     } else {
-      const fileName = `git-${gitVersion}-ubuntu-3.zip`
+      const fileName = `git-${gitVersion}-ubuntu-4.zip`
       return {
         git: {
           version: gitVersion,
           fileName: fileName,
           // NOTE: update these details if the place hosting the Git bits has changed
-          source: `https://www.dropbox.com/s/g61b4et0ebdiuoa/${fileName}?dl=1`,
-          checksum: '3e554be024973043746cad76370081c1a1b4f42a93d454b5775a11012d86152e',
+          source: `https://www.dropbox.com/s/cqyglbhtcosek54/${fileName}?dl=1`,
+          checksum: '02bef8876eacd9b1359e0f82c5e80930be94b06d1f995405bf788729f9cc6825',
         },
         lfs: {
           version: gitLfsVersion,
