@@ -8,36 +8,40 @@ const fs = require('fs')
 const checksum = require('checksum')
 const rimraf = require('rimraf')
 
-const decompressUnzip = require('decompress-unzip')
-const decompressTargz = require('decompress-targz')
-const targz = require('tar.gz')
 const tar = require('tar')
 const zlib = require('zlib')
 
 const config = {
   outputPath: path.join(__dirname, '..', 'git'),
-  version: '2.10.0',
+  version: '2.11.0',
+  build: '7',
   source: '',
   checksum: '',
   upstreamVersion: '',
   fileName: ''
 }
 
+function formatPlatform(platform) {
+  // switching this to Ubuntu to ensure it's clear what we're installing here
+  if (platform === 'linux') {
+    return 'ubuntu'
+  }
+  return platform
+}
+
+config.fileName = `git-kitchen-sink-${formatPlatform(process.platform)}-v${config.version}-${config.build}.tgz`
+
+// TODO: swap these out for official release URLs when we make the repository public
+
 if (process.platform === 'darwin') {
-  config.fileName = `Git-macOS-${config.version}-64-bit.zip`
-  // TODO: swap this out for something more official, lol
-  config.source = `https://www.dropbox.com/s/w2l51jsibl90jtd/${config.fileName}?dl=1`
-  config.checksum = '5193a0923a7fc7cadc6d644d83bab184548987079f498cd77ee9df2a4509402e'
+  config.source = `https://www.dropbox.com/s/uie0f4iopug2zfb/${config.fileName}?dl=1`
+  config.checksum = 'f63307e1b0ed3a6a4a607b30f801cc6ba99d6ee6dc25a0056e79e102c521a6eb'
 } else if (process.platform === 'win32') {
-  config.upstreamVersion = `v${config.version}.windows.1`
-  config.fileName = `MinGit-${config.version}-64-bit.zip`
-  config.source = `https://github.com/git-for-windows/git/releases/download/${config.upstreamVersion}/${config.fileName}`
-  config.checksum = '2e1101ec57da526728704c04792293613f3c5aa18e65f13a4129d00b54de2087'
+  config.source = `https://www.dropbox.com/s/yf33r47e3zby8mo/${config.fileName}?dl=1`
+  config.checksum = '0aab55d5fbd9185052bd3f10292562d24650d44ce3e0b462cc8f1a53b5e70867'
 } else if (process.platform === 'linux') {
-  // TODO: these versions are out of sync, whatever
-  config.fileName = `git-2.10.1-ubuntu.tgz`
-  config.source = `https://www.dropbox.com/s/te0grj36xm9dkic/${config.fileName}?dl=1`
-  config.checksum = '1e67dbd01de8d719a56d082c3ed42e52f2c38dc8ac8f65259b8660e028f85a30'
+  config.source = `https://www.dropbox.com/s/0ncude55tc2d8i5/${config.fileName}?dl=1`
+  config.checksum = '49dd340c7fe813aeb039122a400e852caf0e393aca5cb61dba2c6b36c3d44b8b'
 }
 const fullUrl = config.source
 
@@ -53,11 +57,7 @@ function handleError (url, error) {
 
 function extract (source, callback) {
   if (path.extname(source) === '.zip') {
-    let options = { }
-    options.plugins = [
-      decompressUnzip()
-    ]
-    const result = decompress(source, config.outputPath, options)
+    const result = decompress(source, config.outputPath)
     result
       .then(() => {
         callback(null)
@@ -113,6 +113,7 @@ const downloadCallback = function (error, response, body) {
       if (valid) {
         unpackFile(temporaryFile)
       } else {
+        console.log(`checksum verification failed, refusing to unpack...`)
         process.exit(1)
       }
     })

@@ -6,21 +6,27 @@ import * as fs from 'fs'
 import * as crypto from 'crypto'
 
 import { GitProcess, GitError } from '../../lib'
-import { initialize } from '../helpers'
+import { initialize, verify } from '../helpers'
+
+import { gitVersion } from '../../script/versions'
 
 const temp = require('temp').track()
 
 describe('git-process', () => {
   it('can launch git', async () => {
     const result = await GitProcess.exec([ '--version' ], __dirname)
-    expect(result.stdout.length).to.be.greaterThan(0)
+    verify(result, r => {
+      expect(r.stdout).to.contain(`git version ${gitVersion}`)
+    })
   })
 
   describe('exitCode', () => {
     it('returns exit code when folder is empty', async () => {
       const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
       const result = await GitProcess.exec([ 'show', 'HEAD' ], testRepoPath)
-      expect(result.exitCode).to.equal(128)
+      verify(result, r => {
+        expect(r.exitCode).to.equal(128)
+      })
     })
 
     describe('diff', () => {
@@ -31,8 +37,10 @@ describe('git-process', () => {
         fs.writeFileSync(file, 'this is a new file')
         const result = await GitProcess.exec([ 'diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md' ], testRepoPath)
 
-        expect(result.exitCode).to.equal(1)
-        expect (result.stdout.length).to.be.greaterThan(0)
+        verify(result, r => {
+          expect(r.exitCode).to.equal(1)
+          expect (r.stdout.length).to.be.greaterThan(0)
+        })
       })
 
       it('returns expected error code for repository with history when creating diff', async () => {
@@ -47,8 +55,11 @@ describe('git-process', () => {
         const file = path.join(testRepoPath, 'new-file.md')
         fs.writeFileSync(file, 'this is a new file')
         const result = await GitProcess.exec([ 'diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md' ], testRepoPath)
-        expect(result.exitCode).to.equal(1)
-        expect(result.stdout.length).to.be.greaterThan(0)
+
+        verify(result, r => {
+          expect(r.exitCode).to.equal(1)
+          expect(r.stdout.length).to.be.greaterThan(0)
+        })
       })
 
       it('throws error when exceeding the output range', async () => {

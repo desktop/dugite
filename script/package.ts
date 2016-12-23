@@ -24,6 +24,13 @@ const platform = process.argv[2]
 const dir = tmpdir()
 const root = path.join(dir, 'git-kitchen-sink')
 
+function formatPlatform(platform: string): string {
+  if (platform === 'linux') {
+    return 'ubuntu'
+  }
+  return platform
+}
+
 if (!fs.existsSync(root)) {
   fs.mkdirSync(root)
 }
@@ -34,14 +41,15 @@ Config.getConfig(platform)
       return Promise.reject(`unhandled platform found: ${platform}`)
     } else {
 
-      const temporaryGitDirectory = path.join(root, platform, config.git.version)
-      const destinationFile = `git-kitchen-sink-${platform}-v${config.outputVersion}.tgz`
+      let outputPlatform = formatPlatform(platform)
+      const temporaryGitDirectory = path.join(root, outputPlatform, config.git.version)
+      const destinationFile = `git-kitchen-sink-${outputPlatform}-v${config.outputVersion}.tgz`
       const destination = path.join(root, destinationFile)
 
       return cleanupAll(temporaryGitDirectory)
         .then(() => Downloader.downloadGit(config, root))
-        .then(() => Downloader.downloadGitLFS(config!, root))
-        .then(() => Archiver.unpackAll(platform, config!, root))
+        .then(() => Downloader.downloadGitLFS(config, root))
+        .then(() => Archiver.unpackAll(outputPlatform, config, root))
         .then(() => Archiver.create(temporaryGitDirectory, destination))
         .then(() => Archiver.output(destination))
     }

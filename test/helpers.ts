@@ -1,4 +1,4 @@
-import { GitProcess } from '../lib'
+import { GitProcess, IGitResult } from '../lib'
 
 const temp = require('temp').track()
 
@@ -8,4 +8,17 @@ export async function initialize(repositoryName: string) : Promise<string> {
   await GitProcess.exec([ 'config', 'user.email', '"some.user@email.com"' ], testRepoPath)
   await GitProcess.exec([ 'config', 'user.name', '"Some User"' ], testRepoPath)
   return testRepoPath
+}
+
+export function verify(result: IGitResult, callback: (result: IGitResult) => void) {
+  try {
+    callback(result)
+  } catch (e) {
+    console.log('error encountered while verifying; poking at response from Git:')
+    console.log(` - exitCode: ${result.exitCode}`)
+    console.log(` - stdout: ${result.stdout.trim()}`)
+    console.log(` - stderr: ${result.stderr.trim()}`)
+    console.log()
+    throw e
+  }
 }
