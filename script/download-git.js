@@ -8,34 +8,41 @@ const fs = require('fs')
 const checksum = require('checksum')
 const rimraf = require('rimraf')
 
-const baseUrl = process.env.NPM_CONFIG_ELECTRON_MIRROR ||
-  process.env.npm_config_electron_mirror ||
-  process.env.ELECTRON_MIRROR ||
-  process.env.electron_mirror ||
-  'https://github.com/electron/electron/releases/download/v'
+const tar = require('tar')
+const zlib = require('zlib')
 
 const config = {
-  baseUrl: baseUrl,
   outputPath: path.join(__dirname, '..', 'git'),
-  version: '2.10.0',
+  version: '2.11.0',
+  build: '7',
   source: '',
   checksum: '',
   upstreamVersion: '',
   fileName: ''
 }
 
-if (process.platform === 'darwin') {
-  config.fileName = `Git-macOS-${config.version}-64-bit.zip`
-  // TODO: swap this out for something more official, lol
-  config.source = `https://www.dropbox.com/s/w2l51jsibl90jtd/${config.fileName}?dl=1`
-  config.checksum = '5193a0923a7fc7cadc6d644d83bab184548987079f498cd77ee9df2a4509402e'
-} else if (process.platform === 'win32') {
-  config.upstreamVersion = `v${config.version}.windows.1`
-  config.fileName = `MinGit-${config.version}-64-bit.zip`
-  config.source = `https://github.com/git-for-windows/git/releases/download/${config.upstreamVersion}/${config.fileName}`
-  config.checksum = '2e1101ec57da526728704c04792293613f3c5aa18e65f13a4129d00b54de2087'
+function formatPlatform(platform) {
+  // switching this to Ubuntu to ensure it's clear what we're installing here
+  if (platform === 'linux') {
+    return 'ubuntu'
+  }
+  return platform
 }
 
+config.fileName = `git-kitchen-sink-${formatPlatform(process.platform)}-v${config.version}-${config.build}.tgz`
+
+// TODO: swap these out for official release URLs when we make the repository public
+
+if (process.platform === 'darwin') {
+  config.source = `https://www.dropbox.com/s/uie0f4iopug2zfb/${config.fileName}?dl=1`
+  config.checksum = 'f63307e1b0ed3a6a4a607b30f801cc6ba99d6ee6dc25a0056e79e102c521a6eb'
+} else if (process.platform === 'win32') {
+  config.source = `https://www.dropbox.com/s/yf33r47e3zby8mo/${config.fileName}?dl=1`
+  config.checksum = '0aab55d5fbd9185052bd3f10292562d24650d44ce3e0b462cc8f1a53b5e70867'
+} else if (process.platform === 'linux') {
+  config.source = `https://www.dropbox.com/s/0ncude55tc2d8i5/${config.fileName}?dl=1`
+  config.checksum = '49dd340c7fe813aeb039122a400e852caf0e393aca5cb61dba2c6b36c3d44b8b'
+}
 const fullUrl = config.source
 
 function handleError (url, error) {
@@ -48,31 +55,40 @@ function handleError (url, error) {
   process.exit(1)
 }
 
-function unzip (path, callback) {
-  const result = decompress(path, config.outputPath)
+function extract (source, callback) {
+  if (path.extname(source) === '.zip') {
+    const result = decompress(source, config.outputPath)
+    result
+      .then(() => {
+        callback(null)
+      })
+      .catch(err => {
+        callback(err)
+      })
 
-  result
-    .then(() => {
-      callback(null)
-    })
-    .catch(err => {
-      callback(err)
-    })
+  } else {
+    const extractor = tar.Extract({path: config.outputPath})
+      .on('error', function (error) { callback(error) })
+      .on('end', function () { callback() })
+
+    fs.createReadStream(source)
+      .on('error', function (error) { callback(error) })
+      .pipe(zlib.Gunzip())
+      .pipe(extractor)
+  }
 }
 
 const dir = tmpdir()
 const temporaryFile = path.join(dir, config.fileName)
 
 const verifyFile = function (file, callback) {
-  // console.log(`verifying checksum...`)
-
   checksum.file(file, { algorithm: 'sha256' }, (_, hash) => {
     callback(hash === config.checksum)
   })
 }
 
 const unpackFile = function (file) {
-  unzip(file, function (error) {
+  extract(file, function (error) {
     if (error) {
       return handleError(fullUrl, error)
     }
@@ -95,10 +111,9 @@ const downloadCallback = function (error, response, body) {
 
     verifyFile(temporaryFile, valid => {
       if (valid) {
-        // console.log('file valid. unpacking...')
         unpackFile(temporaryFile)
       } else {
-        // console.log('file not valid. aborting...')
+        console.log(`checksum verification failed, refusing to unpack...`)
         process.exit(1)
       }
     })
@@ -137,7 +152,6 @@ mkdirp(config.outputPath, function (error) {
   }
 
   if (fs.existsSync(config.outputPath)) {
-    // console.log(`directory exists at ${config.outputPath}, removing...`)
     try {
       rimraf.sync(config.outputPath)
     } catch (err) {
@@ -147,20 +161,16 @@ mkdirp(config.outputPath, function (error) {
   }
 
   if (fs.existsSync(temporaryFile)) {
-    // console.log(`cached file exists at ${temporaryFile}, verifying...`)
     verifyFile(temporaryFile, valid => {
       if (valid) {
         unpackFile(temporaryFile)
       } else {
-        // console.log('cached file not valid. removing...')
         rimraf.sync(temporaryFile)
         downloadAndUnpack()
       }
     })
     return
   }
-
-  // console.log(`file does not exist. downloading...`)
 
   downloadAndUnpack()
 })

@@ -8,17 +8,18 @@ To get started: `npm install git-kitchen-sink --save`
 And then reference it in your application:
 
 ```js
-import { GitProcess, GitError, GitErrorCode } from 'git-kitchen-sink'
+import { GitProcess, GitError, IGitResult } from 'git-kitchen-sink'
 
 const pathToRepository = 'C:/path/to/git/repository/'
 
-GitProcess.execWithOutput([ '--version' ], pathToRepository)
-  .then(output => {
-    // TODO: read version
-  })
-  .catch(error => {
-    // TODO: better error handling
-  })
+const result = await GitProcess.exec([ 'status' ], pathToRepository)
+if (result.exitCode === 0) {
+  const version = result.stdout
+  // TODO: do some things with version
+} else {
+  const error = result.stderr
+  // TODO: error handling
+}
 ```
 
 Current features:

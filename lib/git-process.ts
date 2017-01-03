@@ -43,6 +43,15 @@ export interface IGitExecutionOptions {
   readonly stdinEncoding?: string
 
   /**
+   * The size the output buffer to allocate to the spawned process. Set this
+   * if you are anticipating a large amount of output.
+   *
+   * If not specified, this will be 10MB (10485760 bytes) which should be
+   * enough for most Git operations.
+   */
+  readonly maxBuffer?: number
+
+  /**
    * An optional callback which will be invoked with the child
    * process instance after spawning the git process.
    *
@@ -69,7 +78,7 @@ export class GitProcess {
    */
   private static resolveGitBinary(): string {
     const gitDir = GitProcess.resolveGitDir()
-    if (process.platform === 'darwin') {
+    if (process.platform === 'darwin' || process.platform === 'linux') {
       return path.join(gitDir, 'bin', 'git')
     } else if (process.platform === 'win32') {
       return path.join(gitDir, 'cmd', 'git.exe')
@@ -81,7 +90,7 @@ export class GitProcess {
   /** Find the path to the embedded git exec path. */
   private static resolveGitExecPath(): string {
     const gitDir = GitProcess.resolveGitDir()
-    if (process.platform === 'darwin') {
+    if (process.platform === 'darwin' || process.platform === 'linux') {
       return path.join(gitDir, 'libexec', 'git-core')
     } else if (process.platform === 'win32') {
       return path.join(gitDir, 'mingw64', 'libexec', 'git-core')
@@ -132,6 +141,23 @@ export class GitProcess {
         }
       }
 
+      if (process.platform === 'linux') {
+        // when building Git for Linux and then running it from
+        // an arbitrary location, you should set PREFIX for the
+        // process to ensure that it knows how to resolve things
+        const gitDir = GitProcess.resolveGitDir()
+        env.PREFIX = gitDir
+
+        // templates are used to populate your .git folder
+        // when a repository is initialized locally
+        const templateDir = `${gitDir}/share/git-core/templates`
+        env.GIT_TEMPLATE_DIR = templateDir
+
+        // bypass whatever certificates might be set and use
+        // the bundle included in the distibution
+        const sslCABundle = `${gitDir}/ssl/certs/ca-bundle.crt`
+        env.GIT_SSL_CAINFO = sslCABundle
+      }
       // Explicitly annotate opts since typescript is unable to infer the correct
       // signature for execFile when options is passed as an opaque hash. The type
       // definition for execFile currently infers based on the encoding parameter
@@ -140,7 +166,7 @@ export class GitProcess {
       const execOptions: ExecOptionsWithStringEncoding = {
         cwd: path,
         encoding: 'utf8',
-        maxBuffer: 10 * 1024 * 1024,
+        maxBuffer: options ? options.maxBuffer : 10 * 1024 * 1024,
         env
       }
 
@@ -154,6 +180,15 @@ export class GitProcess {
 
           reject(new Error('Git could not be found. This is most likely a problem in git-kitchen-sink itself.'))
           return
+        }
+
+        if (code === undefined && err) {
+          // Git has returned an output that couldn't fit in the specified buffer
+          // as we don't know how many bytes it requires, rethrow the error with
+          // details about what it was previously set to...
+          if (err.message === 'stdout maxBuffer exceeded') {
+            reject(new Error(`The output from the command could not fit into the allocated stdout buffer. Set options.maxBuffer to a larger value than ${execOptions.maxBuffer} bytes`))
+          }
         }
 
         resolve({ stdout, stderr, exitCode: code })

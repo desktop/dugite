@@ -27,11 +27,13 @@ export enum GitError {
   NonFastForwardMergeIntoEmptyHead,
   PatchDoesNotApply,
   BranchAlreadyExists,
+  BadRevision,
 }
 
 /** A mapping from regexes to the git error they identify. */
 export const GitErrorRegexes = {
   "ERROR: ([\\s\\S]+?)\\n+\\[EPOLICYKEYAGE\\]\\n+fatal: Could not read from remote repository.": GitError.SSHKeyAuditUnverified,
+  "fatal: Authentication failed for 'https://": GitError.HTTPSAuthenticationFailed,
   "fatal: Authentication failed": GitError.SSHAuthenticationFailed,
   "fatal: Could not read from remote repository.": GitError.SSHPermissionDenied,
   "The requested URL returned error: 403": GitError.HTTPSAuthenticationFailed,
@@ -57,6 +59,7 @@ export const GitErrorRegexes = {
   "fatal: Non-fast-forward commit does not make sense into an empty head": GitError.NonFastForwardMergeIntoEmptyHead,
   "error: (.+): (patch does not apply|already exists in working directory)": GitError.PatchDoesNotApply,
   "fatal: A branch named '(.+)' already exists.": GitError.BranchAlreadyExists,
+  "fatal: bad revision '(.*)'": GitError.BadRevision,
 }
 
 /** The exit code for 'Error No Entry' which could mean many things */
