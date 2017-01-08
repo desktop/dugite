@@ -16,8 +16,13 @@ describe('commit', () => {
 
     await GitProcess.exec([ 'init' ], testRepoPath)
 
+    // for CI environments, no user info set - so let's stub something in the repo
+    await GitProcess.exec([ 'config', 'user.email', '"test@example.com"'], testRepoPath)
+    await GitProcess.exec([ 'config', 'user.name', '"Some Test User"'], testRepoPath)
+
     const readme = Path.join(testRepoPath, 'README.md')
     Fs.writeFileSync(readme, 'HELLO WORLD!')
+
 
     await GitProcess.exec([ 'add', 'README.md'], testRepoPath)
 
