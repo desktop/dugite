@@ -23,7 +23,6 @@ describe('commit', () => {
     const readme = Path.join(testRepoPath, 'README.md')
     Fs.writeFileSync(readme, 'HELLO WORLD!')
 
-
     await GitProcess.exec([ 'add', 'README.md'], testRepoPath)
 
     const message = 'committed the README'
