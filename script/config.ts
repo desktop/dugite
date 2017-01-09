@@ -36,14 +36,14 @@ export class Config {
     const foundGitLFS = await Downloader.resolveGitLFSForPlatform(gitLfsVersion, lfsPlatform)
 
     if (platform === 'darwin') {
-      const fileName = `git-${gitVersion}-macOS-6.zip`
+      const fileName = `git-${gitVersion}-macOS-7.zip`
       return {
         git: {
           version: gitVersion,
           fileName: fileName,
           // NOTE: update these details if the place hosting the Git bits has changed
-          source: `https://www.dropbox.com/s/hwbsug8zf2y44vw/${fileName}?dl=1`,
-          checksum: 'a0d08e2fd6e8a8bde3e7053f5defecf12b380408159ed326a7e16b6d675a177b',
+          source: `https://www.dropbox.com/s/k13vkxmoqj6zt8l/${fileName}?dl=1`,
+          checksum: '8e37c537cd76aa258235f2c106d99748e561bb7e3bc4998721bacedc5f879a4f',
         },
         lfs: {
           version: gitLfsVersion,
@@ -73,7 +73,7 @@ export class Config {
         outputVersion
       }
     } else {
-      const fileName = `git-${gitVersion}-ubuntu-6.zip`
+      const fileName = `git-${gitVersion}-ubuntu-7.zip`
       return {
         git: {
           version: gitVersion,
