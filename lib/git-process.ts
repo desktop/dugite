@@ -141,7 +141,7 @@ export class GitProcess {
         }
       }
 
-      if (process.platform === 'darwin') {
+      if (process.platform === 'darwin' || process.platform === 'linux') {
         // templates are used to populate your .git folder
         // when a repository is initialized locally
         const templateDir = `${gitDir}/share/git-core/templates`
@@ -153,11 +153,6 @@ export class GitProcess {
         // an arbitrary location, you should set PREFIX for the
         // process to ensure that it knows how to resolve things
         env.PREFIX = gitDir
-
-        // templates are used to populate your .git folder
-        // when a repository is initialized locally
-        const templateDir = `${gitDir}/share/git-core/templates`
-        env.GIT_TEMPLATE_DIR = templateDir
 
         // bypass whatever certificates might be set and use
         // the bundle included in the distibution
