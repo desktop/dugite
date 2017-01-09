@@ -141,6 +141,15 @@ export class GitProcess {
         }
       }
 
+      if (process.platform === 'darwin') {
+        const gitDir = GitProcess.resolveGitDir()
+
+        // templates are used to populate your .git folder
+        // when a repository is initialized locally
+        const templateDir = `${gitDir}/share/git-core/templates`
+        env.GIT_TEMPLATE_DIR = templateDir
+      }
+
       if (process.platform === 'linux') {
         // when building Git for Linux and then running it from
         // an arbitrary location, you should set PREFIX for the
@@ -158,6 +167,7 @@ export class GitProcess {
         const sslCABundle = `${gitDir}/ssl/certs/ca-bundle.crt`
         env.GIT_SSL_CAINFO = sslCABundle
       }
+
       // Explicitly annotate opts since typescript is unable to infer the correct
       // signature for execFile when options is passed as an opaque hash. The type
       // definition for execFile currently infers based on the encoding parameter
