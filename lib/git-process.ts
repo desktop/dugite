@@ -119,9 +119,9 @@ export class GitProcess {
       const gitLocation = GitProcess.resolveGitBinary()
 
       let envPath: string = process.env.PATH || ''
+      const gitDir = GitProcess.resolveGitDir()
 
       if (process.platform === 'win32') {
-        const gitDir = GitProcess.resolveGitDir()
         envPath = `${gitDir}\\mingw64\\bin;${envPath}`
       }
 
@@ -142,8 +142,6 @@ export class GitProcess {
       }
 
       if (process.platform === 'darwin') {
-        const gitDir = GitProcess.resolveGitDir()
-
         // templates are used to populate your .git folder
         // when a repository is initialized locally
         const templateDir = `${gitDir}/share/git-core/templates`
@@ -154,7 +152,6 @@ export class GitProcess {
         // when building Git for Linux and then running it from
         // an arbitrary location, you should set PREFIX for the
         // process to ensure that it knows how to resolve things
-        const gitDir = GitProcess.resolveGitDir()
         env.PREFIX = gitDir
 
         // templates are used to populate your .git folder
