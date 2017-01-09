@@ -66,7 +66,7 @@ export class GitProcess {
    *  Find the path to the embedded Git environment
    */
   private static resolveGitDir(): string {
-    if (process.env.TEST) {
+    if (process.env.TEST_WITH_LOCAL_GIT) {
       return path.join(__dirname, '..', 'git')
     } else {
       return path.join(__dirname, '..', '..', 'git')

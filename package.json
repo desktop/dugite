@@ -14,8 +14,8 @@
     "pack": "npm run pack-win && npm run pack-mac && npm run pack-linux",
     "prepublish": "npm run build && npm run test",
     "test": "npm run test:fast && npm run test:slow",
-    "test:fast": "cross-env TEST=1 mocha --require ts-node/register test/fast/*.ts test/auth/*.ts",
-    "test:slow": "cross-env TEST=1 mocha -t 10000ms --require ts-node/register test/slow/*.ts test/auth/*.ts",
+    "test:fast": "cross-env TEST_WITH_LOCAL_GIT=1 mocha --require ts-node/register test/fast/*.ts test/auth/*.ts",
+    "test:slow": "cross-env TEST_WITH_LOCAL_GIT=1 mocha -t 10000ms --require ts-node/register test/slow/*.ts test/auth/*.ts",
     "postinstall": "node ./script/download-git.js"
   },
   "engines": {
