@@ -35,13 +35,13 @@ config.fileName = `git-kitchen-sink-${formatPlatform(process.platform)}-v${confi
 
 if (process.platform === 'darwin') {
   config.source = `https://www.dropbox.com/s/okgev1575noirnr/${config.fileName}?dl=1`
-  config.checksum = 'd9c945060a1b356a160ae4ea20f833c2b15cdef16230e0f557d236c6a463f9ba'
+  config.checksum = '8aa12422acdf670334a7e5eb28a17ee9eeb7cbd0a5b740109d8d14ce019dc9b1'
 } else if (process.platform === 'win32') {
   config.source = `https://www.dropbox.com/s/jyzqqag4co0ul54/${config.fileName}?dl=1`
-  config.checksum = '449a4687b537cd32adcf000e8666b261ddd28e7390241373da213bc8c48d5675'
+  config.checksum = 'b0f5fba91547f6c2febd265173bbb28201d32ac754685dc9dad96c856fb84f54'
 } else if (process.platform === 'linux') {
   config.source = `https://www.dropbox.com/s/i96j5b40h626f1l/${config.fileName}?dl=1`
-  config.checksum = '7ed8a337b22b2d626b52c4a49f05f4cb867199912a929bc131b2e6fc5d86f8e3'
+  config.checksum = '3890be84783324ebc4ae69ddf2d7e8a87ef8fe0948474841657de7018c125a40'
 }
 const fullUrl = config.source
 
