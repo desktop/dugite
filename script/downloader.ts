@@ -41,6 +41,11 @@ export class Downloader {
       }
     };
 
+    if (process.env.GITHUB_API_TOKEN) {
+      const headers = options.headers as any
+      headers['Authorization'] = `Token ${process.env.GITHUB_API_TOKEN}`
+    }
+
     return new Promise<ReadonlyArray<Asset>>((resolve, reject) => {
       request.get(options, (error, response, body) => {
 
