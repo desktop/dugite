@@ -47,7 +47,7 @@ export class Config {
         },
         lfs: {
           version: gitLfsVersion,
-          checksum: '248cd9ed2f9bbd347bd398f73ce8ca73613bb48a3b0882440e0b40e83fb2d3fa',
+          checksum: '2227668c76a07931dd387602f67c99d5d42f0a99c73b76f8949bbfe3a4cc49c7',
           url: foundGitLFS.url,
           fileName: foundGitLFS.fileName
         },
@@ -66,7 +66,7 @@ export class Config {
         },
         lfs: {
           version: gitLfsVersion,
-          checksum: '75266d8798f7bb16dc163a7fef7f6145f53a7f740f098e10c8a8bdef56b4fc78',
+          checksum: '7c23635f34b0b4eed55621231148ef3e0de9a46e2d629b4bba7f706a96ae77ea',
           url: foundGitLFS.url,
           fileName: foundGitLFS.fileName
         },
@@ -84,7 +84,7 @@ export class Config {
         },
         lfs: {
           version: gitLfsVersion,
-          checksum: 'cc21d28433a6eefef8287db6fb09e857b96a139ddcd3f228ff70a482e5dd226d',
+          checksum: '910b2b5c158b238256087cae9b84cbc0bfb83c061d5b41161b79ca08cf61b2e8',
           url: foundGitLFS.url,
           fileName: foundGitLFS.fileName
         },
