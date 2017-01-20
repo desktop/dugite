@@ -156,7 +156,7 @@ export class GitProcess {
 
         // bypass whatever certificates might be set and use
         // the bundle included in the distibution
-        const sslCABundle = `${gitDir}/ssl/certs/ca-bundle.crt`
+        const sslCABundle = `${gitDir}/ssl/cacert.pem`
         env.GIT_SSL_CAINFO = sslCABundle
       }
 
