@@ -34,13 +34,13 @@ config.fileName = `git-kitchen-sink-${formatPlatform(process.platform)}-v${confi
 // TODO: swap these out for official release URLs when we make the repository public
 
 if (process.platform === 'darwin') {
-  config.source = `https://www.dropbox.com/s/okgev1575noirnr/${config.fileName}?dl=1`
+  config.source = `https://www.dropbox.com/s/cstb5k9eppyggau/${config.fileName}?dl=1`
   config.checksum = '8aa12422acdf670334a7e5eb28a17ee9eeb7cbd0a5b740109d8d14ce019dc9b1'
 } else if (process.platform === 'win32') {
-  config.source = `https://www.dropbox.com/s/jyzqqag4co0ul54/${config.fileName}?dl=1`
+  config.source = `https://www.dropbox.com/s/ryuoxyjpfu25j4u/${config.fileName}?dl=1`
   config.checksum = 'b0f5fba91547f6c2febd265173bbb28201d32ac754685dc9dad96c856fb84f54'
 } else if (process.platform === 'linux') {
-  config.source = `https://www.dropbox.com/s/i96j5b40h626f1l/${config.fileName}?dl=1`
+  config.source = `https://www.dropbox.com/s/qtte8kupyb586xe/${config.fileName}?dl=1`
   config.checksum = '3890be84783324ebc4ae69ddf2d7e8a87ef8fe0948474841657de7018c125a40'
 }
 const fullUrl = config.source
