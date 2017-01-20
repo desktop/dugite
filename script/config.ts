@@ -36,14 +36,14 @@ export class Config {
     const foundGitLFS = await Downloader.resolveGitLFSForPlatform(gitLfsVersion, lfsPlatform)
 
     if (platform === 'darwin') {
-      const fileName = `git-${gitVersion}-macOS-7.zip`
+      const fileName = `git-${gitVersion}-macOS-8.zip`
       return {
         git: {
           version: gitVersion,
           fileName: fileName,
           // NOTE: update these details if the place hosting the Git bits has changed
-          source: `https://www.dropbox.com/s/k13vkxmoqj6zt8l/${fileName}?dl=1`,
-          checksum: '8e37c537cd76aa258235f2c106d99748e561bb7e3bc4998721bacedc5f879a4f',
+          source: `https://www.dropbox.com/s/ldnteh38mxdohyc/${fileName}?dl=1`,
+          checksum: '505d0e4f38d58bf30d7a2ada82ca548eff076c62635b5abc2ccf76524ae922bd',
         },
         lfs: {
           version: gitLfsVersion,
@@ -54,15 +54,15 @@ export class Config {
         outputVersion
       }
     } else if (platform === 'win32') {
-      const upstreamVersion = `v${gitVersion}.windows.1`
-      const fileName = `MinGit-${gitVersion}-64-bit.zip`
+      const upstreamVersion = `v${gitVersion}.windows.3`
+      const fileName = `MinGit-${gitVersion}.3-64-bit.zip`
       return {
         git: {
           version: gitVersion,
           fileName: fileName,
           // NOTE: update these details if the place hosting the Git bits has changed
           source: `https://github.com/git-for-windows/git/releases/download/${upstreamVersion}/${fileName}`,
-          checksum: 'f31b0135e11e425555fb34779da3345ce8d32490fdd0a33b6f5ae8d74bae20b6',
+          checksum: 'bf3714e04bcbafb464353235a27c328c43d40568d6b2e9064f1a63444b8236c5',
         },
         lfs: {
           version: gitLfsVersion,
@@ -73,14 +73,14 @@ export class Config {
         outputVersion
       }
     } else {
-      const fileName = `git-${gitVersion}-ubuntu-7.zip`
+      const fileName = `git-${gitVersion}-ubuntu-8.zip`
       return {
         git: {
           version: gitVersion,
           fileName: fileName,
           // NOTE: update these details if the place hosting the Git bits has changed
-          source: `https://www.dropbox.com/s/73dsiut3azwokao/${fileName}?dl=1`,
-          checksum: 'bfe8e6e80e0afe90725a0d4986f5477dcfb612dd15c983cb9350192677a2aa2d',
+          source: `https://www.dropbox.com/s/ubqqdyszu41dcan/${fileName}?dl=1`,
+          checksum: 'c7e36973a6fe1d71011b874da7584a5e3602c960c22d0d553aa26f5eac39993b',
         },
         lfs: {
           version: gitLfsVersion,
