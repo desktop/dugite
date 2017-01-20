@@ -1,6 +1,6 @@
 {
   "name": "git-kitchen-sink",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "description": "Incorporate Git into your Electron application",
   "main": "./build/lib/index.js",
   "typings": "./build/lib/index.d.ts",
