@@ -14,7 +14,7 @@ const zlib = require('zlib')
 const config = {
   outputPath: path.join(__dirname, '..', 'git'),
   version: '2.11.0',
-  build: '8',
+  build: '9',
   source: '',
   checksum: '',
   upstreamVersion: '',
@@ -34,14 +34,14 @@ config.fileName = `git-kitchen-sink-${formatPlatform(process.platform)}-v${confi
 // TODO: swap these out for official release URLs when we make the repository public
 
 if (process.platform === 'darwin') {
-  config.source = `https://www.dropbox.com/s/r5pqhg7ba6blpv4/${config.fileName}?dl=1`
-  config.checksum = '4fcb5434e87d133339c308a4d9622c8c690d808f0b8b32a385d8178c1a4b0a24'
+  config.source = `https://www.dropbox.com/s/cstb5k9eppyggau/${config.fileName}?dl=1`
+  config.checksum = '8aa12422acdf670334a7e5eb28a17ee9eeb7cbd0a5b740109d8d14ce019dc9b1'
 } else if (process.platform === 'win32') {
-  config.source = `https://www.dropbox.com/s/yf33r47e3zby8mo/${config.fileName}?dl=1`
-  config.checksum = '0aab55d5fbd9185052bd3f10292562d24650d44ce3e0b462cc8f1a53b5e70867'
+  config.source = `https://www.dropbox.com/s/ryuoxyjpfu25j4u/${config.fileName}?dl=1`
+  config.checksum = 'b0f5fba91547f6c2febd265173bbb28201d32ac754685dc9dad96c856fb84f54'
 } else if (process.platform === 'linux') {
-  config.source = `https://www.dropbox.com/s/ofdvkkfq99nsab7/${config.fileName}?dl=1`
-  config.checksum = '20b48a678ee7b717c8b7a7c6dafc9471c82e82e8ebe8edc2b0101d5d99ab53c8'
+  config.source = `https://www.dropbox.com/s/qtte8kupyb586xe/${config.fileName}?dl=1`
+  config.checksum = '3890be84783324ebc4ae69ddf2d7e8a87ef8fe0948474841657de7018c125a40'
 }
 const fullUrl = config.source
 
