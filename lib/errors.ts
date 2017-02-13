@@ -1,6 +1,5 @@
 /** The git errors which can be parsed from failed git commands. */
 export enum GitError {
-  GitNotFound,
   SSHKeyAuditUnverified,
   SSHAuthenticationFailed,
   SSHPermissionDenied,
@@ -28,6 +27,7 @@ export enum GitError {
   PatchDoesNotApply,
   BranchAlreadyExists,
   BadRevision,
+  NotAGitRepository,
 }
 
 /** A mapping from regexes to the git error they identify. */
@@ -60,6 +60,7 @@ export const GitErrorRegexes = {
   "error: (.+): (patch does not apply|already exists in working directory)": GitError.PatchDoesNotApply,
   "fatal: A branch named '(.+)' already exists.": GitError.BranchAlreadyExists,
   "fatal: bad revision '(.*)'": GitError.BadRevision,
+  "fatal: Not a git repository (or any of the parent directories): (.*)": GitError.NotAGitRepository,
 }
 
 /**
