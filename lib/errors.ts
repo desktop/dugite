@@ -62,5 +62,17 @@ export const GitErrorRegexes = {
   "fatal: bad revision '(.*)'": GitError.BadRevision,
 }
 
-/** The exit code for 'Error No Entry' which could mean many things */
-export const NotFoundExitCode = "ENOENT"
+/**
+ * The error code for 'Error No Entry' which could mean many things. This is a
+ * catch-all for errors we can't otherwise determine.
+ */
+export const NotFoundErrorCode = 'ENOENT'
+
+/**
+ * The error code for when git cannot be found. This most likely indicates a
+ * problem with git-kitchen-sink itself.
+ */
+export const GitNotFoundErrorCode = 'git-not-found-error'
+
+/** The error code for when the path to a repository doesn't exist. */
+export const RepositoryDoesNotExistErrorCode = 'repository-does-not-exist-error'

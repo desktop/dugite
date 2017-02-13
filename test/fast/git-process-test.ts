@@ -5,8 +5,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import * as crypto from 'crypto'
 
-import { GitProcess, GitError } from '../../lib'
-import { NotFoundExitCode } from '../../lib/errors'
+import { GitProcess, GitError, RepositoryDoesNotExistErrorCode } from '../../lib'
 import { initialize, verify } from '../helpers'
 
 import { gitVersion } from '../../script/versions'
@@ -95,7 +94,7 @@ describe('git-process', () => {
       }
 
       expect(error!.message).to.equal('Unable to find path to repository on disk.')
-      expect((error as any).code).to.equal(NotFoundExitCode)
+      expect((error as any).code).to.equal(RepositoryDoesNotExistErrorCode)
     })
 
     it('can parse errors', () => {

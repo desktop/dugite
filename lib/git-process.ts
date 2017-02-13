@@ -2,7 +2,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 
 import { execFile, ExecOptionsWithStringEncoding } from 'child_process'
-import { GitError, GitErrorRegexes, NotFoundExitCode } from './errors'
+import { GitError, GitErrorRegexes, NotFoundErrorCode, RepositoryDoesNotExistErrorCode, GitNotFoundErrorCode } from './errors'
 import { ChildProcess } from 'child_process'
 
 /** The result of shelling out to git. */
@@ -119,8 +119,12 @@ export class GitProcess {
   /**
    * Execute a command and read the output using the embedded Git environment.
    *
-   * The returned promise will only reject when the git executable failed to launch.
-   * See the result's `stderr` and `exitCode` for any potential error information.
+   * The returned promise will reject when the git executable fails to launch,
+   * in which case the thrown Error will have a string `code` property. See
+   * `errors.ts` for some of the known error codes.
+   *
+   * See the result's `stderr` and `exitCode` for any potential git error
+   * information.
    */
   public static exec(args: string[], path: string, options?: IGitExecutionOptions): Promise<IGitResult> {
     return new Promise<IGitResult>(function(resolve, reject) {
@@ -186,12 +190,15 @@ export class GitProcess {
         // process's exit code but rather an error coming from Node's bowels,
         // e.g., ENOENT.
         if (typeof code === 'string') {
-          if (code === NotFoundExitCode) {
+          if (code === NotFoundErrorCode) {
             let message = err.message
+            let code = err.code
             if (GitProcess.pathExists(path) === false) {
               message = 'Unable to find path to repository on disk.'
+              code = RepositoryDoesNotExistErrorCode
             } else {
               message = 'Git could not be found. This is most likely a problem in git-kitchen-sink itself.'
+              code = GitNotFoundErrorCode
             }
 
             const error = new Error(message) as ErrorWithCode
