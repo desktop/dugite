@@ -61,6 +61,14 @@ export interface IGitExecutionOptions {
    readonly processCallback?: (process: ChildProcess) => void
 }
 
+/**
+ * The errors coming from `execFile` have a `code` and we wanna get at that
+ * without resorting to `any` casts.
+ */
+interface ErrorWithCode extends Error {
+  code: string | number
+}
+
 export class GitProcess {
   /**
    *  Find the path to the embedded Git environment
@@ -172,15 +180,28 @@ export class GitProcess {
         env
       }
 
-      const spawnedProcess = execFile(gitLocation, args, execOptions, function(err, stdout, stderr) {
-        const code = err ? (err as any).code : 0
-        if (code === NotFoundExitCode) {
-          if (GitProcess.pathExists(path) === false) {
-            reject(new Error('Unable to find path to repository on disk.'))
-            return
+      const spawnedProcess = execFile(gitLocation, args, execOptions, function(err: ErrorWithCode, stdout, stderr) {
+        const code = err ? err.code : 0
+        // If the error's code is a string then it means the code isn't the
+        // process's exit code but rather an error coming from Node's bowels,
+        // e.g., ENOENT.
+        if (typeof code === 'string') {
+          if (code === NotFoundExitCode) {
+            let message = err.message
+            if (GitProcess.pathExists(path) === false) {
+              message = 'Unable to find path to repository on disk.'
+            } else {
+              message = 'Git could not be found. This is most likely a problem in git-kitchen-sink itself.'
+            }
+
+            const error = new Error(message) as ErrorWithCode
+            error.name = err.name
+            error.code = code
+            reject(error)
+          } else {
+            reject(err)
           }
 
-          reject(new Error('Git could not be found. This is most likely a problem in git-kitchen-sink itself.'))
           return
         }
 
