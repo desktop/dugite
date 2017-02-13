@@ -2,7 +2,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 
 import { execFile, ExecOptionsWithStringEncoding } from 'child_process'
-import { GitError, GitErrorRegexes, NotFoundErrorCode, RepositoryDoesNotExistErrorCode, GitNotFoundErrorCode } from './errors'
+import { GitError, GitErrorRegexes, RepositoryDoesNotExistErrorCode, GitNotFoundErrorCode } from './errors'
 import { ChildProcess } from 'child_process'
 
 /** The result of shelling out to git. */
@@ -190,7 +190,7 @@ export class GitProcess {
         // process's exit code but rather an error coming from Node's bowels,
         // e.g., ENOENT.
         if (typeof code === 'string') {
-          if (code === NotFoundErrorCode) {
+          if (code === 'ENOENT') {
             let message = err.message
             let code = err.code
             if (GitProcess.pathExists(path) === false) {
