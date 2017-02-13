@@ -12,8 +12,7 @@
       "sourceMap": true,
       "outDir": "./build",
       "declaration": true,
-      "types" : [ "mocha", "node" ],
-      "typeRoots": [ "./node_modules/@types" ]
+      "types" : [ "mocha", "node" ]
     },
     "exclude": [
         "node_modules",
