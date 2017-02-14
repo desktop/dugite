@@ -1,2 +1,2 @@
 export { GitProcess, IGitResult, IGitExecutionOptions } from './git-process'
-export { GitError } from './errors'
+export { GitError, RepositoryDoesNotExistErrorCode, GitNotFoundErrorCode } from './errors'

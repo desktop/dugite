@@ -1,6 +1,5 @@
 /** The git errors which can be parsed from failed git commands. */
 export enum GitError {
-  GitNotFound,
   SSHKeyAuditUnverified,
   SSHAuthenticationFailed,
   SSHPermissionDenied,
@@ -28,6 +27,7 @@ export enum GitError {
   PatchDoesNotApply,
   BranchAlreadyExists,
   BadRevision,
+  NotAGitRepository,
 }
 
 /** A mapping from regexes to the git error they identify. */
@@ -60,7 +60,14 @@ export const GitErrorRegexes = {
   "error: (.+): (patch does not apply|already exists in working directory)": GitError.PatchDoesNotApply,
   "fatal: A branch named '(.+)' already exists.": GitError.BranchAlreadyExists,
   "fatal: bad revision '(.*)'": GitError.BadRevision,
+  "fatal: Not a git repository (or any of the parent directories): (.*)": GitError.NotAGitRepository,
 }
 
-/** The exit code for 'Error No Entry' which could mean many things */
-export const NotFoundExitCode = "ENOENT"
+/**
+ * The error code for when git cannot be found. This most likely indicates a
+ * problem with git-kitchen-sink itself.
+ */
+export const GitNotFoundErrorCode = 'git-not-found-error'
+
+/** The error code for when the path to a repository doesn't exist. */
+export const RepositoryDoesNotExistErrorCode = 'repository-does-not-exist-error'

@@ -2,7 +2,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 
 import { execFile, ExecOptionsWithStringEncoding } from 'child_process'
-import { GitError, GitErrorRegexes, NotFoundExitCode } from './errors'
+import { GitError, GitErrorRegexes, RepositoryDoesNotExistErrorCode, GitNotFoundErrorCode } from './errors'
 import { ChildProcess } from 'child_process'
 
 /** The result of shelling out to git. */
@@ -61,6 +61,14 @@ export interface IGitExecutionOptions {
    readonly processCallback?: (process: ChildProcess) => void
 }
 
+/**
+ * The errors coming from `execFile` have a `code` and we wanna get at that
+ * without resorting to `any` casts.
+ */
+interface ErrorWithCode extends Error {
+  code: string | number
+}
+
 export class GitProcess {
   /**
    *  Find the path to the embedded Git environment
@@ -111,8 +119,12 @@ export class GitProcess {
   /**
    * Execute a command and read the output using the embedded Git environment.
    *
-   * The returned promise will only reject when the git executable failed to launch.
-   * See the result's `stderr` and `exitCode` for any potential error information.
+   * The returned promise will reject when the git executable fails to launch,
+   * in which case the thrown Error will have a string `code` property. See
+   * `errors.ts` for some of the known error codes.
+   *
+   * See the result's `stderr` and `exitCode` for any potential git error
+   * information.
    */
   public static exec(args: string[], path: string, options?: IGitExecutionOptions): Promise<IGitResult> {
     return new Promise<IGitResult>(function(resolve, reject) {
@@ -172,15 +184,31 @@ export class GitProcess {
         env
       }
 
-      const spawnedProcess = execFile(gitLocation, args, execOptions, function(err, stdout, stderr) {
-        const code = err ? (err as any).code : 0
-        if (code === NotFoundExitCode) {
-          if (GitProcess.pathExists(path) === false) {
-            reject(new Error('Unable to find path to repository on disk.'))
-            return
+      const spawnedProcess = execFile(gitLocation, args, execOptions, function(err: ErrorWithCode, stdout, stderr) {
+        const code = err ? err.code : 0
+        // If the error's code is a string then it means the code isn't the
+        // process's exit code but rather an error coming from Node's bowels,
+        // e.g., ENOENT.
+        if (typeof code === 'string') {
+          if (code === 'ENOENT') {
+            let message = err.message
+            let code = err.code
+            if (GitProcess.pathExists(path) === false) {
+              message = 'Unable to find path to repository on disk.'
+              code = RepositoryDoesNotExistErrorCode
+            } else {
+              message = 'Git could not be found. This is most likely a problem in git-kitchen-sink itself.'
+              code = GitNotFoundErrorCode
+            }
+
+            const error = new Error(message) as ErrorWithCode
+            error.name = err.name
+            error.code = code
+            reject(error)
+          } else {
+            reject(err)
           }
 
-          reject(new Error('Git could not be found. This is most likely a problem in git-kitchen-sink itself.'))
           return
         }
 
