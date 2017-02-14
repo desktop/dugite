@@ -60,7 +60,7 @@ export const GitErrorRegexes = {
   "error: (.+): (patch does not apply|already exists in working directory)": GitError.PatchDoesNotApply,
   "fatal: A branch named '(.+)' already exists.": GitError.BranchAlreadyExists,
   "fatal: bad revision '(.*)'": GitError.BadRevision,
-  "fatal: Not a git repository (or any of the parent directories): (.*)": GitError.NotAGitRepository,
+  "fatal: Not a git repository \\(or any of the parent directories\\): (.*)": GitError.NotAGitRepository,
 }
 
 /**
