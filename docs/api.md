@@ -18,7 +18,7 @@ const path = 'C:/path/to/repo/'
 const options: IGitExecutionOptions = {
   // enable diagnostics
   env: {
-    'GIT_HTTP_USER_AGENT': 'git-kitchen-sink/2.10.0',
+    'GIT_HTTP_USER_AGENT': 'dugite/2.12.0',
     'GIT_TRACE': '1',
     'GIT_CURL_VERBOSE': '1'
   },
