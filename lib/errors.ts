@@ -65,7 +65,7 @@ export const GitErrorRegexes = {
 
 /**
  * The error code for when git cannot be found. This most likely indicates a
- * problem with git-kitchen-sink itself.
+ * problem with dugite itself.
  */
 export const GitNotFoundErrorCode = 'git-not-found-error'
 

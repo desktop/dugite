@@ -197,7 +197,7 @@ export class GitProcess {
               message = 'Unable to find path to repository on disk.'
               code = RepositoryDoesNotExistErrorCode
             } else {
-              message = 'Git could not be found. This is most likely a problem in git-kitchen-sink itself.'
+              message = 'Git could not be found. This is most likely a problem in dugite itself.'
               code = GitNotFoundErrorCode
             }
 
