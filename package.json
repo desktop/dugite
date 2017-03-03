@@ -1,7 +1,7 @@
 {
-  "name": "git-kitchen-sink",
+  "name": "dugite",
   "version": "1.20.0",
-  "description": "Incorporate Git into your Electron application",
+  "description": "Elegant bindings for Git",
   "main": "./build/lib/index.js",
   "typings": "./build/lib/index.d.ts",
   "scripts": {
@@ -20,14 +20,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/desktop/git-kitchen-sink.git"
+    "url": "git+https://github.com/desktop/dugite.git"
   },
   "author": "Brendan Forster",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/desktop/git-kitchen-sink/issues"
+    "url": "https://github.com/desktop/dugite/issues"
   },
-  "homepage": "https://github.com/desktop/git-kitchen-sink#readme",
+  "homepage": "https://github.com/desktop/dugite#readme",
   "dependencies": {
     "checksum": "^0.1.1",
     "decompress": "^4.0.0",

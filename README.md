@@ -1,14 +1,14 @@
-# git-kitchen-sink
-## Incorporate Git into your Electron application
+# dugite
+## Elegant Node bindings for Git
 
 This is a skunkworks project to make using Git in your Electron application.
 
-To get started: `npm install git-kitchen-sink --save`
+To get started: `npm install dugite --save`
 
 And then reference it in your application:
 
 ```js
-import { GitProcess, GitError, IGitResult } from 'git-kitchen-sink'
+import { GitProcess, GitError, IGitResult } from 'dugite'
 
 const pathToRepository = 'C:/path/to/git/repository/'
 
