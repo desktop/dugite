@@ -106,5 +106,16 @@ describe('git-process', () => {
       const error = GitProcess.parseError("fatal: bad revision 'beta..origin/beta'")
       expect(error).to.equal(GitError.BadRevision)
     })
+
+    it('can parse protected branch error', () => {
+      const stderr = `remote: error: GH006: Protected branch update failed for refs/heads/master.
+remote: error: At least one approved review is required
+To https://github.com/shiftkey-tester/protected-branches.git
+ ! [remote rejected] master -> master (protected branch hook declined)
+error: failed to push some refs to 'https://github.com/shiftkey-tester/protected-branches.git'
+`
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.ProtectedBranchRequiresReview)
+    })
   })
 })
