@@ -19,10 +19,6 @@
       true,
       "check-open-brace"
     ],
-    "quotemark": [
-      true,
-      "singe"
-    ],
     "semicolon": [
       false,
       "always"
