@@ -19,5 +19,10 @@
         "node_modules",
         "build"
     ],
+    "include": [
+        "lib/**/*.ts",
+        "script/**/*.ts",
+        "test/**/*.ts"
+    ],
     "compileOnSave": false
 }

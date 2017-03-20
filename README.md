@@ -39,7 +39,7 @@ if (result.exitCode === 0) {
 
 ### Status
 
-This project is under active development for Git-related projects at GitHub. This will stabilize as this library gets more usage in production, and is open to external contributions.
+This project is under active development for Git-related projects at GitHub. This will stabilize as this library gets more usage in production, and is open to external contributions that align with the project's goals.
 
 ### Roadmap
 

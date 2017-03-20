@@ -7,7 +7,7 @@
   "scripts": {
     "clean": "rimraf build",
     "lint": "tslint lib/**/*.ts script/**/*.ts",
-    "build": "npm run clean && npm run lint && tsc -p ./tsconfig.json",
+    "build": "npm run clean && npm run lint && tsc -p ./tsconfig.json && tsc -p ./examples/tsconfig.json",
     "prepublish": "npm run build && npm run test",
     "test": "npm run test:fast && npm run test:slow",
     "test:fast": "cross-env TEST_WITH_LOCAL_GIT=1 mocha --require ts-node/register test/fast/*.ts test/auth/*.ts",
@@ -49,6 +49,7 @@
     "@types/progress": "^1.1.28",
     "@types/request": "0.0.39",
     "@types/rimraf": "0.0.28",
+    "byline": "^5.0.0",
     "chai": "^3.5.0",
     "chai-as-promised": "^6.0.0",
     "cross-env": "^3.1.3",
