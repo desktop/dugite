@@ -1,4 +1,4 @@
-## Error Parsing
+# Parsing Errors
 
 Parsing error messages from Git is an essential part of detecting errors raised
 by Git. `dugite` comes with a collection of known errors, and you can

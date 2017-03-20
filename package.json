@@ -22,7 +22,7 @@
     "type": "git",
     "url": "git+https://github.com/desktop/dugite.git"
   },
-  "author": "Brendan Forster",
+  "author": "GitHub and contributors",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/desktop/dugite/issues"

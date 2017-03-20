@@ -1,4 +1,4 @@
-# API
+# API extensibility
 
 When executing commands against Git, there are additional optional parameters
 which are available through the `IGitExecutionOptions` interface:
