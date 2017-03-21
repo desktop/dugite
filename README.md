@@ -2,6 +2,8 @@
 
 This project provides bindings for Node applications to interact with Git repositories, using the same command line interface that core Git offers.
 
+The bindings are written in Typescript.
+
 ### Getting Started
 
 ```
@@ -29,7 +31,8 @@ if (result.exitCode === 0) {
 
  - make it easy to work with Git repositories
  - use the same commands as you would in a shell
- - package an up-to-date version of Git in your application
+ - access to the full set of commands, options and formatting that Git core uses
+ - access to the latest features of Git
 
 ### Supported Platforms
 
