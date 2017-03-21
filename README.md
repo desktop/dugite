@@ -1,9 +1,12 @@
-# dugite
-## Elegant Node bindings for Git
+# Dugite
 
-This is a skunkworks project to make using Git in your Electron application.
+This project provides bindings for Node applications to interact with Git repositories, using the same command line interface that core Git offers.
 
-To get started: `npm install dugite --save`
+### Getting Started
+
+```
+> npm install dugite --save
+```
 
 And then reference it in your application:
 
@@ -14,38 +17,35 @@ const pathToRepository = 'C:/path/to/git/repository/'
 
 const result = await GitProcess.exec([ 'status' ], pathToRepository)
 if (result.exitCode === 0) {
-  const version = result.stdout
-  // TODO: do some things with version
+  const output = result.stdout
+  // do some things with the output
 } else {
   const error = result.stderr
-  // TODO: error handling
+  // error handling
 }
 ```
 
-Current features:
+### Features
 
- - package Git within your application
- - make it easy to execute Git commands
- - macOS and Window support
+ - make it easy to work with Git repositories
+ - use the same commands as you would in a shell
+ - package an up-to-date version of Git in your application
 
-Potential Roadmap:
+### Supported Platforms
 
- - an API for common Git operations
- - Linux support
- - handle authentication and environment setup
- - ???
+ - Windows 7 and later
+ - macOS 10.9 and up
+ - Linux (tested on Ubuntu Precise/Trusty and Fedora 24)
 
+### Status
 
-### Contributing
+This project is under active development for Git-related projects at GitHub. This will stabilize as this library gets more usage in production, and is open to external contributions that align with the project's goals.
 
-After cloning down this repository, run:
+### Roadmap
 
-```sh
-npm install
-```
+As this is under active development, the roadmap is also subject to change. Some ideas:
 
-And then you can create the package yourself:
-
-```sh
-npm pack
-```
+ - authentication support in-the-box
+ - make environment setup easier to override
+ - API additions for common tasks such as parsing output
+ - error handling improvements

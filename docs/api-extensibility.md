@@ -1,4 +1,4 @@
-# API
+# API extensibility
 
 When executing commands against Git, there are additional optional parameters
 which are available through the `IGitExecutionOptions` interface:
@@ -10,7 +10,7 @@ which are available through the `IGitExecutionOptions` interface:
  - `processCallback`: a callback to inject additional code which will be invoked
     after the child process is spawned
 
-Example code:
+Here's an example:
 
 ```ts
 const path = 'C:/path/to/repo/'
