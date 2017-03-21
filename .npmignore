@@ -19,3 +19,8 @@ test
 
 # Git will be downloaded at install time, don't include in package
 git/
+
+# some build output can be ignored when packaging
+/build/examples
+/build/script
+/build/test
