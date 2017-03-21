@@ -1,8 +1,6 @@
 # Dugite
 
-This project provides bindings for Node applications to interact with Git repositories, using the same command line interface that core Git offers.
-
-The bindings are written in Typescript.
+This project provides Typescript bindings for Node applications to interact with Git repositories, using the same command line interface that core Git offers.
 
 ### Getting Started
 
