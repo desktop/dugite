@@ -11,4 +11,6 @@ npm version minor
 npm publish
 # ensure the version bump is published too
 git push origin master
+# as well as the new tag
+git push origin --tags
 ```
