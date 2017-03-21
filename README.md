@@ -44,6 +44,8 @@ if (result.exitCode === 0) {
 
 This project is under active development for Git-related projects at GitHub. This will stabilize as this library gets more usage in production, and is open to external contributions that align with the project's goals.
 
+If you are interested in getting involved with this project, refer to the [CONTRIBUTING.md](./CONTRIBUTING.md) file for instructions and the [documentation](./docs/) sections for more information about the project.
+
 ### Roadmap
 
 As this is under active development, the roadmap is also subject to change. Some ideas:
