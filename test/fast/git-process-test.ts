@@ -132,9 +132,9 @@ error: failed to push some refs to 'https://github.com/shiftkey/too-large-reposi
     })
 
     it('can parse GH003 force push error', () => {
-      const stderr = `remote: error: GH003: Sorry, force-pushing to master is not allowed.
+      const stderr = `remote: error: GH003: Sorry, force-pushing to my-cool-branch is not allowed.
 To https://github.com/shiftkey/too-large-repository.git
- ! [remote rejected] master -> master (pre-receive hook declined)
+ ! [remote rejected]  my-cool-branch ->  my-cool-branch (pre-receive hook declined)
 error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
 
       const error = GitProcess.parseError(stderr)

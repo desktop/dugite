@@ -71,7 +71,7 @@ export const GitErrorRegexes = {
   // GitHub-specific errors
   "error: GH001: ": GitError.PushWithFileSizeExceedingLimit,
   "error: GH002: ": GitError.HexBranchNameRejected,
-  "error: GH003: Sorry, force-pushing to master is not allowed.": GitError.ForcePushRejected,
+  "error: GH003: Sorry, force-pushing to (.+) is not allowed.": GitError.ForcePushRejected,
   "error: GH005: Sorry, refs longer than (.+) bytes are not allowed": GitError.InvalidRefLength,
   "error: GH006: Protected branch update failed for (.+)\nremote: error: At least one approved review is required": GitError.ProtectedBranchRequiresReview,
   "error: GH006: Protected branch update failed for (.+)\nremote: error: Cannot force-push to a protected branch": GitError.ProtectedBranchForcePush,
