@@ -29,6 +29,7 @@ export enum GitError {
   BadRevision,
   NotAGitRepository,
   ProtectedBranchRequiresReview,
+  PushWithFileSizeExceedingLimit,
 }
 
 /** A mapping from regexes to the git error they identify. */
@@ -62,7 +63,8 @@ export const GitErrorRegexes = {
   "fatal: A branch named '(.+)' already exists.": GitError.BranchAlreadyExists,
   "fatal: bad revision '(.*)'": GitError.BadRevision,
   "fatal: Not a git repository \\(or any of the parent directories\\): (.*)": GitError.NotAGitRepository,
-  "error: GH006: Protected branch update failed for (.+)\nremote: error: At least one approved review is required": GitError.ProtectedBranchRequiresReview
+  "error: GH006: Protected branch update failed for (.+)\nremote: error: At least one approved review is required": GitError.ProtectedBranchRequiresReview,
+  "error: GH001: Large files detected": GitError.PushWithFileSizeExceedingLimit
 }
 
 /**
