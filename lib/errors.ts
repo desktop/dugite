@@ -30,6 +30,7 @@ export enum GitError {
   NotAGitRepository,
   // GitHub-specific error codes
   PushWithFileSizeExceedingLimit,
+  HexBranchNameRejected,
   ProtectedBranchRequiresReview,
 }
 
@@ -66,6 +67,7 @@ export const GitErrorRegexes = {
   "fatal: Not a git repository \\(or any of the parent directories\\): (.*)": GitError.NotAGitRepository,
   // GitHub-specific errors
   "error: GH001: Large files detected": GitError.PushWithFileSizeExceedingLimit,
+  "error: GH002: ": GitError.HexBranchNameRejected,
   "error: GH006: Protected branch update failed for (.+)\nremote: error: At least one approved review is required": GitError.ProtectedBranchRequiresReview,
 }
 

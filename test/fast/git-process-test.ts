@@ -130,5 +130,16 @@ error: failed to push some refs to 'https://github.com/shiftkey/too-large-reposi
       const error = GitProcess.parseError(stderr)
       expect(error).to.equal(GitError.PushWithFileSizeExceedingLimit)
     })
+
+    it('can parse branch name error', () => {
+      const stderr = `remote: error: GH002: Sorry, branch or tag names consisting of 40 hex characters are not allowed.
+remote: error: Invalid branch or tag name "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+To https://github.com/shiftkey/too-large-repository.git
+ ! [remote rejected] aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa -> aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (pre-receive hook declined)
+error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.HexBranchNameRejected)
+    })
   })
 })
