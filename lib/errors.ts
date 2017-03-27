@@ -69,7 +69,7 @@ export const GitErrorRegexes = {
   "fatal: bad revision '(.*)'": GitError.BadRevision,
   "fatal: Not a git repository \\(or any of the parent directories\\): (.*)": GitError.NotAGitRepository,
   // GitHub-specific errors
-  "error: GH001: Large files detected": GitError.PushWithFileSizeExceedingLimit,
+  "error: GH001: ": GitError.PushWithFileSizeExceedingLimit,
   "error: GH002: ": GitError.HexBranchNameRejected,
   "error: GH003: Sorry, force-pushing to master is not allowed.": GitError.ForcePushRejected,
   "error: GH005: Sorry, refs longer than (.+) bytes are not allowed": GitError.InvalidRefLength,
