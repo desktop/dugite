@@ -141,6 +141,16 @@ error: failed to push some refs to 'https://github.com/shiftkey/too-large-reposi
       expect(error).to.equal(GitError.ForcePushRejected)
     })
 
+    it('can parse GH005 ref length error', () => {
+      const stderr = `remote: error: GH005: Sorry, refs longer than 255 bytes are not allowed.
+To https://github.com/shiftkey/too-large-repository.git
+...`
+// there's probably some output here missing but I couldn't trigger this locally
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.InvalidRefLength)
+    })
+
     it('can parse GH006 protected branch push error', () => {
       const stderr = `remote: error: GH006: Protected branch update failed for refs/heads/master.
 remote: error: At least one approved review is required
