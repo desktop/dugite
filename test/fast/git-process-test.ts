@@ -131,6 +131,16 @@ error: failed to push some refs to 'https://github.com/shiftkey/too-large-reposi
       expect(error).to.equal(GitError.HexBranchNameRejected)
     })
 
+    it('can parse GH003 force push error', () => {
+      const stderr = `remote: error: GH003: Sorry, force-pushing to master is not allowed.
+To https://github.com/shiftkey/too-large-repository.git
+ ! [remote rejected] master -> master (pre-receive hook declined)
+error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.ForcePushRejected)
+    })
+
     it('can parse GH006 protected branch push error', () => {
       const stderr = `remote: error: GH006: Protected branch update failed for refs/heads/master.
 remote: error: At least one approved review is required

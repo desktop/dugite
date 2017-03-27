@@ -31,6 +31,7 @@ export enum GitError {
   // GitHub-specific error codes
   PushWithFileSizeExceedingLimit,
   HexBranchNameRejected,
+  ForcePushRejected,
   ProtectedBranchRequiresReview,
   ProtectedBranchForcePush,
 }
@@ -69,6 +70,7 @@ export const GitErrorRegexes = {
   // GitHub-specific errors
   "error: GH001: Large files detected": GitError.PushWithFileSizeExceedingLimit,
   "error: GH002: ": GitError.HexBranchNameRejected,
+  "error: GH003: Sorry, force-pushing to master is not allowed.": GitError.ForcePushRejected,
   "error: GH006: Protected branch update failed for (.+)\nremote: error: At least one approved review is required": GitError.ProtectedBranchRequiresReview,
   "error: GH006: Protected branch update failed for (.+)\nremote: error: Cannot force-push to a protected branch": GitError.ProtectedBranchForcePush,
 }
