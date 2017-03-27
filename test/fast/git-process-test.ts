@@ -140,5 +140,16 @@ error: failed to push some refs to 'https://github.com/shiftkey-tester/protected
       const error = GitProcess.parseError(stderr)
       expect(error).to.equal(GitError.ProtectedBranchRequiresReview)
     })
+
+    it('can parse GH006 protected branch force push error', () => {
+      const stderr = `remote: error: GH006: Protected branch update failed for refs/heads/master.
+remote: error: Cannot force-push to a protected branch
+To https://github.com/shiftkey/too-large-repository.git
+ ! [remote rejected] master -> master (protected branch hook declined)
+error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.ProtectedBranchForcePush)
+    })
   })
 })

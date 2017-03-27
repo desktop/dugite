@@ -32,6 +32,7 @@ export enum GitError {
   PushWithFileSizeExceedingLimit,
   HexBranchNameRejected,
   ProtectedBranchRequiresReview,
+  ProtectedBranchForcePush,
 }
 
 /** A mapping from regexes to the git error they identify. */
@@ -69,6 +70,7 @@ export const GitErrorRegexes = {
   "error: GH001: Large files detected": GitError.PushWithFileSizeExceedingLimit,
   "error: GH002: ": GitError.HexBranchNameRejected,
   "error: GH006: Protected branch update failed for (.+)\nremote: error: At least one approved review is required": GitError.ProtectedBranchRequiresReview,
+  "error: GH006: Protected branch update failed for (.+)\nremote: error: Cannot force-push to a protected branch": GitError.ProtectedBranchForcePush,
 }
 
 /**
