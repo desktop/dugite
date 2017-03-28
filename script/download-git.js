@@ -58,26 +58,14 @@ function handleError (url, error) {
 }
 
 function extract (source, callback) {
-  if (path.extname(source) === '.zip') {
-    const result = decompress(source, config.outputPath)
-    result
-      .then(() => {
-        callback(null)
-      })
-      .catch(err => {
-        callback(err)
-      })
+  const extractor = tar.Extract({path: config.outputPath})
+    .on('error', function (error) { callback(error) })
+    .on('end', function () { callback() })
 
-  } else {
-    const extractor = tar.Extract({path: config.outputPath})
-      .on('error', function (error) { callback(error) })
-      .on('end', function () { callback() })
-
-    fs.createReadStream(source)
-      .on('error', function (error) { callback(error) })
-      .pipe(zlib.Gunzip())
-      .pipe(extractor)
-  }
+  fs.createReadStream(source)
+    .on('error', function (error) { callback(error) })
+    .pipe(zlib.Gunzip())
+    .pipe(extractor)
 }
 
 const dir = tmpdir()
