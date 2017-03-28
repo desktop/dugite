@@ -85,7 +85,14 @@ const temporaryFile = path.join(dir, config.fileName)
 
 const verifyFile = function (file, callback) {
   checksum.file(file, { algorithm: 'sha256' }, (_, hash) => {
-    callback(hash === config.checksum)
+
+    const match = hash === config.checksum
+
+    if (!match) {
+      console.log(`Validation failed. Expected '${config.checksum}' but got '${hash}'`)
+    }
+
+    callback(match)
   })
 }
 
