@@ -54,16 +54,17 @@ const verifyFile = function (file, callback) {
 const unpackFile = function (file) {
   extract(file, function (error) {
     if (error) {
-      return handleError(fullUrl, error)
+      console.log('Unable to extract archive, aborting...', error)
+      process.exit(1)
     }
   })
 }
 
 const downloadAndUnpack = () => {
-  console.log(`Downloading Git from: ${fullUrl}`)
+  console.log(`Downloading Git from: ${config.source}`)
 
   const options = {
-    url: fullUrl,
+    url: config.source,
     headers: {
       'Accept': 'application/octet-stream',
       'User-Agent': 'dugite',
@@ -74,15 +75,15 @@ const downloadAndUnpack = () => {
 
   req.pipe(fs.createWriteStream(temporaryFile))
 
-  req.on('error', e => {
-    handleError(fullUrl, e)
+  req.on('error', function (error) {
+    console.log(`Error raised while downloading ${config.source}`, error)
+    process.exit(1)
   })
 
   req.on('response', function (res) {
-
     if (res.statusCode !== 200) {
-      handleError(fullUrl, Error(`Non-200 response (${res.statusCode})`))
-      return
+      console.log(`Non-200 response returned from ${config.source} - (${res.statusCode})`)
+      process.exit(1)
     }
 
     const len = parseInt(res.headers['content-length'], 10)
@@ -116,7 +117,8 @@ const downloadAndUnpack = () => {
 
 mkdirp(config.outputPath, function (error) {
   if (error) {
-    return handleError(fullUrl, error)
+    console.log(`Unable to create directory at ${config.outputPath}`, error)
+    process.exit(1)
   }
 
   if (fs.existsSync(config.outputPath)) {
