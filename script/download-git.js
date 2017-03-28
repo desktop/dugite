@@ -125,7 +125,15 @@ const downloadCallback = function (error, response, body) {
 const downloadAndUnpack = () => {
   console.log(`Downloading Git from: ${fullUrl}`)
 
-  const req = request.get(fullUrl, { encoding: null }, downloadCallback)
+  const options = {
+    url: fullUrl,
+    headers: {
+      'Accept': 'application/octet-stream',
+      'User-Agent': 'dugite',
+    }
+  }
+
+  const req = request.get(options, downloadCallback)
 
   req.on('response', function (res) {
     const len = parseInt(res.headers['content-length'], 10)
