@@ -1,3 +1,4 @@
+const URL = require('url')
 const request = require('request')
 const ProgressBar = require('progress')
 const tmpdir = require('os-tmpdir')
@@ -32,8 +33,6 @@ function formatPlatform(platform) {
   return platform
 }
 
-config.fileName = `dugite-native-v${config.version}-${formatPlatform(process.platform)}-${config.build}.tar.gz`
-
 if (process.platform === 'darwin') {
   config.checksum = '75a0d7d9bf743bc2dc2e2dfa815be39c14b5e6c7d480a10934f1f2b74cc3875e'
   config.source = 'https://github.com/desktop/dugite-native/releases/download/v2.12.1-rc1/dugite-native-v2.12.1-macOS-145.tar.gz'
@@ -44,6 +43,12 @@ if (process.platform === 'darwin') {
   config.checksum = 'dfed95bb0bb905627cfccca7d9462a551129ea70ff20525cb85b88011d0fd513'
   config.source = 'https://github.com/desktop/dugite-native/releases/download/v2.12.1-rc1/dugite-native-v2.12.1-ubuntu-145.tar.gz'
 }
+
+const url = URL.parse(config.source)
+const pathName = url.pathname
+const index = pathName.lastIndexOf('/')
+config.fileName = pathName.substr(index + 1)
+
 const fullUrl = config.source
 
 function handleError (url, error) {
