@@ -104,27 +104,6 @@ const unpackFile = function (file) {
   })
 }
 
-const downloadCallback = function (error, response, body) {
-  if (error) {
-    return handleError(fullUrl, error)
-  }
-
-  if (response.statusCode !== 200) {
-    return handleError(fullUrl, Error(`Non-200 response (${response.statusCode})`))
-  }
-
-  fs.writeFileSync(temporaryFile, body, { encoding: 'binary' })
-
-  verifyFile(temporaryFile, valid => {
-    if (valid) {
-      unpackFile(temporaryFile)
-    } else {
-      console.log(`checksum verification failed, refusing to unpack...`)
-      process.exit(1)
-    }
-  })
-}
-
 const downloadAndUnpack = () => {
   console.log(`Downloading Git from: ${fullUrl}`)
 
@@ -145,6 +124,12 @@ const downloadAndUnpack = () => {
   })
 
   req.on('response', function (res) {
+
+    if (res.statusCode !== 200) {
+      handleError(fullUrl, Error(`Non-200 response (${res.statusCode})`))
+      return
+    }
+
     const len = parseInt(res.headers['content-length'], 10)
 
     console.log()
@@ -161,9 +146,7 @@ const downloadAndUnpack = () => {
 
     res.on('end', function () {
       console.log('\n')
-    })
 
-    res.on('end', () => {
       verifyFile(temporaryFile, valid => {
         if (valid) {
           unpackFile(temporaryFile)
