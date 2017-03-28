@@ -113,19 +113,15 @@ const downloadCallback = function (error, response, body) {
     return handleError(fullUrl, Error(`Non-200 response (${response.statusCode})`))
   }
 
-  fs.createWriteStream(temporaryFile).write(body, function (error) {
-    if (error) {
-      return handleError(fullUrl, error)
-    }
+  fs.writeFileSync(temporaryFile, body, { encoding: 'binary' })
 
-    verifyFile(temporaryFile, valid => {
-      if (valid) {
-        unpackFile(temporaryFile)
-      } else {
-        console.log(`checksum verification failed, refusing to unpack...`)
-        process.exit(1)
-      }
-    })
+  verifyFile(temporaryFile, valid => {
+    if (valid) {
+      unpackFile(temporaryFile)
+    } else {
+      console.log(`checksum verification failed, refusing to unpack...`)
+      process.exit(1)
+    }
   })
 }
 
@@ -140,7 +136,13 @@ const downloadAndUnpack = () => {
     }
   }
 
-  const req = request.get(options, downloadCallback)
+  const req = request.get(options)
+
+  req.pipe(fs.createWriteStream(temporaryFile))
+
+  req.on('error', e => {
+    handleError(fullUrl, e)
+  })
 
   req.on('response', function (res) {
     const len = parseInt(res.headers['content-length'], 10)
@@ -159,6 +161,17 @@ const downloadAndUnpack = () => {
 
     res.on('end', function () {
       console.log('\n')
+    })
+
+    res.on('end', () => {
+      verifyFile(temporaryFile, valid => {
+        if (valid) {
+          unpackFile(temporaryFile)
+        } else {
+          console.log(`checksum verification failed, refusing to unpack...`)
+          process.exit(1)
+        }
+      })
     })
   })
 }
