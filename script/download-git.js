@@ -12,18 +12,6 @@ const zlib = require('zlib')
 
 const config = require('./config')()
 
-const fullUrl = config.source
-
-function handleError (url, error) {
-  if (!error) {
-    return
-  }
-
-  const message = error.message || error
-  console.error(`Downloading ${url} failed: ${message}`)
-  process.exit(1)
-}
-
 function extract (source, callback) {
   const extractor = tar.Extract({path: config.outputPath})
     .on('error', function (error) { callback(error) })
