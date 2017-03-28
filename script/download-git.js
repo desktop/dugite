@@ -13,8 +13,8 @@ const zlib = require('zlib')
 
 const config = {
   outputPath: path.join(__dirname, '..', 'git'),
-  version: '2.11.0',
-  build: '9',
+  version: '2.12.1',
+  build: '145',
   source: '',
   checksum: '',
   upstreamVersion: '',
@@ -26,22 +26,24 @@ function formatPlatform(platform) {
   if (platform === 'linux') {
     return 'ubuntu'
   }
+  if (platform === 'darwin') {
+    return 'macOS'
+  }
+
   return platform
 }
 
-config.fileName = `git-kitchen-sink-${formatPlatform(process.platform)}-v${config.version}-${config.build}.tgz`
-
-// TODO: swap these out for official release URLs when we make the repository public
+config.fileName = `dugite-native-v${config.version}-${formatPlatform(process.platform)}-${config.build}.tar.gz`
 
 if (process.platform === 'darwin') {
-  config.source = `https://www.dropbox.com/s/cstb5k9eppyggau/${config.fileName}?dl=1`
-  config.checksum = '8aa12422acdf670334a7e5eb28a17ee9eeb7cbd0a5b740109d8d14ce019dc9b1'
+  config.checksum = '75a0d7d9bf743bc2dc2e2dfa815be39c14b5e6c7d480a10934f1f2b74cc3875e'
+  config.source = 'https://github.com/desktop/dugite-native/releases/download/v2.12.1-rc1/dugite-native-v2.12.1-macOS-145.tar.gz'
 } else if (process.platform === 'win32') {
-  config.source = `https://www.dropbox.com/s/ryuoxyjpfu25j4u/${config.fileName}?dl=1`
-  config.checksum = 'b0f5fba91547f6c2febd265173bbb28201d32ac754685dc9dad96c856fb84f54'
+  config.checksum = '6d82f4361ecb78fb1556a8c2f54711c1b76b301007a2000393cea34d363d2dcf'
+  config.source = 'https://github.com/desktop/dugite-native/releases/download/v2.12.1-rc1/dugite-native-v2.12.1-win32-145.tar.gz'
 } else if (process.platform === 'linux') {
-  config.source = `https://www.dropbox.com/s/qtte8kupyb586xe/${config.fileName}?dl=1`
-  config.checksum = '3890be84783324ebc4ae69ddf2d7e8a87ef8fe0948474841657de7018c125a40'
+  config.checksum = 'dfed95bb0bb905627cfccca7d9462a551129ea70ff20525cb85b88011d0fd513'
+  config.source = 'https://github.com/desktop/dugite-native/releases/download/v2.12.1-rc1/dugite-native-v2.12.1-ubuntu-145.tar.gz'
 }
 const fullUrl = config.source
 
