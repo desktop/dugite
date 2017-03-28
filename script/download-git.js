@@ -21,18 +21,6 @@ const config = {
   fileName: ''
 }
 
-function formatPlatform(platform) {
-  // switching this to Ubuntu to ensure it's clear what we're installing here
-  if (platform === 'linux') {
-    return 'ubuntu'
-  }
-  if (platform === 'darwin') {
-    return 'macOS'
-  }
-
-  return platform
-}
-
 if (process.platform === 'darwin') {
   config.checksum = '75a0d7d9bf743bc2dc2e2dfa815be39c14b5e6c7d480a10934f1f2b74cc3875e'
   config.source = 'https://github.com/desktop/dugite-native/releases/download/v2.12.1-rc1/dugite-native-v2.12.1-macOS-145.tar.gz'
