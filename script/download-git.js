@@ -13,11 +13,8 @@ const zlib = require('zlib')
 
 const config = {
   outputPath: path.join(__dirname, '..', 'git'),
-  version: '2.12.1',
-  build: '145',
   source: '',
   checksum: '',
-  upstreamVersion: '',
   fileName: ''
 }
 
