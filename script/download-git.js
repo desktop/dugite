@@ -1,4 +1,3 @@
-const decompress = require('decompress')
 const request = require('request')
 const ProgressBar = require('progress')
 const tmpdir = require('os-tmpdir')
