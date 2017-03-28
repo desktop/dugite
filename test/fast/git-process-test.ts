@@ -107,15 +107,69 @@ describe('git-process', () => {
       expect(error).to.equal(GitError.BadRevision)
     })
 
-    it('can parse protected branch error', () => {
+    it('can parse GH001 push file size error', () => {
+      const stderr = `remote: error: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.
+remote: error: Trace: 2bd2bfca1605d4e0847936332f1b6c07
+remote: error: See http://git.io/iEPt8g for more information.
+remote: error: File some-file.mp4 is 292.85 MB; this exceeds GitHub's file size limit of 100.00 MB
+To https://github.com/shiftkey/too-large-repository.git
+ ! [remote rejected] master -> master (pre-receive hook declined)
+error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.PushWithFileSizeExceedingLimit)
+    })
+
+    it('can parse GH002 branch name error', () => {
+      const stderr = `remote: error: GH002: Sorry, branch or tag names consisting of 40 hex characters are not allowed.
+remote: error: Invalid branch or tag name "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+To https://github.com/shiftkey/too-large-repository.git
+ ! [remote rejected] aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa -> aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (pre-receive hook declined)
+error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.HexBranchNameRejected)
+    })
+
+    it('can parse GH003 force push error', () => {
+      const stderr = `remote: error: GH003: Sorry, force-pushing to my-cool-branch is not allowed.
+To https://github.com/shiftkey/too-large-repository.git
+ ! [remote rejected]  my-cool-branch ->  my-cool-branch (pre-receive hook declined)
+error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.ForcePushRejected)
+    })
+
+    it('can parse GH005 ref length error', () => {
+      const stderr = `remote: error: GH005: Sorry, refs longer than 255 bytes are not allowed.
+To https://github.com/shiftkey/too-large-repository.git
+...`
+// there's probably some output here missing but I couldn't trigger this locally
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.InvalidRefLength)
+    })
+
+    it('can parse GH006 protected branch push error', () => {
       const stderr = `remote: error: GH006: Protected branch update failed for refs/heads/master.
 remote: error: At least one approved review is required
 To https://github.com/shiftkey-tester/protected-branches.git
  ! [remote rejected] master -> master (protected branch hook declined)
-error: failed to push some refs to 'https://github.com/shiftkey-tester/protected-branches.git'
-`
+error: failed to push some refs to 'https://github.com/shiftkey-tester/protected-branches.git'`
       const error = GitProcess.parseError(stderr)
       expect(error).to.equal(GitError.ProtectedBranchRequiresReview)
+    })
+
+    it('can parse GH006 protected branch force push error', () => {
+      const stderr = `remote: error: GH006: Protected branch update failed for refs/heads/master.
+remote: error: Cannot force-push to a protected branch
+To https://github.com/shiftkey/too-large-repository.git
+ ! [remote rejected] master -> master (protected branch hook declined)
+error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.ProtectedBranchForcePush)
     })
   })
 })

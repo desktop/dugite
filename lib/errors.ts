@@ -28,7 +28,13 @@ export enum GitError {
   BranchAlreadyExists,
   BadRevision,
   NotAGitRepository,
+  // GitHub-specific error codes
+  PushWithFileSizeExceedingLimit,
+  HexBranchNameRejected,
+  ForcePushRejected,
+  InvalidRefLength,
   ProtectedBranchRequiresReview,
+  ProtectedBranchForcePush,
 }
 
 /** A mapping from regexes to the git error they identify. */
@@ -62,7 +68,13 @@ export const GitErrorRegexes = {
   "fatal: A branch named '(.+)' already exists.": GitError.BranchAlreadyExists,
   "fatal: bad revision '(.*)'": GitError.BadRevision,
   "fatal: Not a git repository \\(or any of the parent directories\\): (.*)": GitError.NotAGitRepository,
-  "error: GH006: Protected branch update failed for (.+)\nremote: error: At least one approved review is required": GitError.ProtectedBranchRequiresReview
+  // GitHub-specific errors
+  "error: GH001: ": GitError.PushWithFileSizeExceedingLimit,
+  "error: GH002: ": GitError.HexBranchNameRejected,
+  "error: GH003: Sorry, force-pushing to (.+) is not allowed.": GitError.ForcePushRejected,
+  "error: GH005: Sorry, refs longer than (.+) bytes are not allowed": GitError.InvalidRefLength,
+  "error: GH006: Protected branch update failed for (.+)\nremote: error: At least one approved review is required": GitError.ProtectedBranchRequiresReview,
+  "error: GH006: Protected branch update failed for (.+)\nremote: error: Cannot force-push to a protected branch": GitError.ProtectedBranchForcePush,
 }
 
 /**
