@@ -1,12 +1,10 @@
+const fs = require('fs')
+
 const request = require('request')
 const ProgressBar = require('progress')
-const tmpdir = require('os-tmpdir')
 const mkdirp = require('mkdirp')
-const path = require('path')
-const fs = require('fs')
 const checksum = require('checksum')
 const rimraf = require('rimraf')
-
 const tar = require('tar')
 const zlib = require('zlib')
 
@@ -23,8 +21,6 @@ function extract (source, callback) {
     .pipe(extractor)
 }
 
-const dir = tmpdir()
-const temporaryFile = path.join(dir, config.fileName)
 
 const verifyFile = function (file, callback) {
   checksum.file(file, { algorithm: 'sha256' }, (_, hash) => {
@@ -61,7 +57,7 @@ const downloadAndUnpack = () => {
 
   const req = request.get(options)
 
-  req.pipe(fs.createWriteStream(temporaryFile))
+  req.pipe(fs.createWriteStream(config.tempFile))
 
   req.on('error', function (error) {
     console.log(`Error raised while downloading ${config.source}`, error)
@@ -91,9 +87,9 @@ const downloadAndUnpack = () => {
     res.on('end', function () {
       console.log('\n')
 
-      verifyFile(temporaryFile, valid => {
+      verifyFile(config.tempFile, valid => {
         if (valid) {
-          unpackFile(temporaryFile)
+          unpackFile(config.tempFile)
         } else {
           console.log(`checksum verification failed, refusing to unpack...`)
           process.exit(1)
@@ -118,12 +114,14 @@ mkdirp(config.outputPath, function (error) {
     }
   }
 
-  if (fs.existsSync(temporaryFile)) {
-    verifyFile(temporaryFile, valid => {
+  const tempFile = config.tempFile
+
+  if (fs.existsSync(tempFile)) {
+    verifyFile(tempFile, valid => {
       if (valid) {
-        unpackFile(temporaryFile)
+        unpackFile(tempFile)
       } else {
-        rimraf.sync(temporaryFile)
+        rimraf.sync(tempFile)
         downloadAndUnpack()
       }
     })

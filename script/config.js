@@ -1,12 +1,14 @@
 const URL = require('url')
 const path = require('path')
+const tmpdir = require('os-tmpdir')
 
 function getConfig() {
   const config = {
     outputPath: path.join(__dirname, '..', 'git'),
     source: '',
     checksum: '',
-    fileName: ''
+    fileName: '',
+    tempFile: ''
   }
 
   if (process.platform === 'darwin') {
@@ -25,6 +27,9 @@ function getConfig() {
   const pathName = url.pathname
   const index = pathName.lastIndexOf('/')
   config.fileName = pathName.substr(index + 1)
+
+  const dir = tmpdir()
+  config.tempFile = path.join(dir, config.fileName)
 
   return config
 }
