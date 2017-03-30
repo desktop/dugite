@@ -30,7 +30,6 @@
   "homepage": "https://github.com/desktop/dugite#readme",
   "dependencies": {
     "checksum": "^0.1.1",
-    "gzip": "^0.1.0",
     "mkdirp": "^0.5.1",
     "os-tmpdir": "^1.0.1",
     "progress": "^1.1.8",
