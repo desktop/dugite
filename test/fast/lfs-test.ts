@@ -2,7 +2,7 @@ import * as chai from 'chai'
 const expect = chai.expect
 
 import { GitProcess } from '../../lib'
-import { gitLfsVersion } from '../../script/versions'
+import { gitLfsVersion } from '../helpers'
 
 const temp = require('temp').track()
 
