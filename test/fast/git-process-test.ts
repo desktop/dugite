@@ -8,7 +8,7 @@ import * as crypto from 'crypto'
 import { GitProcess, GitError, RepositoryDoesNotExistErrorCode } from '../../lib'
 import { initialize, verify } from '../helpers'
 
-import { gitVersion } from '../../script/versions'
+import { gitVersion } from '../helpers'
 
 const temp = require('temp').track()
 

@@ -1,8 +1,12 @@
 import { GitProcess, IGitResult } from '../lib'
 
+// NOTE: bump these versions to the latest stable releases
+export const gitVersion = '2.12.2'
+export const gitLfsVersion = '2.0.2'
+
 const temp = require('temp').track()
 
-export async function initialize(repositoryName: string) : Promise<string> {
+export async function initialize(repositoryName: string): Promise<string> {
   const testRepoPath = temp.mkdirSync(`desktop-git-test-${repositoryName}`)
   await GitProcess.exec([ 'init' ], testRepoPath)
   await GitProcess.exec([ 'config', 'user.email', '"some.user@email.com"' ], testRepoPath)
