@@ -1,14 +1,18 @@
-# Dugite
+# Dugite - JS bindings for Git
 
-This project provides Typescript bindings for Node applications to interact with Git repositories, using the same command line interface that core Git offers.
+This project provides bindings for Node applications to interact with Git repositories, using the same command line interface that core Git offers.
+
+The source is in TypeScript, but can be consumed by any JavaScript  application.
 
 ### Getting Started
+
+Add it to your project:
 
 ```
 > npm install dugite --save
 ```
 
-And then reference it in your application:
+Then reference it in your application:
 
 ```js
 import { GitProcess, GitError, IGitResult } from 'dugite'
