@@ -1,7 +1,5 @@
 import * as path from 'path'
 
-import { IGitExecutionOptions } from './git-process'
-
 /**
  *  Find the path to the embedded Git environment
  */
@@ -41,7 +39,15 @@ function resolveGitExecPath(): string {
   throw new Error('Git not supported on platform: ' + process.platform)
 }
 
-export function setupEnvironment(options?: IGitExecutionOptions): { env: Object, gitLocation: string } {
+/**
+ * Setup the process environment before invoking Git.
+ *
+ * This method resolves the Git executable and creates the array of key-value
+ * pairs which should be used as environment variables.
+ *
+ * @param additional options to include with the process
+ */
+export function setupEnvironment(environmentVariables: Object): { env: Object, gitLocation: string } {
   const gitLocation = resolveGitBinary()
 
   let envPath: string = process.env.PATH || ''
@@ -54,7 +60,7 @@ export function setupEnvironment(options?: IGitExecutionOptions): { env: Object,
   const env = Object.assign({}, process.env, {
     GIT_EXEC_PATH: resolveGitExecPath(),
     PATH: envPath,
-  }, options ? options.env : { })
+  }, environmentVariables)
 
   if (process.platform === 'win32') {
     // while reading the environment variable is case-insensitive
