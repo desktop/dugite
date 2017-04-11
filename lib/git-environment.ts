@@ -6,8 +6,8 @@ import { IGitExecutionOptions } from './git-process'
  *  Find the path to the embedded Git environment
  */
 function resolveGitDir(): string {
-  if (process.env.TEST_WITH_LOCAL_GIT) {
-    return path.join(__dirname, '..', 'git')
+  if (process.env.LOCAL_GIT_DIRECTORY) {
+    return path.resolve(process.env.LOCAL_GIT_DIRECTORY)
   } else {
     return path.join(__dirname, '..', '..', 'git')
   }
