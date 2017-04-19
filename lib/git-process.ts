@@ -1,9 +1,11 @@
-import * as path from 'path'
+
 import * as fs from 'fs'
 
 import { execFile, ExecOptionsWithStringEncoding } from 'child_process'
 import { GitError, GitErrorRegexes, RepositoryDoesNotExistErrorCode, GitNotFoundErrorCode } from './errors'
 import { ChildProcess } from 'child_process'
+
+import { setupEnvironment } from './git-environment'
 
 /** The result of shelling out to git. */
 export interface IGitResult {
@@ -70,42 +72,6 @@ interface ErrorWithCode extends Error {
 }
 
 export class GitProcess {
-  /**
-   *  Find the path to the embedded Git environment
-   */
-  private static resolveGitDir(): string {
-    if (process.env.TEST_WITH_LOCAL_GIT) {
-      return path.join(__dirname, '..', 'git')
-    } else {
-      return path.join(__dirname, '..', '..', 'git')
-    }
-  }
-
-  /**
-   *  Find the path to the embedded Git binary
-   */
-  private static resolveGitBinary(): string {
-    const gitDir = GitProcess.resolveGitDir()
-    if (process.platform === 'darwin' || process.platform === 'linux') {
-      return path.join(gitDir, 'bin', 'git')
-    } else if (process.platform === 'win32') {
-      return path.join(gitDir, 'cmd', 'git.exe')
-    }
-
-    throw new Error('Git not supported on platform: ' + process.platform)
-  }
-
-  /** Find the path to the embedded git exec path. */
-  private static resolveGitExecPath(): string {
-    const gitDir = GitProcess.resolveGitDir()
-    if (process.platform === 'darwin' || process.platform === 'linux') {
-      return path.join(gitDir, 'libexec', 'git-core')
-    } else if (process.platform === 'win32') {
-      return path.join(gitDir, 'mingw64', 'libexec', 'git-core')
-    }
-
-    throw new Error('Git not supported on platform: ' + process.platform)
-  }
 
   private static pathExists(path: string): Boolean {
     try {
@@ -128,49 +94,12 @@ export class GitProcess {
    */
   public static exec(args: string[], path: string, options?: IGitExecutionOptions): Promise<IGitResult> {
     return new Promise<IGitResult>(function(resolve, reject) {
-      const gitLocation = GitProcess.resolveGitBinary()
-
-      let envPath: string = process.env.PATH || ''
-      const gitDir = GitProcess.resolveGitDir()
-
-      if (process.platform === 'win32') {
-        envPath = `${gitDir}\\mingw64\\bin;${envPath}`
+      let customEnv = { }
+      if (options && options.env) {
+        customEnv = options.env
       }
 
-      const env = Object.assign({}, process.env, {
-        GIT_EXEC_PATH: GitProcess.resolveGitExecPath(),
-        PATH: envPath,
-      }, options ? options.env : { })
-
-      if (process.platform === 'win32') {
-        // while reading the environment variable is case-insensitive
-        // you can create a hash with multiple values, which means the
-        // wrong value might be used when spawning the child process
-        //
-        // this ensures we only ever supply one value for PATH
-        if (env.Path) {
-          delete env.Path
-        }
-      }
-
-      if (process.platform === 'darwin' || process.platform === 'linux') {
-        // templates are used to populate your .git folder
-        // when a repository is initialized locally
-        const templateDir = `${gitDir}/share/git-core/templates`
-        env.GIT_TEMPLATE_DIR = templateDir
-      }
-
-      if (process.platform === 'linux') {
-        // when building Git for Linux and then running it from
-        // an arbitrary location, you should set PREFIX for the
-        // process to ensure that it knows how to resolve things
-        env.PREFIX = gitDir
-
-        // bypass whatever certificates might be set and use
-        // the bundle included in the distibution
-        const sslCABundle = `${gitDir}/ssl/cacert.pem`
-        env.GIT_SSL_CAINFO = sslCABundle
-      }
+      const { env, gitLocation } = setupEnvironment(customEnv)
 
       // Explicitly annotate opts since typescript is unable to infer the correct
       // signature for execFile when options is passed as an opaque hash. The type
