@@ -1,6 +1,6 @@
 const URL = require('url')
 const path = require('path')
-const tmpdir = require('os-tmpdir')
+const os = require('os')
 
 function getConfig() {
   const config = {
@@ -28,7 +28,7 @@ function getConfig() {
   const index = pathName.lastIndexOf('/')
   config.fileName = pathName.substr(index + 1)
 
-  const dir = tmpdir()
+  const dir = os.tmpdir()
   config.tempFile = path.join(dir, config.fileName)
 
   return config
