@@ -38,11 +38,11 @@
     "tar": "^2.2.1"
   },
   "devDependencies": {
-    "@types/chai": "^3.4.30",
+    "@types/chai": "3.5.2",
     "@types/checksum": "^0.1.30",
     "@types/mkdirp": "^0.3.29",
     "@types/mocha": "^2.2.29",
-    "@types/node": "^7.0.13",
+    "@types/node": "7.0.14",
     "@types/progress": "^1.1.28",
     "@types/request": "0.0.42",
     "@types/rimraf": "0.0.28",
@@ -50,10 +50,10 @@
     "chai": "^3.5.0",
     "chai-as-promised": "^6.0.0",
     "cross-env": "^4.0.0",
-    "mocha": "^3.0.2",
+    "mocha": "^3.3.0",
     "temp": "^0.8.3",
     "ts-node": "^3.0.2",
     "tslint": "^5.1.0",
-    "typescript": "^2.3.0"
+    "typescript": "^2.3.2"
   }
 }
