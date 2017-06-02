@@ -1,7 +1,7 @@
 
 import * as fs from 'fs'
 
-import { execFile, ExecOptionsWithStringEncoding } from 'child_process'
+import { execFile, spawn, ExecOptionsWithStringEncoding } from 'child_process'
 import { GitError, GitErrorRegexes, RepositoryDoesNotExistErrorCode, GitNotFoundErrorCode } from './errors'
 import { ChildProcess } from 'child_process'
 
@@ -17,6 +17,42 @@ export interface IGitResult {
 
   /** The exit code of the git process. */
   readonly exitCode: number
+}
+
+/**
+ * A set of configuration options that can be passed when
+ * executing a streaming Git command.
+ */
+export interface IGitSpawnExecutionOptions {
+  /**
+   * An optional collection of key-value pairs which will be
+   * set as environment variables before executing the git
+   * process.
+   */
+  readonly env?: Object,
+
+  /**
+   * An optional string or buffer which will be written to
+   * the child process stdin stream immediately immediately
+   * after spawning the process.
+   */
+  readonly stdin?: string | Buffer
+
+
+  /**
+   * The encoding to use when writing to stdin, if the stdin
+   * parameter is a string.
+   */
+  readonly stdinEncoding?: string
+
+  /**
+   * An optional callback which will be invoked with the child
+   * process instance after spawning the git process.
+   *
+   * Note that if the stdin parameter was specified the stdin
+   * stream will be closed by the time this callback fires.
+   */
+   readonly processCallback?: (process: ChildProcess) => void
 }
 
 /**
@@ -80,6 +116,40 @@ export class GitProcess {
     } catch (e) {
         return false
     }
+  }
+
+  /**
+   * Execute a command and interact with the process outputs directly.
+   *
+   * The returned promise will reject when the git executable fails to launch,
+   * in which case the thrown Error will have a string `code` property. See
+   * `errors.ts` for some of the known error codes.
+   */
+  public static spawn(args: string[], path: string, options?: IGitSpawnExecutionOptions): ChildProcess {
+    let customEnv = { }
+    if (options && options.env) {
+      customEnv = options.env
+    }
+
+    const { env, gitLocation } = setupEnvironment(customEnv)
+
+    const spawnArgs = {
+      env,
+      cwd: path
+    }
+
+    const spawnedProcess = spawn(gitLocation, args, spawnArgs)
+
+    if (options && options.stdin) {
+      // See https://github.com/nodejs/node/blob/7b5ffa46fe4d2868c1662694da06eb55ec744bde/test/parallel/test-stdin-pipe-large.js
+      spawnedProcess.stdin.end(options.stdin, options.stdinEncoding)
+    }
+
+    if (options && options.processCallback) {
+      options.processCallback(spawnedProcess)
+    }
+
+    return spawnedProcess
   }
 
   /**
