@@ -7,7 +7,8 @@ function resolveGitDir(): string {
   if (process.env.LOCAL_GIT_DIRECTORY) {
     return path.resolve(process.env.LOCAL_GIT_DIRECTORY)
   } else {
-    return path.join(__dirname, '..', '..', 'git')
+    return path.resolve(__dirname, '..', '..', 'git')
+      .replace(/[\\\/]app.asar[\\\/]/, 'app.asar.unpacked');
   }
 }
 
