@@ -30,29 +30,6 @@ export interface IGitSpawnExecutionOptions {
    * process.
    */
   readonly env?: Object,
-
-  /**
-   * An optional string or buffer which will be written to
-   * the child process stdin stream immediately immediately
-   * after spawning the process.
-   */
-  readonly stdin?: string | Buffer
-
-
-  /**
-   * The encoding to use when writing to stdin, if the stdin
-   * parameter is a string.
-   */
-  readonly stdinEncoding?: string
-
-  /**
-   * An optional callback which will be invoked with the child
-   * process instance after spawning the git process.
-   *
-   * Note that if the stdin parameter was specified the stdin
-   * stream will be closed by the time this callback fires.
-   */
-   readonly processCallback?: (process: ChildProcess) => void
 }
 
 /**
@@ -139,15 +116,6 @@ export class GitProcess {
     }
 
     const spawnedProcess = spawn(gitLocation, args, spawnArgs)
-
-    if (options && options.stdin) {
-      // See https://github.com/nodejs/node/blob/7b5ffa46fe4d2868c1662694da06eb55ec744bde/test/parallel/test-stdin-pipe-large.js
-      spawnedProcess.stdin.end(options.stdin, options.stdinEncoding)
-    }
-
-    if (options && options.processCallback) {
-      options.processCallback(spawnedProcess)
-    }
 
     return spawnedProcess
   }
