@@ -15,7 +15,7 @@ test
 
 # skip the other folders too
 /docs
-
+/examples
 
 # Git will be downloaded at install time, don't include in package
 git/
@@ -24,3 +24,10 @@ git/
 /build/examples
 /build/script
 /build/test
+
+# output is transpiled JS - no need for these
+tslint.json
+tsconfig.json
+
+# config files
+*.yml
