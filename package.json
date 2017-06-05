@@ -12,7 +12,7 @@
     "postpublish": "git push --follow-tags",
     "test": "npm run test:fast && npm run test:slow",
     "test:fast": "cross-env LOCAL_GIT_DIRECTORY=./git/ mocha --require ts-node/register test/fast/*.ts test/auth/*.ts",
-    "test:slow": "cross-env LOCAL_GIT_DIRECTORY=./git/ mocha -t 10000ms --require ts-node/register test/slow/*.ts test/auth/*.ts",
+    "test:slow": "cross-env LOCAL_GIT_DIRECTORY=./git/ mocha -t 20000ms --require ts-node/register test/slow/*.ts test/auth/*.ts",
     "postinstall": "node ./script/download-git.js"
   },
   "engines": {
