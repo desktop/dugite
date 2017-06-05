@@ -35,9 +35,21 @@ function bufferOutput(process: ChildProcess, failPromiseWhenLengthExceeded: bool
 
 describe('GitProcess.spawn', () => {
   it('can launch git', async () => {
-    const process = await GitProcess.spawn([ '--version' ], __dirname)
+    const process = GitProcess.spawn([ '--version' ], __dirname)
     const result = await bufferOutput(process)
     expect(result).to.contain(`git version ${gitVersion}`)
+  })
+
+  it('returns expected exit codes', (done) => {
+    const directory = temp.mkdirSync('desktop-not-a-repo')
+    const process = GitProcess.spawn([ 'status' ], directory)
+    process.on('exit', (code, signal) => {
+      if (code === 0) {
+        done(new Error('the exit code returned was zero which was unexpected'))
+      } else {
+        done()
+      }
+    })
   })
 
   it('can fail safely with a diff exceeding the string length', (done) => {
