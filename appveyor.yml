@@ -1,5 +1,8 @@
 os: Visual Studio 2015
 
+platform:
+  - x64
+
 environment:
   matrix:
     - nodejs_version: "6"
@@ -19,7 +22,7 @@ skip_tags: true
 version: "{build}"
 
 install:
-  - ps: Install-Product node $env:nodejs_version
+  - ps: Install-Product node $env:nodejs_version $env:platform
   - npm install
 
 build_script:
