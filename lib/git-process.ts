@@ -1,7 +1,7 @@
 
 import * as fs from 'fs'
 
-import { execFile, ExecOptionsWithStringEncoding } from 'child_process'
+import { execFile, spawn, ExecOptionsWithStringEncoding } from 'child_process'
 import { GitError, GitErrorRegexes, RepositoryDoesNotExistErrorCode, GitNotFoundErrorCode } from './errors'
 import { ChildProcess } from 'child_process'
 
@@ -17,6 +17,19 @@ export interface IGitResult {
 
   /** The exit code of the git process. */
   readonly exitCode: number
+}
+
+/**
+ * A set of configuration options that can be passed when
+ * executing a streaming Git command.
+ */
+export interface IGitSpawnExecutionOptions {
+  /**
+   * An optional collection of key-value pairs which will be
+   * set as environment variables before executing the git
+   * process.
+   */
+  readonly env?: Object,
 }
 
 /**
@@ -80,6 +93,31 @@ export class GitProcess {
     } catch (e) {
         return false
     }
+  }
+
+  /**
+   * Execute a command and interact with the process outputs directly.
+   *
+   * The returned promise will reject when the git executable fails to launch,
+   * in which case the thrown Error will have a string `code` property. See
+   * `errors.ts` for some of the known error codes.
+   */
+  public static spawn(args: string[], path: string, options?: IGitSpawnExecutionOptions): ChildProcess {
+    let customEnv = { }
+    if (options && options.env) {
+      customEnv = options.env
+    }
+
+    const { env, gitLocation } = setupEnvironment(customEnv)
+
+    const spawnArgs = {
+      env,
+      cwd: path
+    }
+
+    const spawnedProcess = spawn(gitLocation, args, spawnArgs)
+
+    return spawnedProcess
   }
 
   /**
