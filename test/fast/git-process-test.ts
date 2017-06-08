@@ -107,6 +107,13 @@ describe('git-process', () => {
       expect(error).to.equal(GitError.BadRevision)
     })
 
+    it('can parse unrelated histories error', () => {
+      const stderr = `fatal: refusing to merge unrelated histories`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.CannotMergeUnrelatedHistories)
+    })
+
     it('can parse GH001 push file size error', () => {
       const stderr = `remote: error: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.
 remote: error: Trace: 2bd2bfca1605d4e0847936332f1b6c07

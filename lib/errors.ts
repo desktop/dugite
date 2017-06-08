@@ -28,6 +28,7 @@ export enum GitError {
   BranchAlreadyExists,
   BadRevision,
   NotAGitRepository,
+  CannotMergeUnrelatedHistories,
   // GitHub-specific error codes
   PushWithFileSizeExceedingLimit,
   HexBranchNameRejected,
@@ -68,6 +69,7 @@ export const GitErrorRegexes = {
   "fatal: A branch named '(.+)' already exists.": GitError.BranchAlreadyExists,
   "fatal: bad revision '(.*)'": GitError.BadRevision,
   "fatal: Not a git repository \\(or any of the parent directories\\): (.*)": GitError.NotAGitRepository,
+  "fatal: refusing to merge unrelated histories": GitError.CannotMergeUnrelatedHistories,
   // GitHub-specific errors
   "error: GH001: ": GitError.PushWithFileSizeExceedingLimit,
   "error: GH002: ": GitError.HexBranchNameRejected,
