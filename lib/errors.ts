@@ -28,6 +28,7 @@ export enum GitError {
   BranchAlreadyExists,
   BadRevision,
   NotAGitRepository,
+  CannotMergeUnrelatedHistories,
   // GitHub-specific error codes
   PushWithFileSizeExceedingLimit,
   HexBranchNameRejected,
@@ -35,6 +36,7 @@ export enum GitError {
   InvalidRefLength,
   ProtectedBranchRequiresReview,
   ProtectedBranchForcePush,
+  PushWithPrivateEmail
 }
 
 /** A mapping from regexes to the git error they identify. */
@@ -68,6 +70,7 @@ export const GitErrorRegexes = {
   "fatal: A branch named '(.+)' already exists.": GitError.BranchAlreadyExists,
   "fatal: bad revision '(.*)'": GitError.BadRevision,
   "fatal: Not a git repository \\(or any of the parent directories\\): (.*)": GitError.NotAGitRepository,
+  "fatal: refusing to merge unrelated histories": GitError.CannotMergeUnrelatedHistories,
   // GitHub-specific errors
   "error: GH001: ": GitError.PushWithFileSizeExceedingLimit,
   "error: GH002: ": GitError.HexBranchNameRejected,
@@ -75,6 +78,7 @@ export const GitErrorRegexes = {
   "error: GH005: Sorry, refs longer than (.+) bytes are not allowed": GitError.InvalidRefLength,
   "error: GH006: Protected branch update failed for (.+)\nremote: error: At least one approved review is required": GitError.ProtectedBranchRequiresReview,
   "error: GH006: Protected branch update failed for (.+)\nremote: error: Cannot force-push to a protected branch": GitError.ProtectedBranchForcePush,
+  "error: GH007: Your push would publish a private email address.": GitError.PushWithPrivateEmail
 }
 
 /**

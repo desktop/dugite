@@ -107,6 +107,13 @@ describe('git-process', () => {
       expect(error).to.equal(GitError.BadRevision)
     })
 
+    it('can parse unrelated histories error', () => {
+      const stderr = `fatal: refusing to merge unrelated histories`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.CannotMergeUnrelatedHistories)
+    })
+
     it('can parse GH001 push file size error', () => {
       const stderr = `remote: error: GH001: Large files detected. You may want to try Git Large File Storage - https://git-lfs.github.com.
 remote: error: Trace: 2bd2bfca1605d4e0847936332f1b6c07
@@ -170,6 +177,15 @@ error: failed to push some refs to 'https://github.com/shiftkey/too-large-reposi
 
       const error = GitProcess.parseError(stderr)
       expect(error).to.equal(GitError.ProtectedBranchForcePush)
+    })
+
+    it('can parse GH007 push with private email error', () => {
+      const stderr = `remote: error: GH007: Your push would publish a private email address.
+remote: You can make your email public or disable this protection by visiting:
+remote: http://github.com/settings/emails`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.PushWithPrivateEmail)
     })
   })
 })
