@@ -36,6 +36,7 @@ export enum GitError {
   InvalidRefLength,
   ProtectedBranchRequiresReview,
   ProtectedBranchForcePush,
+  PushWithPrivateEmail
 }
 
 /** A mapping from regexes to the git error they identify. */
@@ -77,6 +78,7 @@ export const GitErrorRegexes = {
   "error: GH005: Sorry, refs longer than (.+) bytes are not allowed": GitError.InvalidRefLength,
   "error: GH006: Protected branch update failed for (.+)\nremote: error: At least one approved review is required": GitError.ProtectedBranchRequiresReview,
   "error: GH006: Protected branch update failed for (.+)\nremote: error: Cannot force-push to a protected branch": GitError.ProtectedBranchForcePush,
+  "error: GH007: Your push would publish a private email address.": GitError.PushWithPrivateEmail
 }
 
 /**

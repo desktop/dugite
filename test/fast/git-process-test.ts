@@ -178,5 +178,14 @@ error: failed to push some refs to 'https://github.com/shiftkey/too-large-reposi
       const error = GitProcess.parseError(stderr)
       expect(error).to.equal(GitError.ProtectedBranchForcePush)
     })
+
+    it('can parse GH007 push with private email error', () => {
+      const stderr = `remote: error: GH007: Your push would publish a private email address.
+remote: You can make your email public or disable this protection by visiting:
+remote: http://github.com/settings/emails`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.PushWithPrivateEmail)
+    })
   })
 })
