@@ -12,14 +12,14 @@ function getConfig() {
   }
 
   if (process.platform === 'darwin') {
-    config.checksum = '3489eeeddf6e69cead1462dee63b4c1c9b56038aad7da489964aec10a8a0fa32'
-    config.source = 'https://github.com/desktop/dugite-native/releases/download/v2.13.0-rc2/dugite-native-v2.13.0-macOS-188.tar.gz'
+    config.checksum = 'c3401a498155a25f55a870f7a15f3e868d771096084068519e5d824fbc3bf4e8'
+    config.source = 'https://github.com/desktop/dugite-native/releases/download/v2.13.0-rc3/dugite-native-v2.13.0-macOS-198.tar.gz'
   } else if (process.platform === 'win32') {
-    config.checksum = '0b71a1248cc01994d1de1b304309f1160027283dc7d7ac928b8074e0e95e8828'
-    config.source = 'https://github.com/desktop/dugite-native/releases/download/v2.13.0-rc2/dugite-native-v2.13.0-win32-188.tar.gz'
+    config.checksum = 'b93d95ebe70449efb606ff27091207ccf816fb82bf37c8ef0ac464d1bf598085'
+    config.source = 'https://github.com/desktop/dugite-native/releases/download/v2.13.0-rc3/dugite-native-v2.13.0-win32-198.tar.gz'
   } else if (process.platform === 'linux') {
-    config.checksum = '29743b174c3abf9670b14ca3430a98941c4e271729565c871b62544c2362bc04'
-    config.source = 'https://github.com/desktop/dugite-native/releases/download/v2.13.0-rc2/dugite-native-v2.13.0-ubuntu-188.tar.gz'
+    config.checksum = '478b68b8f76297d9ab3b3f5384dbcb3be4fcfd89f2b8e15a9aba4c74f8be80b1'
+    config.source = 'https://github.com/desktop/dugite-native/releases/download/v2.13.0-rc3/dugite-native-v2.13.0-ubuntu-198.tar.gz'
   }
 
   // compute the filename from the download source
