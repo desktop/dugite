@@ -259,13 +259,6 @@ export class GitProcess {
           LaunchingHotSpare = true
           try {
             HotSpare = await startProcess(gitLocation, args, execOptions)
-            const cp = HotSpare.child_process
-            setTimeout(function() {
-              if (HotSpare && HotSpare.child_process === cp) {
-                HotSpare = null
-                cp.kill()
-              }
-            }, 1000);
           } finally {
             LaunchingHotSpare = false
           }
@@ -313,4 +306,14 @@ export class GitProcess {
 
     return null
   }
+
+  public static shutdown() {
+    if (HotSpare) {
+      HotSpare.child_process.kill()
+    }
+  }
 }
+
+// Make sure we shut down any running read-command processes when the
+// process is getting ready to exit.
+process.on('exit', GitProcess.shutdown)
