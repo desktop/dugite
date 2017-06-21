@@ -1,7 +1,7 @@
 
 import * as fs from 'fs'
 
-import { execFile, spawn, ExecOptionsWithStringEncoding } from 'child_process'
+import { execFile, spawn, ExecFileOptionsWithStringEncoding } from 'child_process'
 import { GitError, GitErrorRegexes, RepositoryDoesNotExistErrorCode, GitNotFoundErrorCode } from './errors'
 import { ChildProcess } from 'child_process'
 
@@ -84,16 +84,102 @@ interface ErrorWithCode extends Error {
   code: string | number
 }
 
-export class GitProcess {
+interface IRunningGitProcess {
+  child_process: ChildProcess,
+  promise: Promise<IGitResult>
+}
 
-  private static pathExists(path: string): Boolean {
-    try {
-        fs.accessSync(path, (fs as any).F_OK);
-        return true
-    } catch (e) {
-        return false
-    }
+function formatPktLine(content: string) {
+  if (content.length > 65520) {
+    throw new Error('protocol error: impossibly long line')
   }
+
+  const hexLength = (content.length + 4).toString(16)
+  const pktLineLen = (`0000${hexLength}`).substring(hexLength.length)
+
+  return pktLineLen + content
+}
+
+async function startProcess(file: string, args: string[], options: ExecFileOptionsWithStringEncoding): Promise<IRunningGitProcess> {
+
+  let child_process: ChildProcess | undefined
+
+  const promise = new Promise<IGitResult>((resolve, reject) => {
+    child_process = execFile(file, args, options, function(err: ErrorWithCode, stdout, stderr) {
+      const code = err ? err.code : 0
+      // If the error's code is a string then it means the code isn't the
+      // process's exit code but rather an error coming from Node's bowels,
+      // e.g., ENOENT.
+      if (typeof code === 'string') {
+        if (code === 'ENOENT') {
+          let message = err.message
+          let code = err.code
+          if (options && options.cwd && pathExists(options.cwd) === false) {
+            message = 'Unable to find path to repository on disk.'
+            code = RepositoryDoesNotExistErrorCode
+          } else {
+            message = `Git could not be found at the expected path: '${file}'. This might be a problem with how the application is packaged, so confirm this folder hasn't been removed when packaging.`
+            code = GitNotFoundErrorCode
+          }
+
+          const error = new Error(message) as ErrorWithCode
+          error.name = err.name
+          error.code = code
+          reject(error)
+        } else {
+          reject(err)
+        }
+
+        return
+      }
+
+      if (code === undefined && err) {
+        // Git has returned an output that couldn't fit in the specified buffer
+        // as we don't know how many bytes it requires, rethrow the error with
+        // details about what it was previously set to...
+        if (err.message === 'stdout maxBuffer exceeded') {
+          reject(new Error(`The output from the command could not fit into the allocated stdout buffer. Set options.maxBuffer to a larger value than ${options.maxBuffer} bytes`))
+        }
+      }
+
+      /**
+       * If we're running read-command we won't get the ENOENT error from git since we're
+       * always launching the process in a known location and then, at a later stage,
+       * letting Git know where to operate. We will, however, get a very specific error
+       * message and a known exit code so we'll intercept that and throw the same
+       * error as we do for ENOENT.
+       */
+      if (code === 128 && /fatal: Cannot change to '(.*?)': No such file or directory/.test(stderr)) {
+        const error = new Error('Unable to find path to repository on disk.') as ErrorWithCode
+        error.code = RepositoryDoesNotExistErrorCode
+        return reject(error)
+      }
+
+      resolve({ stdout, stderr, exitCode: code })
+    })
+  })
+
+
+  if (!child_process) {
+    throw Error('failed to start process')
+  }
+
+  return { child_process, promise }
+}
+
+function pathExists(path: string): Boolean {
+  try {
+      fs.accessSync(path, (fs as any).F_OK);
+      return true
+  } catch (e) {
+      return false
+  }
+}
+
+let HotSpare: IRunningGitProcess | null = null
+let LaunchingHotSpare = false
+
+export class GitProcess {
 
   /**
    * Execute a command and interact with the process outputs directly.
@@ -130,76 +216,90 @@ export class GitProcess {
    * See the result's `stderr` and `exitCode` for any potential git error
    * information.
    */
-  public static exec(args: string[], path: string, options?: IGitExecutionOptions): Promise<IGitResult> {
-    return new Promise<IGitResult>(function(resolve, reject) {
-      let customEnv = { }
-      if (options && options.env) {
-        customEnv = options.env
-      }
+  public static async exec(args: string[], path: string, options?: IGitExecutionOptions): Promise<IGitResult> {
+    let customEnv = { }
 
-      const { env, gitLocation } = setupEnvironment(customEnv)
+    if (options && options.env) {
+      customEnv = options.env
+    }
 
-      // Explicitly annotate opts since typescript is unable to infer the correct
-      // signature for execFile when options is passed as an opaque hash. The type
-      // definition for execFile currently infers based on the encoding parameter
-      // which could change between declaration time and being passed to execFile.
-      // See https://git.io/vixyQ
-      const execOptions: ExecOptionsWithStringEncoding = {
-        cwd: path,
-        encoding: 'utf8',
-        maxBuffer: options ? options.maxBuffer : 10 * 1024 * 1024,
-        env
-      }
+    const { env, gitLocation } = setupEnvironment(customEnv)
+    const useReadCommand = 'GIT_USE_READ_COMMAND' in process.env
 
-      const spawnedProcess = execFile(gitLocation, args, execOptions, function(err: ErrorWithCode, stdout, stderr) {
-        const code = err ? err.code : 0
-        // If the error's code is a string then it means the code isn't the
-        // process's exit code but rather an error coming from Node's bowels,
-        // e.g., ENOENT.
-        if (typeof code === 'string') {
-          if (code === 'ENOENT') {
-            let message = err.message
-            let code = err.code
-            if (GitProcess.pathExists(path) === false) {
-              message = 'Unable to find path to repository on disk.'
-              code = RepositoryDoesNotExistErrorCode
-            } else {
-              message = `Git could not be found at the expected path: '${gitLocation}'. This might be a problem with how the application is packaged, so confirm this folder hasn't been removed when packaging.`
-              code = GitNotFoundErrorCode
-            }
+    const execOptions: ExecFileOptionsWithStringEncoding = {
+      cwd: useReadCommand ? process.cwd() : path,
+      encoding: 'utf8',
+      maxBuffer: options ? options.maxBuffer : 10 * 1024 * 1024,
+      env: useReadCommand ? { } : env,
+    }
 
-            const error = new Error(message) as ErrorWithCode
-            error.name = err.name
-            error.code = code
-            reject(error)
-          } else {
-            reject(err)
-          }
+    let readCommandArgs
 
-          return
-        }
+    if (useReadCommand) {
+      readCommandArgs = [ '-C', path, ...args ]
+      args = [ 'read-command' ]
+    }
 
-        if (code === undefined && err) {
-          // Git has returned an output that couldn't fit in the specified buffer
-          // as we don't know how many bytes it requires, rethrow the error with
-          // details about what it was previously set to...
-          if (err.message === 'stdout maxBuffer exceeded') {
-            reject(new Error(`The output from the command could not fit into the allocated stdout buffer. Set options.maxBuffer to a larger value than ${execOptions.maxBuffer} bytes`))
+    let child_process
+    let promise
+
+    if (useReadCommand && HotSpare !== null) {
+      child_process = HotSpare.child_process
+      promise = HotSpare.promise
+      HotSpare = null
+    } else {
+      const p = await startProcess(gitLocation, args, execOptions)
+      child_process = p.child_process
+      promise = p.promise
+    }
+
+    if (useReadCommand) {
+      setImmediate(async function() {
+        if (HotSpare === null && !LaunchingHotSpare) {
+          LaunchingHotSpare = true
+          try {
+            HotSpare = await startProcess(gitLocation, args, execOptions)
+            const cp = HotSpare.child_process
+            setTimeout(function() {
+              if (HotSpare && HotSpare.child_process === cp) {
+                HotSpare = null
+                cp.kill()
+              }
+            }, 1000);
+          } finally {
+            LaunchingHotSpare = false
           }
         }
-
-        resolve({ stdout, stderr, exitCode: code })
       })
+    }
 
-      if (options && options.stdin) {
-        // See https://github.com/nodejs/node/blob/7b5ffa46fe4d2868c1662694da06eb55ec744bde/test/parallel/test-stdin-pipe-large.js
-        spawnedProcess.stdin.end(options.stdin, options.stdinEncoding)
+    if (readCommandArgs !== undefined) {
+      const readCommandEnv = env as any
+      const environmentKeys = Object.keys(readCommandEnv)
+
+      child_process.stdin.write(formatPktLine(environmentKeys.length.toString(10)))
+
+      for (const key of environmentKeys) {
+        child_process.stdin.write(formatPktLine(`${key}=${readCommandEnv[key]}`))
       }
 
-      if (options && options.processCallback) {
-        options.processCallback(spawnedProcess)
+      child_process.stdin.write(formatPktLine(readCommandArgs.length.toString(10)))
+
+      for (const arg of readCommandArgs) {
+        child_process.stdin.write(formatPktLine(arg))
       }
-    })
+    }
+
+    if (options && options.stdin) {
+      // See https://github.com/nodejs/node/blob/7b5ffa46fe4d2868c1662694da06eb55ec744bde/test/parallel/test-stdin-pipe-large.js
+      child_process.stdin.end(options.stdin, options.stdinEncoding)
+    }
+
+    if (options && options.processCallback) {
+      options.processCallback(child_process)
+    }
+
+    return promise
   }
 
   /** Try to parse an error type from stderr. */
