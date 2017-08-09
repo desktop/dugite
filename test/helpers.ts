@@ -1,8 +1,8 @@
 import { GitProcess, IGitResult } from '../lib'
 
 // NOTE: bump these versions to the latest stable releases
-export const gitVersion = '2.13.0'
-export const gitLfsVersion = '2.1.1'
+export const gitVersion = '2.13.3'
+export const gitLfsVersion = '2.2.1'
 
 const temp = require('temp').track()
 
