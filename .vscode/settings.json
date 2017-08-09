@@ -4,5 +4,6 @@
     "**/.git": true,
     "**/.DS_Store": true,
     "build": true
-  }
+  },
+  "editor.formatOnSave": false
 }
