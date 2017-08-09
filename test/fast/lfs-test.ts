@@ -11,7 +11,7 @@ describe('lfs', () => {
     const testRepoPath = temp.mkdirSync('desktop-git-lfs')
     const result = await GitProcess.exec([ 'lfs' ], testRepoPath)
     expect(result.exitCode).to.equal(0)
-    expect(result.stderr).to.contain('Git LFS is a system for managing and versioning large files')
+    expect(result.stdout).to.contain('Git LFS is a system for managing and versioning large files')
   })
 
   it('matches the expected version', async () => {
