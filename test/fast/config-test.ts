@@ -9,7 +9,7 @@ describe('config', () => {
   it('sets http.sslBackend on Windows', async () => {
     if (process.platform === 'win32') {
       const result = await GitProcess.exec([ 'config', '--system', 'http.sslBackend' ], os.homedir())
-      expect(result.stdout).to.equal('schannel')
+      expect(result.stdout.trim()).to.equal('schannel')
     }
   })
 })
