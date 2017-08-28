@@ -20,19 +20,19 @@ describe('environment variables', () => {
   })
 
   it('when GIT_EXEC_PATH environment variable *not* is set, it will be calculated', async () => {
-    expect(process.env.GIT_EXEC_PATH).to.be.undefined;
-    const { env } = await setupEnvironment({});
-    expect((<any>env)['GIT_EXEC_PATH']).not.to.be.undefined;
+    expect(process.env.GIT_EXEC_PATH).to.be.undefined
+    const { env } = await setupEnvironment({})
+    expect((<any>env)['GIT_EXEC_PATH']).not.to.be.undefined
   })
 
   it('when GIT_EXEC_PATH environment variable is set, that will be used as is', async () => {
-    expect(process.env.GIT_EXEC_PATH).to.be.undefined;
+    expect(process.env.GIT_EXEC_PATH).to.be.undefined
     try {
-      process.env.GIT_EXEC_PATH = __filename;
-      const { env } = await setupEnvironment({});
+      process.env.GIT_EXEC_PATH = __filename
+      const { env } = await setupEnvironment({})
       expect((<any>env)['GIT_EXEC_PATH']).to.be.equal(__filename)
     } finally {
-      delete process.env.GIT_EXEC_PATH;
+      delete process.env.GIT_EXEC_PATH
     }
   })
 })
