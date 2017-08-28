@@ -2,6 +2,7 @@ import * as chai from 'chai'
 const expect = chai.expect
 
 import { GitProcess } from '../../lib'
+import { setupEnvironment } from '../../lib/git-environment'
 
 const temp = require('temp').track()
 
@@ -16,5 +17,22 @@ describe('environment variables', () => {
       }
     })
     expect(result.stdout).to.equal('Foo Bar <foo@bar.com> 1475703207 +0200\n')
+  })
+
+  it('when GIT_EXEC_PATH environment variable *not* is set, it will be calculated', async () => {
+    expect(process.env.GIT_EXEC_PATH).to.be.undefined;
+    const { env } = await setupEnvironment({});
+    expect((<any>env)['GIT_EXEC_PATH']).not.to.be.undefined;
+  })
+
+  it('when GIT_EXEC_PATH environment variable is set, that will be used as is', async () => {
+    expect(process.env.GIT_EXEC_PATH).to.be.undefined;
+    try {
+      process.env.GIT_EXEC_PATH = __filename;
+      const { env } = await setupEnvironment({});
+      expect((<any>env)['GIT_EXEC_PATH']).to.be.equal(__filename)
+    } finally {
+      delete process.env.GIT_EXEC_PATH;
+    }
   })
 })

@@ -1,7 +1,10 @@
 import * as path from 'path'
 
 /**
- *  Find the path to the embedded Git environment
+ *  Find the path to the embedded Git environment.
+ *
+ *  If a custom Git directory path is defined as the `LOCAL_GIT_DIRECTORY` environment variable, then
+ *  returns with it after resolving it as a path.
  */
 function resolveGitDir(): string {
   if (process.env.LOCAL_GIT_DIRECTORY) {
@@ -14,7 +17,7 @@ function resolveGitDir(): string {
 }
 
 /**
- *  Find the path to the embedded Git binary
+ *  Find the path to the embedded Git binary.
  */
 function resolveGitBinary(): string {
   const gitDir = resolveGitDir()
@@ -29,16 +32,23 @@ function resolveGitBinary(): string {
 
 /**
  * Find the path to the embedded git exec path.
+ *
+ * If a custom git exec path is given as the `GIT_EXEC_PATH` environment variable,
+ * then it returns with it after resolving it as a path.
  */
 function resolveGitExecPath(): string {
-  const gitDir = resolveGitDir()
-  if (process.platform === 'darwin' || process.platform === 'linux') {
-    return path.join(gitDir, 'libexec', 'git-core')
-  } else if (process.platform === 'win32') {
-    return path.join(gitDir, 'mingw64', 'libexec', 'git-core')
-  }
+  if (process.env.GIT_EXEC_PATH) {
+    return path.resolve(process.env.GIT_EXEC_PATH)
+  } else {
+    const gitDir = resolveGitDir()
+    if (process.platform === 'darwin' || process.platform === 'linux') {
+      return path.join(gitDir, 'libexec', 'git-core')
+    } else if (process.platform === 'win32') {
+      return path.join(gitDir, 'mingw64', 'libexec', 'git-core')
+    }
 
-  throw new Error('Git not supported on platform: ' + process.platform)
+    throw new Error('Git not supported on platform: ' + process.platform)
+  }
 }
 
 /**
@@ -89,7 +99,7 @@ export function setupEnvironment(environmentVariables: Object): { env: Object, g
     env.PREFIX = gitDir
 
     // bypass whatever certificates might be set and use
-    // the bundle included in the distibution
+    // the bundle included in the distribution
     const sslCABundle = `${gitDir}/ssl/cacert.pem`
     env.GIT_SSL_CAINFO = sslCABundle
   }

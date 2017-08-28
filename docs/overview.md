@@ -6,7 +6,7 @@
     interact with Git
  - `IGitResult` - the abstraction for a result returned by Git - contains
     exit code and standard output/error text
- - `IGitExecutionOptions` - additional overrides to change the behaviour
+ - `IGitExecutionOptions` - additional overrides to change the behavior
     of `GitProcess` (see [API extensibility](./api-extensibility.md) for
     more information)
  - `GitError` - a collection of known error codes that `dugite` can understand
