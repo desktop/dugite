@@ -19,7 +19,7 @@ describe('environment variables', () => {
     expect(result.stdout).to.equal('Foo Bar <foo@bar.com> 1475703207 +0200\n')
   })
 
-  it('when GIT_EXEC_PATH environment variable *not* is set, it will be calculated', async () => {
+  it('when GIT_EXEC_PATH environment variable is *not* set, it will be calculated', async () => {
     expect(process.env.GIT_EXEC_PATH).to.be.undefined
     const { env } = await setupEnvironment({})
     expect((<any>env)['GIT_EXEC_PATH']).not.to.be.undefined
