@@ -39,16 +39,15 @@ function resolveGitBinary(): string {
 function resolveGitExecPath(): string {
   if (process.env.GIT_EXEC_PATH) {
     return path.resolve(process.env.GIT_EXEC_PATH)
-  } else {
-    const gitDir = resolveGitDir()
-    if (process.platform === 'darwin' || process.platform === 'linux') {
-      return path.join(gitDir, 'libexec', 'git-core')
-    } else if (process.platform === 'win32') {
-      return path.join(gitDir, 'mingw64', 'libexec', 'git-core')
-    }
-
-    throw new Error('Git not supported on platform: ' + process.platform)
   }
+  const gitDir = resolveGitDir()
+  if (process.platform === 'darwin' || process.platform === 'linux') {
+    return path.join(gitDir, 'libexec', 'git-core')
+  } else if (process.platform === 'win32') {
+    return path.join(gitDir, 'mingw64', 'libexec', 'git-core')
+  }
+
+  throw new Error('Git not supported on platform: ' + process.platform)
 }
 
 /**
