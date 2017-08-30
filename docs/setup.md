@@ -12,4 +12,4 @@ To ensure everything is working, run this command from the root of the repositor
 npm install
 ```
 
-This will install the depedencies, compile the library source and run the suite of tests.
+This will install the dependencies, compile the library source and run the suite of tests.
