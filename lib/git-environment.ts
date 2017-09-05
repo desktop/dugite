@@ -20,7 +20,10 @@ function resolveGitDir(): string {
   }
 }
 
-function resolveBundledGitDir(): string {
+/**
+ * Returns with the directory path of the embedded Git executable.
+ */
+function resolveEmbeddedGitDir(): string {
   const s = path.sep
   const dirPath = path.resolve(__dirname, '..', '..', 'git')
   return dirPath.replace(/[\\\/]app.asar[\\\/]/, `${s}app.asar.unpacked${s}`)

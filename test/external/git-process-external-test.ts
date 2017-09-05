@@ -13,7 +13,7 @@ describe('git-process [with external Git executable]', () => {
 
     before(async () => {
         git = await findGit()
-        if (!git || !git.path && !git.execPath) {
+        if (!git || !git.path || !git.execPath) {
             git = undefined
         } else {
             const { path, execPath } = git
