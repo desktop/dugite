@@ -101,10 +101,13 @@ export function setupEnvironment(environmentVariables: Object): { env: Object, g
     // process to ensure that it knows how to resolve things
     env.PREFIX = gitDir
 
-    // bypass whatever certificates might be set and use
-    // the bundle included in the distribution
-    const sslCABundle = `${gitDir}/ssl/cacert.pem`
-    env.GIT_SSL_CAINFO = sslCABundle
+    if (!env.GIT_SSL_CAINFO) {
+      // use the SSL certificate bundle included in the distribution
+      // if not specified by an environment variable
+      const distDir = resolveEmbeddedGitDir()
+      const sslCABundle = `${distDir}/ssl/cacert.pem`
+      env.GIT_SSL_CAINFO = sslCABundle
+    }
   }
 
   return { env, gitLocation }
