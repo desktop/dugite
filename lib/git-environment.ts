@@ -10,10 +10,14 @@ function resolveGitDir(): string {
   if (process.env.LOCAL_GIT_DIRECTORY) {
     return path.resolve(process.env.LOCAL_GIT_DIRECTORY)
   } else {
-    const s = path.sep;
-    return path.resolve(__dirname, '..', '..', 'git')
-      .replace(/[\\\/]app.asar[\\\/]/, `${s}app.asar.unpacked${s}`);
+    return resolveBundledGitDir()
   }
+}
+
+function resolveBundledGitDir(): string {
+  const s = path.sep
+  const dirPath = path.resolve(__dirname, '..', '..', 'git')
+  return dirPath.replace(/[\\\/]app.asar[\\\/]/, `${s}app.asar.unpacked${s}`)
 }
 
 /**
@@ -97,10 +101,16 @@ export function setupEnvironment(environmentVariables: Object): { env: Object, g
     // process to ensure that it knows how to resolve things
     env.PREFIX = gitDir
 
-    // bypass whatever certificates might be set and use
-    // the bundle included in the distribution
-    const sslCABundle = `${gitDir}/ssl/cacert.pem`
-    env.GIT_SSL_CAINFO = sslCABundle
+    // if the user hasn't specified their own certificate bundle
+    if (!process.env.GIT_SSL_CAINFO) {
+      // resolve the path to the original Git directory
+      const distroPath = resolveBundledGitDir()
+
+      // bypass whatever certificates might be set and use
+      // the bundle included in the distribution
+      const sslCABundle = `${distroPath}/ssl/cacert.pem`
+      env.GIT_SSL_CAINFO = sslCABundle
+    }
   }
 
   return { env, gitLocation }
