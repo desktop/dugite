@@ -1,5 +1,11 @@
 import * as path from 'path'
 
+function resolveEmbeddedGitDir(): string {
+  const s = path.sep;
+  return path.resolve(__dirname, '..', '..', 'git')
+    .replace(/[\\\/]app.asar[\\\/]/, `${s}app.asar.unpacked${s}`);
+}
+
 /**
  *  Find the path to the embedded Git environment.
  *
@@ -10,9 +16,7 @@ function resolveGitDir(): string {
   if (process.env.LOCAL_GIT_DIRECTORY) {
     return path.resolve(process.env.LOCAL_GIT_DIRECTORY)
   } else {
-    const s = path.sep;
-    return path.resolve(__dirname, '..', '..', 'git')
-      .replace(/[\\\/]app.asar[\\\/]/, `${s}app.asar.unpacked${s}`);
+    return resolveEmbeddedGitDir()
   }
 }
 
