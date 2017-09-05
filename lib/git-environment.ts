@@ -20,6 +20,12 @@ function resolveGitDir(): string {
   }
 }
 
+function resolveBundledGitDir(): string {
+  const s = path.sep
+  const dirPath = path.resolve(__dirname, '..', '..', 'git')
+  return dirPath.replace(/[\\\/]app.asar[\\\/]/, `${s}app.asar.unpacked${s}`)
+}
+
 /**
  *  Find the path to the embedded Git binary.
  */
