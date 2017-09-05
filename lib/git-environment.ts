@@ -15,9 +15,8 @@ function resolveEmbeddedGitDir(): string {
 function resolveGitDir(): string {
   if (process.env.LOCAL_GIT_DIRECTORY) {
     return path.resolve(process.env.LOCAL_GIT_DIRECTORY)
-  } else {
-    return resolveEmbeddedGitDir()
   }
+  return resolveEmbeddedGitDir()
 }
 
 /**
