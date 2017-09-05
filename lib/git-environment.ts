@@ -10,11 +10,14 @@ function resolveGitDir(): string {
   if (process.env.LOCAL_GIT_DIRECTORY) {
     return path.resolve(process.env.LOCAL_GIT_DIRECTORY)
   } else {
-    return resolveBundledGitDir()
+    return resolveEmbeddedGitDir()
   }
 }
 
-function resolveBundledGitDir(): string {
+/**
+ * Returns with the directory path of the embedded Git executable.
+ */
+function resolveEmbeddedGitDir(): string {
   const s = path.sep
   const dirPath = path.resolve(__dirname, '..', '..', 'git')
   return dirPath.replace(/[\\\/]app.asar[\\\/]/, `${s}app.asar.unpacked${s}`)
@@ -104,7 +107,7 @@ export function setupEnvironment(environmentVariables: Object): { env: Object, g
     // if the user hasn't specified their own certificate bundle
     if (!process.env.GIT_SSL_CAINFO) {
       // resolve the path to the original Git directory
-      const distroPath = resolveBundledGitDir()
+      const distroPath = resolveEmbeddedGitDir()
 
       // bypass whatever certificates might be set and use
       // the bundle included in the distribution
