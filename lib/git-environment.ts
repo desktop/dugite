@@ -9,9 +9,8 @@ import * as path from 'path'
 function resolveGitDir(): string {
   if (process.env.LOCAL_GIT_DIRECTORY) {
     return path.resolve(process.env.LOCAL_GIT_DIRECTORY)
-  } else {
-    return resolveEmbeddedGitDir()
   }
+  return resolveEmbeddedGitDir()
 }
 
 /**
@@ -104,14 +103,11 @@ export function setupEnvironment(environmentVariables: Object): { env: Object, g
     // process to ensure that it knows how to resolve things
     env.PREFIX = gitDir
 
-    // if the user hasn't specified their own certificate bundle
-    if (!process.env.GIT_SSL_CAINFO) {
-      // resolve the path to the original Git directory
-      const distroPath = resolveEmbeddedGitDir()
-
-      // bypass whatever certificates might be set and use
-      // the bundle included in the distribution
-      const sslCABundle = `${distroPath}/ssl/cacert.pem`
+    if (!env.GIT_SSL_CAINFO && !env.LOCAL_GIT_DIRECTORY) {
+      // use the SSL certificate bundle included in the distribution only
+      // when using embedded Git and not providing your own bundle
+      const distDir = resolveEmbeddedGitDir()
+      const sslCABundle = `${distDir}/ssl/cacert.pem`
       env.GIT_SSL_CAINFO = sslCABundle
     }
   }
