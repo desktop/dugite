@@ -102,8 +102,8 @@ export function setupEnvironment(environmentVariables: Object): { env: Object, g
     env.PREFIX = gitDir
 
     if (!env.GIT_SSL_CAINFO && !env.LOCAL_GIT_DIRECTORY) {
-      // use the SSL certificate bundle included in the distribution
-      // if not specified by an environment variable
+      // use the SSL certificate bundle included in the distribution only
+      // when using embedded Git and not providing your own bundle
       const distDir = resolveEmbeddedGitDir()
       const sslCABundle = `${distDir}/ssl/cacert.pem`
       env.GIT_SSL_CAINFO = sslCABundle
