@@ -7,7 +7,7 @@
   "scripts": {
     "clean": "rimraf build",
     "lint": "tslint lib/**/*.ts script/**/*.ts",
-    "build": "npm run clean && npm run lint && tsc -p ./tsconfig.json && tsc -p ./examples/tsconfig.json",
+    "build": "npm run clean && tsc -p ./tsconfig.json && tsc -p ./examples/tsconfig.json",
     "prepublish": "npm run build && npm run test",
     "postpublish": "git push --follow-tags",
     "test": "npm run test:fast && npm run test:slow",
