@@ -13,7 +13,9 @@
     "test": "npm run test:fast && npm run test:slow",
     "test:fast": "cross-env LOCAL_GIT_DIRECTORY=./git/ mocha --require ts-node/register test/fast/*.ts test/auth/*.ts",
     "test:slow": "cross-env LOCAL_GIT_DIRECTORY=./git/ mocha -t 20000ms --require ts-node/register test/slow/*.ts test/auth/*.ts",
-    "postinstall": "node ./script/download-git.js"
+    "postinstall": "node ./script/download-git.js",
+    "prettify": "prettier \"**/*.ts\" --write",
+    "is-it-pretty": "prettier \"**/*.ts\" --list-different"
   },
   "engines": {
     "node": ">= 6",
@@ -52,9 +54,9 @@
     "chai-as-promised": "^6.0.0",
     "cross-env": "^4.0.0",
     "mocha": "^3.3.0",
+    "prettier": "^1.6.1",
     "temp": "^0.8.3",
     "ts-node": "^3.0.2",
-    "tslint": "^5.1.0",
     "typescript": "^2.3.2"
   }
 }
