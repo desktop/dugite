@@ -1,9 +1,10 @@
 import * as path from 'path'
 
 function resolveEmbeddedGitDir(): string {
-  const s = path.sep;
-  return path.resolve(__dirname, '..', '..', 'git')
-    .replace(/[\\\/]app.asar[\\\/]/, `${s}app.asar.unpacked${s}`);
+  const s = path.sep
+  return path
+    .resolve(__dirname, '..', '..', 'git')
+    .replace(/[\\\/]app.asar[\\\/]/, `${s}app.asar.unpacked${s}`)
 }
 
 /**
@@ -62,7 +63,9 @@ function resolveGitExecPath(): string {
  *
  * @param additional options to include with the process
  */
-export function setupEnvironment(environmentVariables: Object): { env: Object, gitLocation: string } {
+export function setupEnvironment(
+  environmentVariables: Object
+): { env: Object; gitLocation: string } {
   const gitLocation = resolveGitBinary()
 
   let envPath: string = process.env.PATH || ''
@@ -72,10 +75,15 @@ export function setupEnvironment(environmentVariables: Object): { env: Object, g
     envPath = `${gitDir}\\mingw64\\bin;${envPath}`
   }
 
-  const env = Object.assign({}, process.env, {
-    GIT_EXEC_PATH: resolveGitExecPath(),
-    PATH: envPath,
-  }, environmentVariables)
+  const env = Object.assign(
+    {},
+    process.env,
+    {
+      GIT_EXEC_PATH: resolveGitExecPath(),
+      PATH: envPath
+    },
+    environmentVariables
+  )
 
   if (process.platform === 'win32') {
     // while reading the environment variable is case-insensitive

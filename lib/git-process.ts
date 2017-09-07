@@ -1,8 +1,12 @@
-
 import * as fs from 'fs'
 
 import { execFile, spawn, ExecOptionsWithStringEncoding } from 'child_process'
-import { GitError, GitErrorRegexes, RepositoryDoesNotExistErrorCode, GitNotFoundErrorCode } from './errors'
+import {
+  GitError,
+  GitErrorRegexes,
+  RepositoryDoesNotExistErrorCode,
+  GitNotFoundErrorCode
+} from './errors'
 import { ChildProcess } from 'child_process'
 
 import { setupEnvironment } from './git-environment'
@@ -29,7 +33,7 @@ export interface IGitSpawnExecutionOptions {
    * set as environment variables before executing the git
    * process.
    */
-  readonly env?: Object,
+  readonly env?: Object
 }
 
 /**
@@ -42,7 +46,7 @@ export interface IGitExecutionOptions {
    * set as environment variables before executing the git
    * process.
    */
-  readonly env?: Object,
+  readonly env?: Object
 
   /**
    * An optional string or buffer which will be written to
@@ -73,7 +77,7 @@ export interface IGitExecutionOptions {
    * Note that if the stdin parameter was specified the stdin
    * stream will be closed by the time this callback fires.
    */
-   readonly processCallback?: (process: ChildProcess) => void
+  readonly processCallback?: (process: ChildProcess) => void
 }
 
 /**
@@ -85,13 +89,12 @@ interface ErrorWithCode extends Error {
 }
 
 export class GitProcess {
-
   private static pathExists(path: string): Boolean {
     try {
-        fs.accessSync(path, (fs as any).F_OK);
-        return true
+      fs.accessSync(path, (fs as any).F_OK)
+      return true
     } catch (e) {
-        return false
+      return false
     }
   }
 
@@ -102,8 +105,12 @@ export class GitProcess {
    * in which case the thrown Error will have a string `code` property. See
    * `errors.ts` for some of the known error codes.
    */
-  public static spawn(args: string[], path: string, options?: IGitSpawnExecutionOptions): ChildProcess {
-    let customEnv = { }
+  public static spawn(
+    args: string[],
+    path: string,
+    options?: IGitSpawnExecutionOptions
+  ): ChildProcess {
+    let customEnv = {}
     if (options && options.env) {
       customEnv = options.env
     }
@@ -130,9 +137,13 @@ export class GitProcess {
    * See the result's `stderr` and `exitCode` for any potential git error
    * information.
    */
-  public static exec(args: string[], path: string, options?: IGitExecutionOptions): Promise<IGitResult> {
+  public static exec(
+    args: string[],
+    path: string,
+    options?: IGitExecutionOptions
+  ): Promise<IGitResult> {
     return new Promise<IGitResult>(function(resolve, reject) {
-      let customEnv = { }
+      let customEnv = {}
       if (options && options.env) {
         customEnv = options.env
       }
@@ -151,7 +162,11 @@ export class GitProcess {
         env
       }
 
-      const spawnedProcess = execFile(gitLocation, args, execOptions, function(err: ErrorWithCode, stdout, stderr) {
+      const spawnedProcess = execFile(gitLocation, args, execOptions, function(
+        err: ErrorWithCode,
+        stdout,
+        stderr
+      ) {
         const code = err ? err.code : 0
         // If the error's code is a string then it means the code isn't the
         // process's exit code but rather an error coming from Node's bowels,
@@ -184,7 +199,11 @@ export class GitProcess {
           // as we don't know how many bytes it requires, rethrow the error with
           // details about what it was previously set to...
           if (err.message === 'stdout maxBuffer exceeded') {
-            reject(new Error(`The output from the command could not fit into the allocated stdout buffer. Set options.maxBuffer to a larger value than ${execOptions.maxBuffer} bytes`))
+            reject(
+              new Error(
+                `The output from the command could not fit into the allocated stdout buffer. Set options.maxBuffer to a larger value than ${execOptions.maxBuffer} bytes`
+              )
+            )
           }
         }
 

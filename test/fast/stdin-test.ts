@@ -6,7 +6,6 @@ import { GitProcess } from '../../lib'
 const temp = require('temp').track()
 
 describe('stdin', () => {
-
   it('can write large buffers', async () => {
     // Allocate 10Mb of memory
     const buffer = Buffer.alloc(1024 * 1024 * 10)
@@ -17,7 +16,9 @@ describe('stdin', () => {
     const testRepoPath = temp.mkdirSync('desktop-git-test-large-input')
 
     // Hash the object (without writing it to object database)
-    const result = await GitProcess.exec([ 'hash-object', '--stdin' ], testRepoPath, { stdin: buffer })
+    const result = await GitProcess.exec(['hash-object', '--stdin'], testRepoPath, {
+      stdin: buffer
+    })
 
     // Ensure that 10Mb of zeroes hashes correctly
     expect(result.stdout).to.equal('6c5d4031e03408e34ae476c5053ee497a91ac37b\n')
@@ -27,7 +28,7 @@ describe('stdin', () => {
     const testRepoPath = temp.mkdirSync('desktop-git-test-input-string')
 
     // Hash the object (without writing it to object database)
-    const result = await GitProcess.exec([ 'hash-object', '--stdin' ], testRepoPath, {
+    const result = await GitProcess.exec(['hash-object', '--stdin'], testRepoPath, {
       stdin: 'foo bar'
     })
 
@@ -38,7 +39,7 @@ describe('stdin', () => {
     const testRepoPath = temp.mkdirSync('desktop-git-test-input-string')
 
     // Hash the object (without writing it to object database)
-    const result1 = await GitProcess.exec([ 'hash-object', '--stdin' ], testRepoPath, {
+    const result1 = await GitProcess.exec(['hash-object', '--stdin'], testRepoPath, {
       stdin: 'åäö',
       stdinEncoding: 'utf-8'
     })
@@ -46,7 +47,7 @@ describe('stdin', () => {
     expect(result1.stdout).to.equal('3889b04ced1aef334c8caaa923559abba286394e\n')
 
     // Hash the object (without writing it to object database)
-    const result2 = await GitProcess.exec([ 'hash-object', '--stdin' ], testRepoPath, {
+    const result2 = await GitProcess.exec(['hash-object', '--stdin'], testRepoPath, {
       stdin: 'åäö',
       stdinEncoding: 'ascii'
     })
@@ -58,8 +59,8 @@ describe('stdin', () => {
     const testRepoPath = temp.mkdirSync('desktop-git-test-input-string')
 
     // Hash the object (without writing it to object database)
-    const result = await GitProcess.exec([ 'hash-object', '--stdin' ], testRepoPath, {
-      stdin: 'åäö',
+    const result = await GitProcess.exec(['hash-object', '--stdin'], testRepoPath, {
+      stdin: 'åäö'
     })
 
     expect(result.stdout).to.equal('3889b04ced1aef334c8caaa923559abba286394e\n')

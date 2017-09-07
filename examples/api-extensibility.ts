@@ -48,26 +48,34 @@ async function performClone(): Promise<void> {
   const options: IGitExecutionOptions = {
     // enable diagnostics
     env: {
-      'GIT_HTTP_USER_AGENT': 'dugite/2.12.0',
+      GIT_HTTP_USER_AGENT: 'dugite/2.12.0'
     },
     processCallback: (process: ChildProcess) => {
       byline(process.stderr).on('data', (chunk: string) => {
         if (chunk.startsWith('Receiving objects: ')) {
           const percent = tryParse(chunk)
-          if (percent) { setReceivingProgress(percent) }
+          if (percent) {
+            setReceivingProgress(percent)
+          }
           return
         }
 
         if (chunk.startsWith('Resolving deltas: ')) {
           const percent = tryParse(chunk)
-          if (percent) { setResolvingProgress(percent) }
+          if (percent) {
+            setResolvingProgress(percent)
+          }
           return
         }
       })
     }
   }
 
-  const result = await GitProcess.exec([ 'clone', 'https://github.com/dugite/dugite', '--progress' ], path, options)
+  const result = await GitProcess.exec(
+    ['clone', 'https://github.com/dugite/dugite', '--progress'],
+    path,
+    options
+  )
   if (result.exitCode !== 0) {
     console.log(`Unable to clone, exit code ${result.exitCode}`)
     console.log(result.stderr)
