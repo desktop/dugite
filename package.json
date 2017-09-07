@@ -13,8 +13,8 @@
     "test:fast": "cross-env LOCAL_GIT_DIRECTORY=./git/ mocha --require ts-node/register test/fast/*.ts test/auth/*.ts",
     "test:slow": "cross-env LOCAL_GIT_DIRECTORY=./git/ mocha -t 20000ms --require ts-node/register test/slow/*.ts test/auth/*.ts",
     "postinstall": "node ./script/download-git.js",
-    "prettify": "prettier \"**/*.ts\" --write",
-    "is-it-pretty": "prettier \"**/*.ts\" --list-different"
+    "prettify": "prettier \"{examples,lib,script,test}/**/*.ts\" --write",
+    "is-it-pretty": "prettier \"{examples,lib,script,test}/**/*.ts\" --list-different"
   },
   "engines": {
     "node": ">= 6",
