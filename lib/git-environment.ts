@@ -1,5 +1,11 @@
 import * as path from 'path'
 
+function resolveEmbeddedGitDir(): string {
+  const s = path.sep;
+  return path.resolve(__dirname, '..', '..', 'git')
+    .replace(/[\\\/]app.asar[\\\/]/, `${s}app.asar.unpacked${s}`);
+}
+
 /**
  *  Find the path to the embedded Git environment.
  *
@@ -10,9 +16,7 @@ function resolveGitDir(): string {
   if (process.env.LOCAL_GIT_DIRECTORY) {
     return path.resolve(process.env.LOCAL_GIT_DIRECTORY)
   } else {
-    const s = path.sep;
-    return path.resolve(__dirname, '..', '..', 'git')
-      .replace(/[\\\/]app.asar[\\\/]/, `${s}app.asar.unpacked${s}`);
+    return resolveEmbeddedGitDir()
   }
 }
 
@@ -97,10 +101,13 @@ export function setupEnvironment(environmentVariables: Object): { env: Object, g
     // process to ensure that it knows how to resolve things
     env.PREFIX = gitDir
 
-    // bypass whatever certificates might be set and use
-    // the bundle included in the distribution
-    const sslCABundle = `${gitDir}/ssl/cacert.pem`
-    env.GIT_SSL_CAINFO = sslCABundle
+    if (!env.GIT_SSL_CAINFO && !env.LOCAL_GIT_DIRECTORY) {
+      // use the SSL certificate bundle included in the distribution only
+      // when using embedded Git and not providing your own bundle
+      const distDir = resolveEmbeddedGitDir()
+      const sslCABundle = `${distDir}/ssl/cacert.pem`
+      env.GIT_SSL_CAINFO = sslCABundle
+    }
   }
 
   return { env, gitLocation }
