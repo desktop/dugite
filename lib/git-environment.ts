@@ -15,9 +15,17 @@ function resolveEmbeddedGitDir(): string {
 function resolveGitDir(): string {
   if (process.env.LOCAL_GIT_DIRECTORY) {
     return path.resolve(process.env.LOCAL_GIT_DIRECTORY)
-  } else {
-    return resolveEmbeddedGitDir()
   }
+  return resolveEmbeddedGitDir()
+}
+
+/**
+ * Returns with the directory path of the embedded Git executable.
+ */
+function resolveEmbeddedGitDir(): string {
+  const s = path.sep
+  const dirPath = path.resolve(__dirname, '..', '..', 'git')
+  return dirPath.replace(/[\\\/]app.asar[\\\/]/, `${s}app.asar.unpacked${s}`)
 }
 
 /**
