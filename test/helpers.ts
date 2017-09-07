@@ -26,3 +26,17 @@ export function verify(result: IGitResult, callback: (result: IGitResult) => voi
     throw e
   }
 }
+
+/**
+ * Returns with the container directory for the Git executable.
+ * This function could come handy, when trying to set the `LOCAL_GIT_DIRECTORY` environment variable
+ * for `dugite`. Passing into the exact path of the Git executable will return with the local Git directory
+ * path that is expected and consumed by `dugite`.
+ *
+ * @param gitPath the FS path to the Git executable.
+ */
+export function getGitDirPath(gitPath: string): string {
+  const segments = gitPath.split(/(\/|\\)/)
+  const parts = !segments[0].length ? segments.slice(1) : segments
+  return parts.slice(0, parts.length - 4).join('')
+}
