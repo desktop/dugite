@@ -1,9 +1,10 @@
 import * as chai from 'chai'
+import { dirname } from 'path'
 import { default as findGit, Git } from 'find-git-exec'
 const expect = chai.expect
 
 import { GitProcess } from '../../lib'
-import { verify, getGitDirPath } from '../helpers'
+import { verify } from '../helpers'
 
 const temp = require('temp').track()
 
@@ -19,7 +20,7 @@ describe('git-process [with external Git executable]', () => {
             const { path, execPath } = git
             // Set the environment variable to be able to use an external Git.
             process.env.GIT_EXEC_PATH = execPath
-            process.env.LOCAL_GIT_DIRECTORY = getGitDirPath(path)
+            process.env.LOCAL_GIT_DIRECTORY = dirname(dirname(path))
         }
     })
 
