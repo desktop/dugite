@@ -24,6 +24,7 @@ version: "{build}"
 install:
   - ps: Install-Product node $env:nodejs_version $env:platform
   - npm install
+  - npm run is-it-pretty
 
 build_script:
   - npm run build

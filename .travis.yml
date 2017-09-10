@@ -26,6 +26,7 @@ cache:
 install:
   - npm install
   - npm run build
+  - npm run is-it-pretty
 
 script:
   - TEST=1 npm test

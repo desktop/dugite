@@ -1,5 +1,5 @@
 describe('node shenanigans', () => {
-  it('will fail to encode the maximum buffer length', (done) => {
+  it('will fail to encode the maximum buffer length', done => {
     // this is the magic number according to https://github.com/nodejs/node/issues/3175
     // 256MB = 268435456 bytes
     // 268435441 bytes = 256MB - 15 bytes

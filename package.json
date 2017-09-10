@@ -6,15 +6,16 @@
   "typings": "./build/lib/index.d.ts",
   "scripts": {
     "clean": "rimraf build",
-    "lint": "tslint lib/**/*.ts script/**/*.ts",
-    "build": "npm run clean && npm run lint && tsc -p ./tsconfig.json && tsc -p ./examples/tsconfig.json",
+    "build": "npm run clean && tsc -p ./tsconfig.json && tsc -p ./examples/tsconfig.json",
     "prepublish": "npm run build && npm run test",
     "postpublish": "git push --follow-tags",
     "test": "npm run test:fast && npm run test:slow && npm run test:external",
     "test:fast": "cross-env LOCAL_GIT_DIRECTORY=./git/ mocha --require ts-node/register test/fast/*.ts test/auth/*.ts",
     "test:slow": "cross-env LOCAL_GIT_DIRECTORY=./git/ mocha -t 20000ms --require ts-node/register test/slow/*.ts test/auth/*.ts",
     "test:external": "mocha -t 20000ms --require ts-node/register test/external/*.ts",
-    "postinstall": "node ./script/download-git.js"
+    "postinstall": "node ./script/download-git.js",
+    "prettify": "prettier \"{examples,lib,script,test}/**/*.ts\" --write",
+    "is-it-pretty": "prettier \"{examples,lib,script,test}/**/*.ts\" --list-different"
   },
   "engines": {
     "node": ">= 6",
@@ -54,9 +55,9 @@
     "cross-env": "^4.0.0",
     "find-git-exec": "0.0.1-alpha.2",
     "mocha": "^3.3.0",
+    "prettier": "^1.6.1",
     "temp": "^0.8.3",
     "ts-node": "^3.0.2",
-    "tslint": "^5.1.0",
     "typescript": "^2.3.2"
   }
 }

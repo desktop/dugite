@@ -13,3 +13,22 @@ npm install
 ```
 
 This will install the dependencies, compile the library source and run the suite of tests.
+
+### Coding Style
+
+The coding style is based on [Prettier](https://github.com/prettier/prettier)
+and can be validated from the command line:
+
+```sh
+npm run is-it-pretty
+```
+
+To ensure your changes match the formatting, just run this before committing:
+
+```sh
+npm run prettify
+```
+
+Or add [prettier integration for your editor](https://github.com/prettier/prettier#editor-integration)
+for first-class support.
+

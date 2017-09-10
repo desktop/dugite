@@ -14,7 +14,7 @@ const temp = require('temp').track()
 
 describe('git-process', () => {
   it('can launch git', async () => {
-    const result = await GitProcess.exec([ '--version' ], __dirname)
+    const result = await GitProcess.exec(['--version'], __dirname)
     verify(result, r => {
       expect(r.stdout).to.contain(`git version ${gitVersion}`)
     })
@@ -23,7 +23,7 @@ describe('git-process', () => {
   describe('exitCode', () => {
     it('returns exit code when folder is empty', async () => {
       const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
-      const result = await GitProcess.exec([ 'show', 'HEAD' ], testRepoPath)
+      const result = await GitProcess.exec(['show', 'HEAD'], testRepoPath)
       verify(result, r => {
         expect(r.exitCode).to.equal(128)
       })
@@ -35,11 +35,14 @@ describe('git-process', () => {
 
         const file = path.join(testRepoPath, 'new-file.md')
         fs.writeFileSync(file, 'this is a new file')
-        const result = await GitProcess.exec([ 'diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md' ], testRepoPath)
+        const result = await GitProcess.exec(
+          ['diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md'],
+          testRepoPath
+        )
 
         verify(result, r => {
           expect(r.exitCode).to.equal(1)
-          expect (r.stdout.length).to.be.greaterThan(0)
+          expect(r.stdout.length).to.be.greaterThan(0)
         })
       })
 
@@ -47,14 +50,19 @@ describe('git-process', () => {
         const testRepoPath = await initialize('blank-then-commit')
         const readme = path.join(testRepoPath, 'README.md')
         fs.writeFileSync(readme, 'hello world!')
-        await GitProcess.exec([ 'add', '.' ], testRepoPath)
+        await GitProcess.exec(['add', '.'], testRepoPath)
 
-        const commit = await GitProcess.exec([ 'commit', '-F',  '-' ], testRepoPath, { stdin: 'hello world!' })
+        const commit = await GitProcess.exec(['commit', '-F', '-'], testRepoPath, {
+          stdin: 'hello world!'
+        })
         expect(commit.exitCode).to.eq(0)
 
         const file = path.join(testRepoPath, 'new-file.md')
         fs.writeFileSync(file, 'this is a new file')
-        const result = await GitProcess.exec([ 'diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md' ], testRepoPath)
+        const result = await GitProcess.exec(
+          ['diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md'],
+          testRepoPath
+        )
 
         verify(result, r => {
           expect(r.exitCode).to.equal(1)
@@ -67,13 +75,16 @@ describe('git-process', () => {
 
         // NOTE: if we change the default buffer size in git-process
         // this test may no longer fail as expected - see https://git.io/v1dq3
-        const output = crypto.randomBytes(10*1024*1024).toString('hex')
+        const output = crypto.randomBytes(10 * 1024 * 1024).toString('hex')
         const file = path.join(testRepoPath, 'new-file.md')
         fs.writeFileSync(file, output)
 
         let throws = false
         try {
-          await GitProcess.exec([ 'diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md' ], testRepoPath)
+          await GitProcess.exec(
+            ['diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md'],
+            testRepoPath
+          )
         } catch (e) {
           throws = true
         }
@@ -88,7 +99,7 @@ describe('git-process', () => {
 
       let error: Error | null = null
       try {
-        await GitProcess.exec([ 'show', 'HEAD' ], testRepoPath)
+        await GitProcess.exec(['show', 'HEAD'], testRepoPath)
       } catch (e) {
         error = e
       }
@@ -152,7 +163,7 @@ error: failed to push some refs to 'https://github.com/shiftkey/too-large-reposi
       const stderr = `remote: error: GH005: Sorry, refs longer than 255 bytes are not allowed.
 To https://github.com/shiftkey/too-large-repository.git
 ...`
-// there's probably some output here missing but I couldn't trigger this locally
+      // there's probably some output here missing but I couldn't trigger this locally
 
       const error = GitProcess.parseError(stderr)
       expect(error).to.equal(GitError.InvalidRefLength)

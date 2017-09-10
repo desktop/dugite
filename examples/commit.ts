@@ -4,7 +4,7 @@ import { GitProcess, GitError, IGitExecutionOptions } from '../lib/'
 const git = GitProcess.exec
 
 export async function isUnbornRepository(path: string): Promise<boolean> {
-  const result = await git([ 'rev-parse', '--verify', 'HEAD^{commit}' ], path)
+  const result = await git(['rev-parse', '--verify', 'HEAD^{commit}'], path)
   if (result.exitCode === 0) {
     return true
   } else {
@@ -18,16 +18,16 @@ export async function createCommit(path: string, message: string) {
   if (await isUnbornRepository(path)) {
     // for an unborn repository we don't have access to HEAD
     // so a simple `git reset` here is fine
-    await git([ 'reset' ], path)
+    await git(['reset'], path)
   } else {
-    await git([ 'reset', 'HEAD', '--mixed' ], path)
+    await git(['reset', 'HEAD', '--mixed'], path)
   }
 
   // ensure that untracked files are also staged
   await git(['add', '.'], path)
   await git(['add', '-u', '.'], path)
 
-  const result = await git([ 'commit', '-F',  '-' ] , path, { stdin: message })
+  const result = await git(['commit', '-F', '-'], path, { stdin: message })
   if (result.exitCode !== 0) {
     const error = GitProcess.parseError(result.stderr)
     if (error) {
