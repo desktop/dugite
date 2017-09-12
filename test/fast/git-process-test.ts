@@ -198,5 +198,12 @@ remote: http://github.com/settings/emails`
       const error = GitProcess.parseError(stderr)
       expect(error).to.equal(GitError.PushWithPrivateEmail)
     })
+
+    it('can parse LFS attribute does not match error', () => {
+      const stderr = `The filter.lfs.clean attribute should be "git-lfs clean -- %f" but is "git lfs clean %f"`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.LFSAttributeDoesNotMatch)
+    })
   })
 })
