@@ -12,7 +12,11 @@ describe('git-process [with external Git executable]', () => {
   let git: Git | undefined
 
   before(async () => {
-    git = await findGit()
+    try {
+      git = await findGit()
+    } catch (error) {
+      git = undefined
+    }
     if (!git || !git.path || !git.execPath) {
       git = undefined
     } else {
