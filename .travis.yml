@@ -21,9 +21,9 @@ cache:
   timeout: 600
   directories:
     - node_modules
-    - $HOME/.electron
 
 install:
+  - npm install -g npm@5.4.2
   - npm install
   - npm run build
   - npm run is-it-pretty
