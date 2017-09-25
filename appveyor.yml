@@ -11,7 +11,6 @@ environment:
 
 cache:
   - node_modules
-  - '%USERPROFILE%\.electron'
 
 branches:
   only:
@@ -23,6 +22,7 @@ version: "{build}"
 
 install:
   - ps: Install-Product node $env:nodejs_version $env:platform
+  - npm install -g npm@5.4.2
   - npm install
   - npm run is-it-pretty
 
