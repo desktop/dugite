@@ -9,13 +9,12 @@ import { verify } from '../helpers'
 const temp = require('temp').track()
 
 describe('git-process [with external Git executable]', () => {
-  let git: Git | undefined
+  let git: Git | undefined = undefined
 
   before(async () => {
     try {
       git = await findGit()
-    } catch (error) {
-      git = undefined
+    } catch {
     }
     if (!git || !git.path || !git.execPath) {
       git = undefined
@@ -27,7 +26,7 @@ describe('git-process [with external Git executable]', () => {
     }
   })
 
-  beforeEach(async function() {
+  beforeEach(async function () {
     if (!git) {
       console.warn(`External Git was not found on the host system.`)
       this.skip()
@@ -35,7 +34,7 @@ describe('git-process [with external Git executable]', () => {
   })
 
   describe('clone', () => {
-    it('returns exit code when successful', async function() {
+    it('returns exit code when successful', async () => {
       const testRepoPath = temp.mkdirSync('desktop-git-clone-valid-external')
       const result = await GitProcess.exec(
         ['clone', '--', 'https://github.com/TypeFox/find-git-exec.git', '.'],
