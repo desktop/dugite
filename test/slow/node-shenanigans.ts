@@ -10,7 +10,7 @@ describe('node shenanigans', () => {
 
     try {
       buffer.toString('utf-8')
-    } catch (err) {
+    } catch {
       // we expect this to happen
       done()
       return

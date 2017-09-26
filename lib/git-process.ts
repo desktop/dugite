@@ -93,7 +93,7 @@ export class GitProcess {
     try {
       fs.accessSync(path, (fs as any).F_OK)
       return true
-    } catch (e) {
+    } catch {
       return false
     }
   }

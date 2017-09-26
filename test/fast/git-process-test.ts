@@ -85,7 +85,7 @@ describe('git-process', () => {
             ['diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md'],
             testRepoPath
           )
-        } catch (e) {
+        } catch {
           throws = true
         }
         expect(throws).to.be.true
