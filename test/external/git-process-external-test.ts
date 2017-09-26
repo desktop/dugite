@@ -14,8 +14,7 @@ describe('git-process [with external Git executable]', () => {
   before(async () => {
     try {
       git = await findGit()
-    } catch {
-    }
+    } catch {}
     if (!git || !git.path || !git.execPath) {
       git = undefined
     } else {
@@ -26,7 +25,7 @@ describe('git-process [with external Git executable]', () => {
     }
   })
 
-  beforeEach(async function () {
+  beforeEach(async function() {
     if (!git) {
       console.warn(`External Git was not found on the host system.`)
       this.skip()
