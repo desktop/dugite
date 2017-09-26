@@ -1,6 +1,6 @@
 /** Parse the GIT_ASKPASS prompt and determine the appropriate response. */
 export function responseForPrompt(prompt: string): string | null {
-  const username: string | null = process.env.TEST_USERNAME
+  const username: string | undefined = process.env.TEST_USERNAME
   if (!username || !username.length) {
     return null
   }
@@ -9,7 +9,7 @@ export function responseForPrompt(prompt: string): string | null {
     return username
   }
 
-  const password: string | null = process.env.TEST_PASSWORD
+  const password: string | undefined = process.env.TEST_PASSWORD
   if (!password || !password.length) {
     return null
   }
