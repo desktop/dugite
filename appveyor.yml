@@ -8,9 +8,11 @@ environment:
     - nodejs_version: "6"
     - nodejs_version: "7"
     - nodejs_version: "8"
+  DUGITE_CACHE_DIR: '%USERPROFILE%\.dugite\'
 
 cache:
   - node_modules
+  - '%USERPROFILE%\.dugite\'
 
 branches:
   only:
