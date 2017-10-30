@@ -34,9 +34,8 @@
   "dependencies": {
     "checksum": "^0.1.1",
     "mkdirp": "^0.5.1",
-    "os-tmpdir": "^1.0.1",
     "progress": "^2.0.0",
-    "request": "^2.79.0",
+    "request": "^2.83.0",
     "rimraf": "^2.5.4",
     "tar": "^2.2.1"
   },
@@ -44,20 +43,20 @@
     "@types/chai": "4.0.4",
     "@types/checksum": "^0.1.30",
     "@types/mkdirp": "^0.5.1",
-    "@types/mocha": "^2.2.29",
-    "@types/node": "8.0.31",
+    "@types/mocha": "^2.2.44",
+    "@types/node": "^8.0.47",
     "@types/progress": "^2.0.0",
-    "@types/request": "2.0.3",
+    "@types/request": "^2.0.7",
     "@types/rimraf": "2.0.2",
     "byline": "^5.0.0",
     "chai": "^4.1.2",
     "chai-as-promised": "^7.1.1",
-    "cross-env": "^5.0.5",
+    "cross-env": "^5.1.1",
     "find-git-exec": "0.0.1-alpha.2",
-    "mocha": "^3.3.0",
-    "prettier": "^1.6.1",
+    "mocha": "^4.0.1",
+    "prettier": "^1.7.4",
     "temp": "^0.8.3",
     "ts-node": "^3.0.2",
-    "typescript": "^2.5.2"
+    "typescript": "^2.5.3"
   }
 }
