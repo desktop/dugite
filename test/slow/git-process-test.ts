@@ -154,8 +154,7 @@ describe('git-process', () => {
 
       await GitProcess.exec(['checkout', '-b', 'some-other-branch'], testRepoPath)
 
-      const postCheckoutScript =
-`#!/bin/sh
+      const postCheckoutScript = `#!/bin/sh
 echo 'post-check out hook ran'`
       const postCheckoutFile = Path.join(testRepoPath, '.git', 'hooks', 'post-checkout')
 
@@ -168,5 +167,4 @@ echo 'post-check out hook ran'`
       })
     })
   })
-
 })
