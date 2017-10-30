@@ -22,6 +22,9 @@ if (result.exitCode !== 0) {
 }
 ```
 
+**This API will be marked as obsolete for v2, and deprecated in v3. You should
+target the v2 API as soon as possible.**
+
 
 ## V2 API (Preview)
 

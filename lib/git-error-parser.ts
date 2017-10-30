@@ -41,7 +41,7 @@ export enum GitErrorKey {
   PushWithPrivateEmail = 'push-with-private-email'
 }
 
-export type GenericErrorKey =
+export type CommonErrorKey =
   | GitErrorKey.HTTPSAuthenticationFailed
   | GitErrorKey.HTTPSRepositoryNotFound
   | GitErrorKey.SSHKeyAuditUnverified
@@ -81,8 +81,8 @@ export type GenericErrorKey =
   | GitErrorKey.PushWithFileSizeExceedingLimit
   | GitErrorKey.HexBranchNameRejected
 
-export type GenericError = {
-  kind: GenericErrorKey
+export type CommonError = {
+  kind: CommonErrorKey
 }
 
 export type ProtectedBranchRequiredStatusError = {
@@ -96,7 +96,7 @@ export type BranchAlreadyExistsError = {
 }
 
 export type GitErrorDetails =
-  | GenericError
+  | CommonError
   | ProtectedBranchRequiredStatusError
   | BranchAlreadyExistsError
 
