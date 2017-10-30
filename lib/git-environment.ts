@@ -72,7 +72,7 @@ export function setupEnvironment(
   const gitDir = resolveGitDir()
 
   if (process.platform === 'win32') {
-    envPath = `${gitDir}\\mingw64\\bin;${envPath}`
+    envPath = `${gitDir}\\mingw64\\bin;${gitDir}\\mingw64\\usr\\bin;${envPath}`
   }
 
   const env = Object.assign(

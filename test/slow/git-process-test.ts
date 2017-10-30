@@ -1,6 +1,9 @@
 import * as chai from 'chai'
 const expect = chai.expect
 
+import * as Fs from 'fs'
+import * as Path from 'path'
+
 import { GitProcess, GitError } from '../../lib'
 import { initialize, verify } from '../helpers'
 import { setupAskPass, setupNoAuth } from './auth'
@@ -135,6 +138,32 @@ describe('git-process', () => {
       const result = await GitProcess.exec(['fetch', 'origin'], testRepoPath, options)
       verify(result, r => {
         expect(r.exitCode).to.equal(0)
+      })
+    })
+  })
+
+  describe('checkout', () => {
+    it('runs hook without error', async () => {
+      const testRepoPath = await initialize('desktop-git-checkout-hooks')
+      const readme = Path.join(testRepoPath, 'README.md')
+
+      Fs.writeFileSync(readme, '# README', { encoding: 'utf8' })
+
+      await GitProcess.exec(['add', '.'], testRepoPath)
+      await GitProcess.exec(['commit', '-m', '"added README"'], testRepoPath)
+
+      await GitProcess.exec(['checkout', '-b', 'some-other-branch'], testRepoPath)
+
+      const postCheckoutScript = `#!/bin/sh
+echo 'post-check out hook ran'`
+      const postCheckoutFile = Path.join(testRepoPath, '.git', 'hooks', 'post-checkout')
+
+      Fs.writeFileSync(postCheckoutFile, postCheckoutScript, { encoding: 'utf8', mode: '755' })
+
+      const result = await GitProcess.exec(['checkout', 'master'], testRepoPath)
+      verify(result, r => {
+        expect(r.exitCode).to.equal(0)
+        expect(r.stderr).contains('post-check out hook ran')
       })
     })
   })

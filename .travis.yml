@@ -27,7 +27,7 @@ cache:
     - $HOME/.dugite/
 
 install:
-  - npm install -g npm@5.4.2
+  - npm install -g npm@5.5.1
   - npm install
   - npm run build
   - npm run is-it-pretty
