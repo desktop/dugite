@@ -8,7 +8,9 @@ import { GitProcess, RepositoryDoesNotExistErrorCode } from '../../lib'
 import {
   parseError,
   GitErrorKey,
-  ProtectedBranchRequiredStatusError
+  ProtectedBranchRequiredStatusError,
+  ProtectedBranchDeleteError,
+  ProtectedBranchForcePushError
 } from '../../lib/git-error-parser'
 import { initialize, verify } from '../helpers'
 
@@ -191,7 +193,9 @@ To https://github.com/shiftkey/too-large-repository.git
 error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
 
       const error = parseError(stderr)
-      expect(error!.kind).to.equal(GitErrorKey.ProtectedBranchForcePush)
+      const expectedError = error as ProtectedBranchForcePushError
+      expect(expectedError.kind).to.equal(GitErrorKey.ProtectedBranchForcePush)
+      expect(expectedError.ref).to.equal('refs/heads/master')
     })
 
     it('can parse GH006 protected branch delete error', () => {
@@ -202,7 +206,9 @@ To https://github.com/tierninho-tester/trterdgdfgdf.git
 error: failed to push some refs to 'https://github.com/tierninho-tester/trterdgdfgdf.git'`
 
       const error = parseError(stderr)
-      expect(error!.kind).to.equal(GitErrorKey.ProtectedBranchDeleteRejected)
+      const expectedError = error as ProtectedBranchDeleteError
+      expect(expectedError.kind).to.equal(GitErrorKey.ProtectedBranchDeleteRejected)
+      expect(expectedError.ref).to.equal('refs/heads/dupe')
     })
 
     it('can parse GH006 required status check error', () => {

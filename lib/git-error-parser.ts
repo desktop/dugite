@@ -73,8 +73,6 @@ export type CommonErrorKey =
   | GitErrorKey.NonFastForwardMergeIntoEmptyHead
   | GitErrorKey.PatchDoesNotApply
   | GitErrorKey.ProtectedBranchRequiresReview
-  | GitErrorKey.ProtectedBranchForcePush
-  | GitErrorKey.ProtectedBranchDeleteRejected
   | GitErrorKey.ProtectedBranchRequiredStatus
   | GitErrorKey.PushWithPrivateEmail
   | GitErrorKey.LFSAttributeDoesNotMatch
@@ -95,9 +93,21 @@ export type BranchAlreadyExistsError = {
   existingBranch: string
 }
 
+export type ProtectedBranchDeleteError = {
+  kind: GitErrorKey.ProtectedBranchDeleteRejected
+  ref: string
+}
+
+export type ProtectedBranchForcePushError = {
+  kind: GitErrorKey.ProtectedBranchForcePush
+  ref: string
+}
+
 export type GitErrorDetails =
   | CommonError
   | ProtectedBranchRequiredStatusError
+  | ProtectedBranchDeleteError
+  | ProtectedBranchForcePushError
   | BranchAlreadyExistsError
 
 type GitError = {
@@ -387,24 +397,28 @@ const GitErrorLookups: Array<GitError> = [
   },
   {
     regexp: /error: GH006: Protected branch update failed for (.+)\nremote: error: Cannot force-push to a protected branch/,
-    create: () => {
-      return { kind: GitErrorKey.ProtectedBranchForcePush }
+    create: matches => {
+      return {
+        kind: GitErrorKey.ProtectedBranchForcePush,
+        ref: matches[1].replace('.', '')
+      }
     }
   },
   {
     regexp: /error: GH006: Protected branch update failed for (.+)\nremote: error: Cannot delete a protected branch/,
-    create: () => {
+    create: matches => {
       return {
-        kind: GitErrorKey.ProtectedBranchDeleteRejected
+        kind: GitErrorKey.ProtectedBranchDeleteRejected,
+        ref: matches[1].replace('.', '')
       }
     }
   },
   {
     regexp: /error: GH006: Protected branch update failed for (.+).\nremote: error: Required status check "(.+)" is expected/,
-    create: (match: RegExpMatchArray): ProtectedBranchRequiredStatusError => {
+    create: matches => {
       return {
         kind: GitErrorKey.ProtectedBranchRequiredStatus,
-        status: match[2]
+        status: matches[2]
       }
     }
   },
