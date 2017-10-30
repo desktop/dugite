@@ -22,8 +22,8 @@ version: "{build}"
 
 install:
   - ps: Install-Product node $env:nodejs_version $env:platform
-  - npm install -g npm@5.4.2
-  - npm install
+  - npm install -g npm@5.5.1
+  - npm install --ignore-scripts
   - npm run is-it-pretty
 
 build_script:
