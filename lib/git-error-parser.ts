@@ -109,12 +109,12 @@ export type GitErrorDetails =
   | ProtectedBranchForcePushError
   | BranchAlreadyExistsError
 
-type GitError = {
+type GitErrorLookup = {
   readonly regexp: RegExp
   readonly create: (match: RegExpMatchArray) => GitErrorDetails
 }
 
-const GitErrorLookups: Array<GitError> = [
+const GitErrorLookups: Array<GitErrorLookup> = [
   {
     regexp: /ERROR: ([\\s\\S]+?)\\n+\\[EPOLICYKEYAGE\\]\\n+fatal: Could not read from remote repository./,
     create: () => {
