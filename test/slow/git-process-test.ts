@@ -146,20 +146,26 @@ describe('git-process', () => {
     describe('checkout', () => {
       it('runs hook without error', async () => {
         const testRepoPath = await initialize('desktop-git-checkout-hooks')
-        const postCheckoutScript =
-`
-#!/bin/bash
+        const readme = Path.join(testRepoPath, 'README.md')
 
-echo 'post-check out hook ran'
-`
+        Fs.writeFileSync(readme, '# README', { encoding: 'utf8' })
+
+        await GitProcess.exec(['add', '.'], testRepoPath)
+        await GitProcess.exec(['commit', '-m', '"added README"'], testRepoPath)
+
+        await GitProcess.exec(['checkout', '-b', 'some-other-branch'], testRepoPath)
+
+        const postCheckoutScript =
+`#!/bin/bash
+echo 'post-check out hook ran'`
         const postCheckoutFile = Path.join(testRepoPath, '.git', 'hooks', 'post-checkout')
 
-        Fs.writeFileSync(postCheckoutFile, postCheckoutScript, { encoding: 'utf8'})
+        Fs.writeFileSync(postCheckoutFile, postCheckoutScript, { encoding: 'utf8' })
 
-        const result = await GitProcess.exec(['checkout', '-b', 'some-other-branch'], testRepoPath)
+        const result = await GitProcess.exec(['checkout', 'master'], testRepoPath)
         verify(result, r => {
           expect(r.exitCode).to.equal(0)
-          expect(r.stdout).contains('post-check out hook ran')
+          expect(r.stderr).contains('post-check out hook ran')
         })
       })
     })
