@@ -3,6 +3,9 @@ notifications:
     on_success: never
     on_failure: change
 
+env:
+  DUGITE_CACHE_DIR=$HOME/.dugite/
+
 os:
   - linux
   - osx
@@ -21,6 +24,7 @@ cache:
   timeout: 600
   directories:
     - node_modules
+    - $HOME/.dugite/
 
 install:
   - npm install -g npm@5.4.2

@@ -1,6 +1,7 @@
 const URL = require('url')
 const path = require('path')
 const os = require('os')
+const fs = require('fs')
 
 function getConfig() {
   const config = {
@@ -28,8 +29,19 @@ function getConfig() {
   const index = pathName.lastIndexOf('/')
   config.fileName = pathName.substr(index + 1)
 
-  const dir = os.tmpdir()
-  config.tempFile = path.join(dir, config.fileName)
+  const cacheDirEnv = process.env.DUGITE_CACHE_DIR
+
+  const cacheDir = cacheDirEnv
+    ? path.resolve(cacheDirEnv)
+    : os.tmpdir()
+
+  try {
+    fs.statSync(cacheDir)
+  } catch (e) {
+    fs.mkdirSync(cacheDir)
+  }
+
+  config.tempFile = path.join(cacheDir, config.fileName)
 
   return config
 }
