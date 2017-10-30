@@ -38,6 +38,7 @@ export enum GitError {
   ProtectedBranchRequiresReview,
   ProtectedBranchForcePush,
   ProtectedBranchDeleteRejected,
+  ProtectedBranchRequiredStatus,
   PushWithPrivateEmail
 }
 
