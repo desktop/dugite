@@ -24,7 +24,7 @@ cache:
 
 install:
   - npm install -g npm@5.5.1
-  - npm install --ignore-scripts
+  - npm install
   - npm run build
   - npm run is-it-pretty
 
