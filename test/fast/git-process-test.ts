@@ -1,11 +1,11 @@
-import * as chai from 'chai'
-const expect = chai.expect
+import { expect } from 'chai'
 
 import * as path from 'path'
 import * as fs from 'fs'
 import * as crypto from 'crypto'
 
-import { GitProcess, GitError, RepositoryDoesNotExistErrorCode } from '../../lib'
+import { GitProcess, RepositoryDoesNotExistErrorCode } from '../../lib'
+import { parseError, GitErrorKey } from '../../lib/git-error-parser'
 import { initialize, verify } from '../helpers'
 
 import { gitVersion } from '../helpers'
@@ -109,20 +109,20 @@ describe('git-process', () => {
     })
 
     it('can parse errors', () => {
-      const error = GitProcess.parseError('fatal: Authentication failed')
-      expect(error).to.equal(GitError.SSHAuthenticationFailed)
+      const error = parseError('fatal: Authentication failed')
+      expect(error).to.equal(GitErrorKey.SSHAuthenticationFailed)
     })
 
     it('can parse bad revision errors', () => {
-      const error = GitProcess.parseError("fatal: bad revision 'beta..origin/beta'")
-      expect(error).to.equal(GitError.BadRevision)
+      const error = parseError("fatal: bad revision 'beta..origin/beta'")
+      expect(error).to.equal(GitErrorKey.BadRevision)
     })
 
     it('can parse unrelated histories error', () => {
       const stderr = `fatal: refusing to merge unrelated histories`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).to.equal(GitError.CannotMergeUnrelatedHistories)
+      const error = parseError(stderr)
+      expect(error).to.equal(GitErrorKey.CannotMergeUnrelatedHistories)
     })
 
     it('can parse GH001 push file size error', () => {
@@ -134,8 +134,8 @@ To https://github.com/shiftkey/too-large-repository.git
  ! [remote rejected] master -> master (pre-receive hook declined)
 error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).to.equal(GitError.PushWithFileSizeExceedingLimit)
+      const error = parseError(stderr)
+      expect(error).to.equal(GitErrorKey.PushWithFileSizeExceedingLimit)
     })
 
     it('can parse GH002 branch name error', () => {
@@ -145,8 +145,8 @@ To https://github.com/shiftkey/too-large-repository.git
  ! [remote rejected] aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa -> aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (pre-receive hook declined)
 error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).to.equal(GitError.HexBranchNameRejected)
+      const error = parseError(stderr)
+      expect(error).to.equal(GitErrorKey.HexBranchNameRejected)
     })
 
     it('can parse GH003 force push error', () => {
@@ -155,8 +155,8 @@ To https://github.com/shiftkey/too-large-repository.git
  ! [remote rejected]  my-cool-branch ->  my-cool-branch (pre-receive hook declined)
 error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).to.equal(GitError.ForcePushRejected)
+      const error = parseError(stderr)
+      expect(error).to.equal(GitErrorKey.ForcePushRejected)
     })
 
     it('can parse GH005 ref length error', () => {
@@ -165,8 +165,8 @@ To https://github.com/shiftkey/too-large-repository.git
 ...`
       // there's probably some output here missing but I couldn't trigger this locally
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).to.equal(GitError.InvalidRefLength)
+      const error = parseError(stderr)
+      expect(error).to.equal(GitErrorKey.InvalidRefLength)
     })
 
     it('can parse GH006 protected branch push error', () => {
@@ -175,8 +175,8 @@ remote: error: At least one approved review is required
 To https://github.com/shiftkey-tester/protected-branches.git
  ! [remote rejected] master -> master (protected branch hook declined)
 error: failed to push some refs to 'https://github.com/shiftkey-tester/protected-branches.git'`
-      const error = GitProcess.parseError(stderr)
-      expect(error).to.equal(GitError.ProtectedBranchRequiresReview)
+      const error = parseError(stderr)
+      expect(error).to.equal(GitErrorKey.ProtectedBranchRequiresReview)
     })
 
     it('can parse GH006 protected branch force push error', () => {
@@ -186,8 +186,8 @@ To https://github.com/shiftkey/too-large-repository.git
  ! [remote rejected] master -> master (protected branch hook declined)
 error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).to.equal(GitError.ProtectedBranchForcePush)
+      const error = parseError(stderr)
+      expect(error).to.equal(GitErrorKey.ProtectedBranchForcePush)
     })
 
     it('can parse GH006 protected branch delete error', () => {
@@ -197,8 +197,8 @@ To https://github.com/tierninho-tester/trterdgdfgdf.git
   ! [remote rejected] dupe (protected branch hook declined)
 error: failed to push some refs to 'https://github.com/tierninho-tester/trterdgdfgdf.git'`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).to.equal(GitError.ProtectedBranchDeleteRejected)
+      const error = parseError(stderr)
+      expect(error).to.equal(GitErrorKey.ProtectedBranchDeleteRejected)
     })
 
     it('can parse GH006 required status check error', () => {
@@ -208,8 +208,8 @@ To https://github.com/Raul6469/EclipseMaven.git
   ! [remote rejected] master -> master (protected branch hook declined)
 error: failed to push some refs to 'https://github.com/Raul6469/EclipseMaven.git`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).to.equal(GitError.ProtectedBranchRequiredStatus)
+      const error = parseError(stderr)
+      expect(error).to.equal(GitErrorKey.ProtectedBranchRequiredStatus)
     })
 
     it('can parse GH007 push with private email error', () => {
@@ -217,15 +217,15 @@ error: failed to push some refs to 'https://github.com/Raul6469/EclipseMaven.git
 remote: You can make your email public or disable this protection by visiting:
 remote: http://github.com/settings/emails`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).to.equal(GitError.PushWithPrivateEmail)
+      const error = parseError(stderr)
+      expect(error).to.equal(GitErrorKey.PushWithPrivateEmail)
     })
 
     it('can parse LFS attribute does not match error', () => {
       const stderr = `The filter.lfs.clean attribute should be "git-lfs clean -- %f" but is "git lfs clean %f"`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).to.equal(GitError.LFSAttributeDoesNotMatch)
+      const error = parseError(stderr)
+      expect(error).to.equal(GitErrorKey.LFSAttributeDoesNotMatch)
     })
   })
 })
