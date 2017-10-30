@@ -190,6 +190,28 @@ error: failed to push some refs to 'https://github.com/shiftkey/too-large-reposi
       expect(error).to.equal(GitError.ProtectedBranchForcePush)
     })
 
+    it('can parse GH006 protected branch delete error', () => {
+      const stderr = `remote: error: GH006: Protected branch update failed for refs/heads/dupe.
+remote: error: Cannot delete a protected branch
+To https://github.com/tierninho-tester/trterdgdfgdf.git
+  ! [remote rejected] dupe (protected branch hook declined)
+error: failed to push some refs to 'https://github.com/tierninho-tester/trterdgdfgdf.git'`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.ProtectedBranchDeleteRejected)
+    })
+
+    it('can parse GH006 required status check error', () => {
+      const stderr = `remote: error: GH006: Protected branch update failed for refs/heads/master.
+remote: error: Required status check "continuous-integration/travis-ci" is expected.
+To https://github.com/Raul6469/EclipseMaven.git
+  ! [remote rejected] master -> master (protected branch hook declined)
+error: failed to push some refs to 'https://github.com/Raul6469/EclipseMaven.git`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.ProtectedBranchRequiredStatus)
+    })
+
     it('can parse GH007 push with private email error', () => {
       const stderr = `remote: error: GH007: Your push would publish a private email address.
 remote: You can make your email public or disable this protection by visiting:
