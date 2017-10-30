@@ -5,13 +5,7 @@ import * as fs from 'fs'
 import * as crypto from 'crypto'
 
 import { GitProcess, RepositoryDoesNotExistErrorCode } from '../../lib'
-import {
-  parseError,
-  GitErrorKey,
-  ProtectedBranchRequiredStatusError,
-  ProtectedBranchDeleteError,
-  ProtectedBranchForcePushError
-} from '../../lib/git-error-parser'
+import { parseError, GitErrorKey } from '../../lib/git-error-parser'
 import { initialize, verify } from '../helpers'
 
 import { gitVersion } from '../helpers'
@@ -169,7 +163,6 @@ error: failed to push some refs to 'https://github.com/shiftkey/too-large-reposi
       const stderr = `remote: error: GH005: Sorry, refs longer than 255 bytes are not allowed.
 To https://github.com/shiftkey/too-large-repository.git
 ...`
-      // there's probably some output here missing but I couldn't trigger this locally
 
       const error = parseError(stderr)
       expect(error!.kind).to.equal(GitErrorKey.InvalidRefLength)
@@ -192,10 +185,12 @@ To https://github.com/shiftkey/too-large-repository.git
  ! [remote rejected] master -> master (protected branch hook declined)
 error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
 
-      const error = parseError(stderr)
-      const expectedError = error as ProtectedBranchForcePushError
-      expect(expectedError.kind).to.equal(GitErrorKey.ProtectedBranchForcePush)
-      expect(expectedError.ref).to.equal('refs/heads/master')
+      const error = parseError(stderr)!
+
+      expect(error.kind).to.equal(GitErrorKey.ProtectedBranchForcePush)
+      if (error.kind === GitErrorKey.ProtectedBranchForcePush) {
+        expect(error.ref).to.equal('refs/heads/master')
+      }
     })
 
     it('can parse GH006 protected branch delete error', () => {
@@ -205,10 +200,12 @@ To https://github.com/tierninho-tester/trterdgdfgdf.git
   ! [remote rejected] dupe (protected branch hook declined)
 error: failed to push some refs to 'https://github.com/tierninho-tester/trterdgdfgdf.git'`
 
-      const error = parseError(stderr)
-      const expectedError = error as ProtectedBranchDeleteError
-      expect(expectedError.kind).to.equal(GitErrorKey.ProtectedBranchDeleteRejected)
-      expect(expectedError.ref).to.equal('refs/heads/dupe')
+      const error = parseError(stderr)!
+
+      expect(error.kind).to.equal(GitErrorKey.ProtectedBranchDeleteRejected)
+      if (error.kind === GitErrorKey.ProtectedBranchDeleteRejected) {
+        expect(error.ref).to.equal('refs/heads/dupe')
+      }
     })
 
     it('can parse GH006 required status check error', () => {
@@ -218,10 +215,12 @@ To https://github.com/Raul6469/EclipseMaven.git
   ! [remote rejected] master -> master (protected branch hook declined)
 error: failed to push some refs to 'https://github.com/Raul6469/EclipseMaven.git`
 
-      const error = parseError(stderr)
-      const expectedError = error as ProtectedBranchRequiredStatusError
-      expect(expectedError.kind).to.equal(GitErrorKey.ProtectedBranchRequiredStatus)
-      expect(expectedError.status).to.equal('continuous-integration/travis-ci')
+      const error = parseError(stderr)!
+
+      expect(error.kind).to.equal(GitErrorKey.ProtectedBranchRequiredStatus)
+      if (error.kind === GitErrorKey.ProtectedBranchRequiredStatus) {
+        expect(error.status).to.equal('continuous-integration/travis-ci')
+      }
     })
 
     it('can parse GH007 push with private email error', () => {

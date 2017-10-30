@@ -73,7 +73,6 @@ export type CommonErrorKey =
   | GitErrorKey.NonFastForwardMergeIntoEmptyHead
   | GitErrorKey.PatchDoesNotApply
   | GitErrorKey.ProtectedBranchRequiresReview
-  | GitErrorKey.ProtectedBranchRequiredStatus
   | GitErrorKey.PushWithPrivateEmail
   | GitErrorKey.LFSAttributeDoesNotMatch
   | GitErrorKey.PushWithFileSizeExceedingLimit
