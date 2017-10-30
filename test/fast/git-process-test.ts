@@ -5,7 +5,11 @@ import * as fs from 'fs'
 import * as crypto from 'crypto'
 
 import { GitProcess, RepositoryDoesNotExistErrorCode } from '../../lib'
-import { parseError, GitErrorKey } from '../../lib/git-error-parser'
+import {
+  parseError,
+  GitErrorKey,
+  ProtectedBranchRequiredStatusError
+} from '../../lib/git-error-parser'
 import { initialize, verify } from '../helpers'
 
 import { gitVersion } from '../helpers'
@@ -209,7 +213,9 @@ To https://github.com/Raul6469/EclipseMaven.git
 error: failed to push some refs to 'https://github.com/Raul6469/EclipseMaven.git`
 
       const error = parseError(stderr)
-      expect(error!.kind).to.equal(GitErrorKey.ProtectedBranchRequiredStatus)
+      const expectedError = error as ProtectedBranchRequiredStatusError
+      expect(expectedError.kind).to.equal(GitErrorKey.ProtectedBranchRequiredStatus)
+      expect(expectedError.status).to.equal('continuous-integration/travis-ci')
     })
 
     it('can parse GH007 push with private email error', () => {
