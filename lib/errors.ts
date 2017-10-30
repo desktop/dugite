@@ -37,6 +37,7 @@ export enum GitError {
   InvalidRefLength,
   ProtectedBranchRequiresReview,
   ProtectedBranchForcePush,
+  ProtectedBranchDeleteRejected,
   PushWithPrivateEmail
 }
 
