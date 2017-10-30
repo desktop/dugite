@@ -96,6 +96,8 @@ export const GitErrorRegexes = {
     GitError.ProtectedBranchRequiresReview,
   'error: GH006: Protected branch update failed for (.+)\nremote: error: Cannot force-push to a protected branch':
     GitError.ProtectedBranchForcePush,
+  'error: GH006: Protected branch update failed for (.+)\nremote: error: Cannot delete a protected branch':
+    GitError.ProtectedBranchDeleteRejected,
   'error: GH007: Your push would publish a private email address.': GitError.PushWithPrivateEmail
 }
 
