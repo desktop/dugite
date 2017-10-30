@@ -158,7 +158,7 @@ describe('git-process', () => {
 echo 'post-check out hook ran'`
       const postCheckoutFile = Path.join(testRepoPath, '.git', 'hooks', 'post-checkout')
 
-      Fs.writeFileSync(postCheckoutFile, postCheckoutScript, { encoding: 'utf8' })
+      Fs.writeFileSync(postCheckoutFile, postCheckoutScript, { encoding: 'utf8', mode: 755 })
 
       const result = await GitProcess.exec(['checkout', 'master'], testRepoPath)
       verify(result, r => {
