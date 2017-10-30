@@ -156,7 +156,7 @@ describe('git-process', () => {
         await GitProcess.exec(['checkout', '-b', 'some-other-branch'], testRepoPath)
 
         const postCheckoutScript =
-`#!/bin/bash
+`#!/bin/sh
 echo 'post-check out hook ran'`
         const postCheckoutFile = Path.join(testRepoPath, '.git', 'hooks', 'post-checkout')
 
