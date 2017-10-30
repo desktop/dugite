@@ -1,4 +1,4 @@
-export enum GitErrorKey {
+export enum GitError {
   SSHKeyAuditUnverified = 'ssh-key-audit-unverified',
   SSHAuthenticationFailed = 'ssh-authentication-failed',
   SSHPermissionDenied = 'ssh-permission-denied',
@@ -42,63 +42,63 @@ export enum GitErrorKey {
 }
 
 export type CommonErrorKey =
-  | GitErrorKey.HTTPSAuthenticationFailed
-  | GitErrorKey.HTTPSRepositoryNotFound
-  | GitErrorKey.SSHKeyAuditUnverified
-  | GitErrorKey.SSHAuthenticationFailed
-  | GitErrorKey.SSHPermissionDenied
-  | GitErrorKey.SSHRepositoryNotFound
-  | GitErrorKey.RemoteDisconnection
-  | GitErrorKey.HostDown
-  | GitErrorKey.RebaseConflicts
-  | GitErrorKey.EmptyRebasePatch
-  | GitErrorKey.MergeConflicts
-  | GitErrorKey.RevertConflicts
-  | GitErrorKey.PushNotFastForward
-  | GitErrorKey.BranchDeletionFailed
-  | GitErrorKey.DefaultBranchDeletionFailed
-  | GitErrorKey.ForcePushRejected
-  | GitErrorKey.NoMatchingRemoteBranch
-  | GitErrorKey.NothingToCommit
-  | GitErrorKey.NoSubmoduleMapping
-  | GitErrorKey.SubmoduleRepositoryDoesNotExist
-  | GitErrorKey.InvalidSubmoduleSHA
-  | GitErrorKey.LocalPermissionDenied
-  | GitErrorKey.InvalidRebase
-  | GitErrorKey.InvalidMerge
-  | GitErrorKey.InvalidRefLength
-  | GitErrorKey.BadRevision
-  | GitErrorKey.NotAGitRepository
-  | GitErrorKey.CannotMergeUnrelatedHistories
-  | GitErrorKey.NonFastForwardMergeIntoEmptyHead
-  | GitErrorKey.PatchDoesNotApply
-  | GitErrorKey.ProtectedBranchRequiresReview
-  | GitErrorKey.PushWithPrivateEmail
-  | GitErrorKey.LFSAttributeDoesNotMatch
-  | GitErrorKey.PushWithFileSizeExceedingLimit
-  | GitErrorKey.HexBranchNameRejected
+  | GitError.HTTPSAuthenticationFailed
+  | GitError.HTTPSRepositoryNotFound
+  | GitError.SSHKeyAuditUnverified
+  | GitError.SSHAuthenticationFailed
+  | GitError.SSHPermissionDenied
+  | GitError.SSHRepositoryNotFound
+  | GitError.RemoteDisconnection
+  | GitError.HostDown
+  | GitError.RebaseConflicts
+  | GitError.EmptyRebasePatch
+  | GitError.MergeConflicts
+  | GitError.RevertConflicts
+  | GitError.PushNotFastForward
+  | GitError.BranchDeletionFailed
+  | GitError.DefaultBranchDeletionFailed
+  | GitError.ForcePushRejected
+  | GitError.NoMatchingRemoteBranch
+  | GitError.NothingToCommit
+  | GitError.NoSubmoduleMapping
+  | GitError.SubmoduleRepositoryDoesNotExist
+  | GitError.InvalidSubmoduleSHA
+  | GitError.LocalPermissionDenied
+  | GitError.InvalidRebase
+  | GitError.InvalidMerge
+  | GitError.InvalidRefLength
+  | GitError.BadRevision
+  | GitError.NotAGitRepository
+  | GitError.CannotMergeUnrelatedHistories
+  | GitError.NonFastForwardMergeIntoEmptyHead
+  | GitError.PatchDoesNotApply
+  | GitError.ProtectedBranchRequiresReview
+  | GitError.PushWithPrivateEmail
+  | GitError.LFSAttributeDoesNotMatch
+  | GitError.PushWithFileSizeExceedingLimit
+  | GitError.HexBranchNameRejected
 
 export type CommonError = {
   kind: CommonErrorKey
 }
 
 export type ProtectedBranchRequiredStatusError = {
-  kind: GitErrorKey.ProtectedBranchRequiredStatus
+  kind: GitError.ProtectedBranchRequiredStatus
   status: string
 }
 
 export type BranchAlreadyExistsError = {
-  kind: GitErrorKey.BranchAlreadyExists
+  kind: GitError.BranchAlreadyExists
   existingBranch: string
 }
 
 export type ProtectedBranchDeleteError = {
-  kind: GitErrorKey.ProtectedBranchDeleteRejected
+  kind: GitError.ProtectedBranchDeleteRejected
   ref: string
 }
 
 export type ProtectedBranchForcePushError = {
-  kind: GitErrorKey.ProtectedBranchForcePush
+  kind: GitError.ProtectedBranchForcePush
   ref: string
 }
 
@@ -119,39 +119,39 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /ERROR: ([\\s\\S]+?)\\n+\\[EPOLICYKEYAGE\\]\\n+fatal: Could not read from remote repository./,
     create: () => {
       return {
-        kind: GitErrorKey.SSHKeyAuditUnverified
+        kind: GitError.SSHKeyAuditUnverified
       }
     }
   },
   {
     regexp: /fatal: Authentication failed for 'https:\/\//,
     create: () => {
-      return { kind: GitErrorKey.HTTPSAuthenticationFailed }
+      return { kind: GitError.HTTPSAuthenticationFailed }
     }
   },
   {
     regexp: /fatal: Authentication failed/,
     create: () => {
-      return { kind: GitErrorKey.SSHAuthenticationFailed }
+      return { kind: GitError.SSHAuthenticationFailed }
     }
   },
   {
     regexp: /fatal: Could not read from remote repository./,
     create: () => {
-      return { kind: GitErrorKey.SSHPermissionDenied }
+      return { kind: GitError.SSHPermissionDenied }
     }
   },
   {
     regexp: /The requested URL returned error: 403/,
     create: () => {
-      return { kind: GitErrorKey.HTTPSAuthenticationFailed }
+      return { kind: GitError.HTTPSAuthenticationFailed }
     }
   },
   {
     regexp: /fatal: The remote end hung up unexpectedly/,
     create: () => {
       return {
-        kind: GitErrorKey.RemoteDisconnection
+        kind: GitError.RemoteDisconnection
       }
     }
   },
@@ -159,21 +159,21 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /fatal: unable to access '(.+)': Failed to connect to (.+): Host is down/,
     create: () => {
       return {
-        kind: GitErrorKey.HostDown
+        kind: GitError.HostDown
       }
     }
   },
   {
     regexp: /Failed to merge in the changes./,
     create: () => {
-      return { kind: GitErrorKey.RebaseConflicts }
+      return { kind: GitError.RebaseConflicts }
     }
   },
   {
     regexp: /(Merge conflict|Automatic merge failed; fix conflicts and then commit the result)/,
     create: () => {
       return {
-        kind: GitErrorKey.MergeConflicts
+        kind: GitError.MergeConflicts
       }
     }
   },
@@ -181,7 +181,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /fatal: repository '(.+)' not found/,
     create: () => {
       return {
-        kind: GitErrorKey.HTTPSRepositoryNotFound
+        kind: GitError.HTTPSRepositoryNotFound
       }
     }
   },
@@ -189,7 +189,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /ERROR: Repository not found/,
     create: () => {
       return {
-        kind: GitErrorKey.SSHRepositoryNotFound
+        kind: GitError.SSHRepositoryNotFound
       }
     }
   },
@@ -197,7 +197,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /\\((non-fast-forward|fetch first)\\)\nerror: failed to push some refs to '.*'/,
     create: () => {
       return {
-        kind: GitErrorKey.PushNotFastForward
+        kind: GitError.PushNotFastForward
       }
     }
   },
@@ -205,7 +205,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /error: unable to delete '(.+)': remote ref does not exist/,
     create: () => {
       return {
-        kind: GitErrorKey.BranchDeletionFailed
+        kind: GitError.BranchDeletionFailed
       }
     }
   },
@@ -213,7 +213,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /\\[remote rejected\\] (.+) \\(deletion of the current branch prohibited\\)/,
     create: () => {
       return {
-        kind: GitErrorKey.DefaultBranchDeletionFailed
+        kind: GitError.DefaultBranchDeletionFailed
       }
     }
   },
@@ -221,7 +221,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /error: could not revert .*\nhint: after resolving the conflicts, mark the corrected paths\nhint: with 'git add <paths>' or 'git rm <paths>'\nhint: and commit the result with 'git commit'/,
     create: () => {
       return {
-        kind: GitErrorKey.RevertConflicts
+        kind: GitError.RevertConflicts
       }
     }
   },
@@ -229,7 +229,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /Applying: .*\nNo changes - did you forget to use 'git add'\\?\nIf there is nothing left to stage, chances are that something else\n.*/,
     create: () => {
       return {
-        kind: GitErrorKey.EmptyRebasePatch
+        kind: GitError.EmptyRebasePatch
       }
     }
   },
@@ -237,7 +237,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /There are no candidates for (rebasing|merging) among the refs that you just fetched.\nGenerally this means that you provided a wildcard refspec which had no\nmatches on the remote end./,
     create: () => {
       return {
-        kind: GitErrorKey.NoMatchingRemoteBranch
+        kind: GitError.NoMatchingRemoteBranch
       }
     }
   },
@@ -245,7 +245,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /nothing to commit/,
     create: () => {
       return {
-        kind: GitErrorKey.NothingToCommit
+        kind: GitError.NothingToCommit
       }
     }
   },
@@ -253,7 +253,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /No submodule mapping found in .gitmodules for path '(.+)'/,
     create: () => {
       return {
-        kind: GitErrorKey.NoSubmoduleMapping
+        kind: GitError.NoSubmoduleMapping
       }
     }
   },
@@ -261,7 +261,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /fatal: repository '(.+)' does not exist\nfatal: clone of '.+' into submodule path '(.+)' failed/,
     create: () => {
       return {
-        kind: GitErrorKey.SubmoduleRepositoryDoesNotExist
+        kind: GitError.SubmoduleRepositoryDoesNotExist
       }
     }
   },
@@ -269,7 +269,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /Fetched in submodule path '(.+)', but it did not contain (.+). Direct fetching of that commit failed./,
     create: () => {
       return {
-        kind: GitErrorKey.InvalidSubmoduleSHA
+        kind: GitError.InvalidSubmoduleSHA
       }
     }
   },
@@ -277,7 +277,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /fatal: could not create work tree dir '(.+)'.*: Permission denied/,
     create: () => {
       return {
-        kind: GitErrorKey.LocalPermissionDenied
+        kind: GitError.LocalPermissionDenied
       }
     }
   },
@@ -285,7 +285,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /merge: (.+) - not something we can merge/,
     create: () => {
       return {
-        kind: GitErrorKey.InvalidMerge
+        kind: GitError.InvalidMerge
       }
     }
   },
@@ -293,7 +293,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /invalid upstream (.+)/,
     create: () => {
       return {
-        kind: GitErrorKey.InvalidRebase
+        kind: GitError.InvalidRebase
       }
     }
   },
@@ -301,7 +301,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /fatal: Non-fast-forward commit does not make sense into an empty head/,
     create: () => {
       return {
-        kind: GitErrorKey.NonFastForwardMergeIntoEmptyHead
+        kind: GitError.NonFastForwardMergeIntoEmptyHead
       }
     }
   },
@@ -309,7 +309,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /error: (.+): (patch does not apply|already exists in working directory)/,
     create: () => {
       return {
-        kind: GitErrorKey.PatchDoesNotApply
+        kind: GitError.PatchDoesNotApply
       }
     }
   },
@@ -317,7 +317,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /fatal: A branch named '(.+)' already exists./,
     create: (matches: RegExpMatchArray) => {
       return {
-        kind: GitErrorKey.BranchAlreadyExists,
+        kind: GitError.BranchAlreadyExists,
         existingBranch: matches[2]
       }
     }
@@ -326,7 +326,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /fatal: bad revision '(.*)'/,
     create: () => {
       return {
-        kind: GitErrorKey.BadRevision
+        kind: GitError.BadRevision
       }
     }
   },
@@ -334,7 +334,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /fatal: Not a git repository \\(or any of the parent directories\\): (.*)/,
     create: () => {
       return {
-        kind: GitErrorKey.NotAGitRepository
+        kind: GitError.NotAGitRepository
       }
     }
   },
@@ -342,7 +342,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /fatal: refusing to merge unrelated histories/,
     create: () => {
       return {
-        kind: GitErrorKey.CannotMergeUnrelatedHistories
+        kind: GitError.CannotMergeUnrelatedHistories
       }
     }
   },
@@ -350,7 +350,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /The .+ attribute should be .+ but is .+/,
     create: () => {
       return {
-        kind: GitErrorKey.LFSAttributeDoesNotMatch
+        kind: GitError.LFSAttributeDoesNotMatch
       }
     }
   },
@@ -358,7 +358,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /error: GH001: /,
     create: () => {
       return {
-        kind: GitErrorKey.PushWithFileSizeExceedingLimit
+        kind: GitError.PushWithFileSizeExceedingLimit
       }
     }
   },
@@ -366,7 +366,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /error: GH002: /,
     create: () => {
       return {
-        kind: GitErrorKey.HexBranchNameRejected
+        kind: GitError.HexBranchNameRejected
       }
     }
   },
@@ -374,7 +374,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /error: GH003: Sorry, force-pushing to (.+) is not allowed./,
     create: () => {
       return {
-        kind: GitErrorKey.ForcePushRejected
+        kind: GitError.ForcePushRejected
       }
     }
   },
@@ -382,7 +382,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /error: GH005: Sorry, refs longer than (.+) bytes are not allowed/,
     create: () => {
       return {
-        kind: GitErrorKey.InvalidRefLength
+        kind: GitError.InvalidRefLength
       }
     }
   },
@@ -390,7 +390,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /error: GH006: Protected branch update failed for (.+)\nremote: error: At least one approved review is required/,
     create: () => {
       return {
-        kind: GitErrorKey.ProtectedBranchRequiresReview
+        kind: GitError.ProtectedBranchRequiresReview
       }
     }
   },
@@ -398,7 +398,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /error: GH006: Protected branch update failed for (.+)\nremote: error: Cannot force-push to a protected branch/,
     create: matches => {
       return {
-        kind: GitErrorKey.ProtectedBranchForcePush,
+        kind: GitError.ProtectedBranchForcePush,
         ref: matches[1].replace('.', '')
       }
     }
@@ -407,7 +407,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /error: GH006: Protected branch update failed for (.+)\nremote: error: Cannot delete a protected branch/,
     create: matches => {
       return {
-        kind: GitErrorKey.ProtectedBranchDeleteRejected,
+        kind: GitError.ProtectedBranchDeleteRejected,
         ref: matches[1].replace('.', '')
       }
     }
@@ -416,7 +416,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /error: GH006: Protected branch update failed for (.+).\nremote: error: Required status check "(.+)" is expected/,
     create: matches => {
       return {
-        kind: GitErrorKey.ProtectedBranchRequiredStatus,
+        kind: GitError.ProtectedBranchRequiredStatus,
         status: matches[2]
       }
     }
@@ -425,7 +425,7 @@ const GitErrorLookups: Array<GitError> = [
     regexp: /error: GH007: Your push would publish a private email address./,
     create: () => {
       return {
-        kind: GitErrorKey.PushWithPrivateEmail
+        kind: GitError.PushWithPrivateEmail
       }
     }
   }

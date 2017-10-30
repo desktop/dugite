@@ -5,7 +5,7 @@ import * as fs from 'fs'
 import * as crypto from 'crypto'
 
 import { GitProcess, RepositoryDoesNotExistErrorCode } from '../../lib'
-import { parseError, GitErrorKey } from '../../lib/git-error-parser'
+import { parseError, GitError } from '../../lib/git-error-parser'
 import { initialize, verify } from '../helpers'
 
 import { gitVersion } from '../helpers'
@@ -110,19 +110,19 @@ describe('git-process', () => {
 
     it('can parse errors', () => {
       const error = parseError('fatal: Authentication failed')
-      expect(error!.kind).to.equal(GitErrorKey.SSHAuthenticationFailed)
+      expect(error!.kind).to.equal(GitError.SSHAuthenticationFailed)
     })
 
     it('can parse bad revision errors', () => {
       const error = parseError("fatal: bad revision 'beta..origin/beta'")
-      expect(error!.kind).to.equal(GitErrorKey.BadRevision)
+      expect(error!.kind).to.equal(GitError.BadRevision)
     })
 
     it('can parse unrelated histories error', () => {
       const stderr = `fatal: refusing to merge unrelated histories`
 
       const error = parseError(stderr)
-      expect(error!.kind).to.equal(GitErrorKey.CannotMergeUnrelatedHistories)
+      expect(error!.kind).to.equal(GitError.CannotMergeUnrelatedHistories)
     })
 
     it('can parse GH001 push file size error', () => {
@@ -135,7 +135,7 @@ To https://github.com/shiftkey/too-large-repository.git
 error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
 
       const error = parseError(stderr)
-      expect(error!.kind).to.equal(GitErrorKey.PushWithFileSizeExceedingLimit)
+      expect(error!.kind).to.equal(GitError.PushWithFileSizeExceedingLimit)
     })
 
     it('can parse GH002 branch name error', () => {
@@ -146,7 +146,7 @@ To https://github.com/shiftkey/too-large-repository.git
 error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
 
       const error = parseError(stderr)
-      expect(error!.kind).to.equal(GitErrorKey.HexBranchNameRejected)
+      expect(error!.kind).to.equal(GitError.HexBranchNameRejected)
     })
 
     it('can parse GH003 force push error', () => {
@@ -156,7 +156,7 @@ To https://github.com/shiftkey/too-large-repository.git
 error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
 
       const error = parseError(stderr)
-      expect(error!.kind).to.equal(GitErrorKey.ForcePushRejected)
+      expect(error!.kind).to.equal(GitError.ForcePushRejected)
     })
 
     it('can parse GH005 ref length error', () => {
@@ -165,7 +165,7 @@ To https://github.com/shiftkey/too-large-repository.git
 ...`
 
       const error = parseError(stderr)
-      expect(error!.kind).to.equal(GitErrorKey.InvalidRefLength)
+      expect(error!.kind).to.equal(GitError.InvalidRefLength)
     })
 
     it('can parse GH006 protected branch push error', () => {
@@ -175,7 +175,7 @@ To https://github.com/shiftkey-tester/protected-branches.git
  ! [remote rejected] master -> master (protected branch hook declined)
 error: failed to push some refs to 'https://github.com/shiftkey-tester/protected-branches.git'`
       const error = parseError(stderr)
-      expect(error!.kind).to.equal(GitErrorKey.ProtectedBranchRequiresReview)
+      expect(error!.kind).to.equal(GitError.ProtectedBranchRequiresReview)
     })
 
     it('can parse GH006 protected branch force push error', () => {
@@ -187,8 +187,8 @@ error: failed to push some refs to 'https://github.com/shiftkey/too-large-reposi
 
       const error = parseError(stderr)!
 
-      expect(error.kind).to.equal(GitErrorKey.ProtectedBranchForcePush)
-      if (error.kind === GitErrorKey.ProtectedBranchForcePush) {
+      expect(error.kind).to.equal(GitError.ProtectedBranchForcePush)
+      if (error.kind === GitError.ProtectedBranchForcePush) {
         expect(error.ref).to.equal('refs/heads/master')
       }
     })
@@ -202,8 +202,8 @@ error: failed to push some refs to 'https://github.com/tierninho-tester/trterdgd
 
       const error = parseError(stderr)!
 
-      expect(error.kind).to.equal(GitErrorKey.ProtectedBranchDeleteRejected)
-      if (error.kind === GitErrorKey.ProtectedBranchDeleteRejected) {
+      expect(error.kind).to.equal(GitError.ProtectedBranchDeleteRejected)
+      if (error.kind === GitError.ProtectedBranchDeleteRejected) {
         expect(error.ref).to.equal('refs/heads/dupe')
       }
     })
@@ -217,8 +217,8 @@ error: failed to push some refs to 'https://github.com/Raul6469/EclipseMaven.git
 
       const error = parseError(stderr)!
 
-      expect(error.kind).to.equal(GitErrorKey.ProtectedBranchRequiredStatus)
-      if (error.kind === GitErrorKey.ProtectedBranchRequiredStatus) {
+      expect(error.kind).to.equal(GitError.ProtectedBranchRequiredStatus)
+      if (error.kind === GitError.ProtectedBranchRequiredStatus) {
         expect(error.status).to.equal('continuous-integration/travis-ci')
       }
     })
@@ -229,14 +229,14 @@ remote: You can make your email public or disable this protection by visiting:
 remote: http://github.com/settings/emails`
 
       const error = parseError(stderr)
-      expect(error!.kind).to.equal(GitErrorKey.PushWithPrivateEmail)
+      expect(error!.kind).to.equal(GitError.PushWithPrivateEmail)
     })
 
     it('can parse LFS attribute does not match error', () => {
       const stderr = `The filter.lfs.clean attribute should be "git-lfs clean -- %f" but is "git lfs clean %f"`
 
       const error = parseError(stderr)
-      expect(error!.kind).to.equal(GitErrorKey.LFSAttributeDoesNotMatch)
+      expect(error!.kind).to.equal(GitError.LFSAttributeDoesNotMatch)
     })
   })
 })
