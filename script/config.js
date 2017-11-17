@@ -24,6 +24,9 @@ function getConfig() {
     config.checksum = '7e7f2c78b994017026c4ce2d999fad25501a5a33b6c2c0c11684f58d3ccfc06b'
     config.source =
       'https://github.com/desktop/dugite-native/releases/download/v2.15.0-rc1/dugite-native-v2.15.0-ubuntu-25.tar.gz'
+  } else {
+    console.log(`Unable to install dugite for platform ${process.platform} as it is not supported.`)
+    process.exit(1)
   }
 
   // compute the filename from the download source
