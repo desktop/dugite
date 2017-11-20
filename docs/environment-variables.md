@@ -14,6 +14,10 @@ should be cached to speed up testing.
 If this is not specified, it will fallback to [`os.tmpdir()`](https://nodejs.org/dist/latest-v8.x/docs/api/os.html#os_os_tmpdir)
 which is provided by Node.
 
+If you are connected to the internet using a proxy, make sure that `HTTP_PROXY`
+and `HTTPS_PROXY` are configured correctly. Otherwise the installation will fail
+with a connection error. For more information see: [Controlling proxy behaviour using environment variables](https://github.com/request/request#controlling-proxy-behaviour-using-environment-variables)
+
 ## Runtime
 
 TODO: `LOCAL_GIT_DIRECTORY`
