@@ -99,7 +99,15 @@ const downloadAndUnpack = () => {
   })
 }
 
-mkdirp(config.outputPath, function (error) {
+if (config.source === '') {
+  console.log(
+    `Skipping downloading embedded Git as platform '${process.platform}' is not supported.`
+  )
+  console.log(`To learn more about using dugite with a system Git: https://git.io/vF5oj`)
+  process.exit(0)
+}
+
+mkdirp(config.outputPath, function(error) {
   if (error) {
     console.log(`Unable to create directory at ${config.outputPath}`, error)
     process.exit(1)
