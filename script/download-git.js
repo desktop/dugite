@@ -10,8 +10,8 @@ const zlib = require('zlib')
 
 const config = require('./config')()
 
-function extract (source, callback) {
-  const extractor = tar.Extract({path: config.outputPath})
+function extract(source, callback) {
+  const extractor = tar.Extract({ path: config.outputPath })
     .on('error', function (error) { callback(error) })
     .on('end', function () { callback() })
 
@@ -60,7 +60,16 @@ const downloadAndUnpack = () => {
   req.pipe(fs.createWriteStream(config.tempFile))
 
   req.on('error', function (error) {
-    console.log(`Error raised while downloading ${config.source}`, error)
+    if (error.code === 'ETIMEDOUT') {
+      console.log(
+        `A timeout has occurred while downloading '${config.source}' - check ` +
+        `your internet connection and try again. If you are using a proxy, ` +
+        `make sure that the HTTP_PROXY and HTTPS_PROXY environment variables are set.`,
+        error
+      )
+    } else {
+      console.log(`Error raised while downloading ${config.source}`, error)
+    }
     process.exit(1)
   })
 
