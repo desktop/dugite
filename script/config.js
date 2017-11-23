@@ -26,23 +26,25 @@ function getConfig() {
       'https://github.com/desktop/dugite-native/releases/download/v2.15.0-rc1/dugite-native-v2.15.0-ubuntu-25.tar.gz'
   }
 
-  // compute the filename from the download source
-  const url = URL.parse(config.source)
-  const pathName = url.pathname
-  const index = pathName.lastIndexOf('/')
-  config.fileName = pathName.substr(index + 1)
+  if (config.source !== '') {
+    // compute the filename from the download source
+    const url = URL.parse(config.source)
+    const pathName = url.pathname
+    const index = pathName.lastIndexOf('/')
+    config.fileName = pathName.substr(index + 1)
 
-  const cacheDirEnv = process.env.DUGITE_CACHE_DIR
+    const cacheDirEnv = process.env.DUGITE_CACHE_DIR
 
-  const cacheDir = cacheDirEnv ? path.resolve(cacheDirEnv) : os.tmpdir()
+    const cacheDir = cacheDirEnv ? path.resolve(cacheDirEnv) : os.tmpdir()
 
-  try {
-    fs.statSync(cacheDir)
-  } catch (e) {
-    fs.mkdirSync(cacheDir)
+    try {
+      fs.statSync(cacheDir)
+    } catch (e) {
+      fs.mkdirSync(cacheDir)
+    }
+
+    config.tempFile = path.join(cacheDir, config.fileName)
   }
-
-  config.tempFile = path.join(cacheDir, config.fileName)
 
   return config
 }
