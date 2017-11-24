@@ -37,7 +37,7 @@
     "progress": "^2.0.0",
     "request": "^2.83.0",
     "rimraf": "^2.5.4",
-    "tar": "^2.2.1"
+    "tar": "^4.0.2"
   },
   "devDependencies": {
     "@types/chai": "^4.0.5",
