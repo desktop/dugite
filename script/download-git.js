@@ -12,7 +12,7 @@ const config = require('./config')()
 
 function extract(source, callback) {
   const extractor = tar
-    .extract({ path: config.outputPath })
+    .extract({ cwd: config.outputPath })
     .on('error', function(error) {
       callback(error)
     })
@@ -122,19 +122,19 @@ if (config.source === '') {
   process.exit(0)
 }
 
+if (fs.existsSync(config.outputPath)) {
+  try {
+    rimraf.sync(config.outputPath)
+  } catch (err) {
+    console.error(err)
+    return
+  }
+}
+
 mkdirp(config.outputPath, function(error) {
   if (error) {
     console.log(`Unable to create directory at ${config.outputPath}`, error)
     process.exit(1)
-  }
-
-  if (fs.existsSync(config.outputPath)) {
-    try {
-      rimraf.sync(config.outputPath)
-    } catch (err) {
-      console.error(err)
-      return
-    }
   }
 
   const tempFile = config.tempFile
