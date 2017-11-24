@@ -20,7 +20,7 @@ export interface IGitResult {
   readonly stderr: string
 
   /** The exit code of the git process. */
-  readonly exitCode: number
+  readonly exitCode: number | string
 }
 
 /**
@@ -163,18 +163,23 @@ export class GitProcess {
       }
 
       const spawnedProcess = execFile(gitLocation, args, execOptions, function(
-        err: ErrorWithCode,
+        err: Error | null,
         stdout,
         stderr
       ) {
-        const code = err ? err.code : 0
+        let errorWithCode: ErrorWithCode | null = null
+        if (err) {
+          errorWithCode = err as ErrorWithCode
+        }
+
+        const code = errorWithCode ? errorWithCode.code : 0
         // If the error's code is a string then it means the code isn't the
         // process's exit code but rather an error coming from Node's bowels,
         // e.g., ENOENT.
-        if (typeof code === 'string') {
+        if (errorWithCode && typeof code === 'string') {
           if (code === 'ENOENT') {
-            let message = err.message
-            let code = err.code
+            let message = errorWithCode.message
+            let code = errorWithCode.code
             if (GitProcess.pathExists(path) === false) {
               message = 'Unable to find path to repository on disk.'
               code = RepositoryDoesNotExistErrorCode
@@ -186,7 +191,7 @@ export class GitProcess {
             }
 
             const error = new Error(message) as ErrorWithCode
-            error.name = err.name
+            error.name = errorWithCode.name
             error.code = code
             reject(error)
           } else {
