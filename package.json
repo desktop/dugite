@@ -40,13 +40,13 @@
     "tar": "^2.2.1"
   },
   "devDependencies": {
-    "@types/chai": "4.0.4",
+    "@types/chai": "^4.0.5",
     "@types/checksum": "^0.1.30",
     "@types/mkdirp": "^0.5.1",
     "@types/mocha": "^2.2.44",
-    "@types/node": "^8.0.47",
+    "@types/node": "^8.0.53",
     "@types/progress": "^2.0.0",
-    "@types/request": "^2.0.7",
+    "@types/request": "^2.0.8",
     "@types/rimraf": "2.0.2",
     "byline": "^5.0.0",
     "chai": "^4.1.2",
@@ -54,9 +54,9 @@
     "cross-env": "^5.1.1",
     "find-git-exec": "0.0.1-alpha.2",
     "mocha": "^4.0.1",
-    "prettier": "^1.7.4",
+    "prettier": "^1.8.2",
     "temp": "^0.8.3",
     "ts-node": "^3.0.2",
-    "typescript": "^2.5.3"
+    "typescript": "^2.6.1"
   }
 }
