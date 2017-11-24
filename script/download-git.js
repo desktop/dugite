@@ -11,20 +11,26 @@ const zlib = require('zlib')
 const config = require('./config')()
 
 function extract(source, callback) {
-  const extractor = tar.Extract({ path: config.outputPath })
-    .on('error', function (error) { callback(error) })
-    .on('end', function () { callback() })
+  const extractor = tar
+    .extract({ path: config.outputPath })
+    .on('error', function(error) {
+      callback(error)
+    })
+    .on('end', function() {
+      callback()
+    })
 
-  fs.createReadStream(source)
-    .on('error', function (error) { callback(error) })
+  fs
+    .createReadStream(source)
+    .on('error', function(error) {
+      callback(error)
+    })
     .pipe(zlib.Gunzip())
     .pipe(extractor)
 }
 
-
-const verifyFile = function (file, callback) {
+const verifyFile = function(file, callback) {
   checksum.file(file, { algorithm: 'sha256' }, (_, hash) => {
-
     const match = hash === config.checksum
 
     if (!match) {
@@ -35,8 +41,8 @@ const verifyFile = function (file, callback) {
   })
 }
 
-const unpackFile = function (file) {
-  extract(file, function (error) {
+const unpackFile = function(file) {
+  extract(file, function(error) {
     if (error) {
       console.log('Unable to extract archive, aborting...', error)
       process.exit(1)
@@ -50,8 +56,8 @@ const downloadAndUnpack = () => {
   const options = {
     url: config.source,
     headers: {
-      'Accept': 'application/octet-stream',
-      'User-Agent': 'dugite',
+      Accept: 'application/octet-stream',
+      'User-Agent': 'dugite'
     }
   }
 
@@ -59,12 +65,12 @@ const downloadAndUnpack = () => {
 
   req.pipe(fs.createWriteStream(config.tempFile))
 
-  req.on('error', function (error) {
+  req.on('error', function(error) {
     if (error.code === 'ETIMEDOUT') {
       console.log(
         `A timeout has occurred while downloading '${config.source}' - check ` +
-        `your internet connection and try again. If you are using a proxy, ` +
-        `make sure that the HTTP_PROXY and HTTPS_PROXY environment variables are set.`,
+          `your internet connection and try again. If you are using a proxy, ` +
+          `make sure that the HTTP_PROXY and HTTPS_PROXY environment variables are set.`,
         error
       )
     } else {
@@ -73,7 +79,7 @@ const downloadAndUnpack = () => {
     process.exit(1)
   })
 
-  req.on('response', function (res) {
+  req.on('response', function(res) {
     if (res.statusCode !== 200) {
       console.log(`Non-200 response returned from ${config.source} - (${res.statusCode})`)
       process.exit(1)
@@ -89,11 +95,11 @@ const downloadAndUnpack = () => {
       total: len
     })
 
-    res.on('data', function (chunk) {
+    res.on('data', function(chunk) {
       bar.tick(chunk.length)
     })
 
-    res.on('end', function () {
+    res.on('end', function() {
       console.log('\n')
 
       verifyFile(config.tempFile, valid => {
