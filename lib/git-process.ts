@@ -20,7 +20,7 @@ export interface IGitResult {
   readonly stderr: string
 
   /** The exit code of the git process. */
-  readonly exitCode: number | string
+  readonly exitCode: number
 }
 
 /**
@@ -167,11 +167,12 @@ export class GitProcess {
         stdout,
         stderr
       ) {
-        let errorWithCode: ErrorWithCode | null = null
-        if (err) {
-          errorWithCode = err as ErrorWithCode
+        if (err === null) {
+          resolve({ stdout, stderr, exitCode: 0 })
+          return
         }
 
+        const errorWithCode = err as ErrorWithCode
         const code = errorWithCode ? errorWithCode.code : 0
         // If the error's code is a string then it means the code isn't the
         // process's exit code but rather an error coming from Node's bowels,
@@ -201,7 +202,7 @@ export class GitProcess {
           return
         }
 
-        if (code === undefined && err) {
+        if (code === undefined) {
           // Git has returned an output that couldn't fit in the specified buffer
           // as we don't know how many bytes it requires, rethrow the error with
           // details about what it was previously set to...
@@ -213,10 +214,10 @@ export class GitProcess {
                 } bytes`
               )
             )
+          } else {
+            reject(err)
           }
         }
-
-        resolve({ stdout, stderr, exitCode: code })
       })
 
       if (options && options.stdin) {
