@@ -219,6 +219,8 @@ export class GitProcess {
               } bytes`
             )
           )
+        } else {
+          reject(err)
         }
       })
 
