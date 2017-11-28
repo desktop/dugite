@@ -167,7 +167,7 @@ export class GitProcess {
         stdout,
         stderr
       ) {
-        if (err === null) {
+        if (!err) {
           resolve({ stdout, stderr, exitCode: 0 })
           return
         }
