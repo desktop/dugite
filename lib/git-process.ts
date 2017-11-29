@@ -85,7 +85,7 @@ export interface IGitExecutionOptions {
  * without resorting to `any` casts.
  */
 interface ErrorWithCode extends Error {
-  code: string | number
+  code: string | number | undefined
 }
 
 export class GitProcess {
@@ -163,23 +163,32 @@ export class GitProcess {
       }
 
       const spawnedProcess = execFile(gitLocation, args, execOptions, function(
-        err: ErrorWithCode,
+        err: Error | null,
         stdout,
         stderr
       ) {
-        const code = err ? err.code : 0
+        if (!err) {
+          resolve({ stdout, stderr, exitCode: 0 })
+          return
+        }
+
+        const errWithCode = err as ErrorWithCode
+
+        let code = errWithCode.code
+
         // If the error's code is a string then it means the code isn't the
         // process's exit code but rather an error coming from Node's bowels,
         // e.g., ENOENT.
         if (typeof code === 'string') {
           if (code === 'ENOENT') {
             let message = err.message
-            let code = err.code
             if (GitProcess.pathExists(path) === false) {
               message = 'Unable to find path to repository on disk.'
               code = RepositoryDoesNotExistErrorCode
             } else {
-              message = `Git could not be found at the expected path: '${gitLocation}'. This might be a problem with how the application is packaged, so confirm this folder hasn't been removed when packaging.`
+              message = `Git could not be found at the expected path: '${
+                gitLocation
+              }'. This might be a problem with how the application is packaged, so confirm this folder hasn't been removed when packaging.`
               code = GitNotFoundErrorCode
             }
 
@@ -194,20 +203,25 @@ export class GitProcess {
           return
         }
 
-        if (code === undefined && err) {
-          // Git has returned an output that couldn't fit in the specified buffer
-          // as we don't know how many bytes it requires, rethrow the error with
-          // details about what it was previously set to...
-          if (err.message === 'stdout maxBuffer exceeded') {
-            reject(
-              new Error(
-                `The output from the command could not fit into the allocated stdout buffer. Set options.maxBuffer to a larger value than ${execOptions.maxBuffer} bytes`
-              )
-            )
-          }
+        if (typeof code === 'number') {
+          resolve({ stdout, stderr, exitCode: code })
+          return
         }
 
-        resolve({ stdout, stderr, exitCode: code })
+        // Git has returned an output that couldn't fit in the specified buffer
+        // as we don't know how many bytes it requires, rethrow the error with
+        // details about what it was previously set to...
+        if (err.message === 'stdout maxBuffer exceeded') {
+          reject(
+            new Error(
+              `The output from the command could not fit into the allocated stdout buffer. Set options.maxBuffer to a larger value than ${
+                execOptions.maxBuffer
+              } bytes`
+            )
+          )
+        } else {
+          reject(err)
+        }
       })
 
       if (options && options.stdin) {
