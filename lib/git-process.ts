@@ -1,4 +1,6 @@
 import * as fs from 'fs'
+import * as debug from 'debug'
+const process = debug('DUGITE:PROCESS')
 
 import { execFile, spawn, ExecOptionsWithStringEncoding } from 'child_process'
 import {
@@ -162,12 +164,17 @@ export class GitProcess {
         env
       }
 
+      process('execFile')
+
       const spawnedProcess = execFile(gitLocation, args, execOptions, function(
         err: Error | null,
         stdout,
         stderr
       ) {
+        process('execFile completed')
+
         if (!err) {
+          process('resolved with exit code: 0')
           resolve({ stdout, stderr, exitCode: 0 })
           return
         }
@@ -195,8 +202,10 @@ export class GitProcess {
             const error = new Error(message) as ErrorWithCode
             error.name = err.name
             error.code = code
+            process(`rejecting with exit code: ${code}`)
             reject(error)
           } else {
+            process(`rejecting with unknown exit code`)
             reject(err)
           }
 
@@ -212,6 +221,7 @@ export class GitProcess {
         // as we don't know how many bytes it requires, rethrow the error with
         // details about what it was previously set to...
         if (err.message === 'stdout maxBuffer exceeded') {
+          process(`rejecting with stdout maxBuffer exceeded' error`)
           reject(
             new Error(
               `The output from the command could not fit into the allocated stdout buffer. Set options.maxBuffer to a larger value than ${
@@ -220,6 +230,7 @@ export class GitProcess {
             )
           )
         } else {
+          process(`rejecting with unknown error`)
           reject(err)
         }
       })
