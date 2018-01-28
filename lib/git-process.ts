@@ -224,7 +224,7 @@ export class GitProcess {
         }
       })
 
-      if (options && options.stdin) {
+      if (options && options.stdin !== undefined) {
         // See https://github.com/nodejs/node/blob/7b5ffa46fe4d2868c1662694da06eb55ec744bde/test/parallel/test-stdin-pipe-large.js
         spawnedProcess.stdin.end(options.stdin, options.stdinEncoding)
       }
