@@ -36,13 +36,9 @@ describe('git-process', () => {
       // and then try to write to stdin. Without the ignoreClosedInputStream
       // workaround this will crash the process (timing related) with an
       // EPIPE/EOF error thrown from process.stdin
-      const result = await GitProcess.exec(
-        ['--trololol'],
-        testRepoPath,
-        {
-          stdin: '\n'.repeat(1024 * 1024)
-        }
-      )
+      const result = await GitProcess.exec(['--trololol'], testRepoPath, {
+        stdin: '\n'.repeat(1024 * 1024)
+      })
       verify(result, r => {
         expect(r.exitCode).to.equal(129)
       })
