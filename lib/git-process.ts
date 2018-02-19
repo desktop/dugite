@@ -276,6 +276,8 @@ export class GitProcess {
  * error for them. By supressing the stream error we can pick up on
  * the real error when the process exits when we parse the exit code
  * and the standard error.
+ *
+ * See https://github.com/desktop/desktop/pull/4027#issuecomment-366213276
  */
 function ignoreClosedInputStream(process: ChildProcess) {
   process.stdin.on('error', (err) => {
