@@ -188,8 +188,6 @@ export class GitProcess {
               message = 'Unable to find path to repository on disk.'
               code = RepositoryDoesNotExistErrorCode
             } else {
-              message = `Git could not be found at the expected path: '${
-                gitLocation
               }'. This might be a problem with how the application is packaged, so confirm this folder hasn't been removed when packaging.`
               code = GitNotFoundErrorCode
             }
@@ -280,7 +278,7 @@ export class GitProcess {
  * See https://github.com/desktop/desktop/pull/4027#issuecomment-366213276
  */
 function ignoreClosedInputStream(process: ChildProcess) {
-  process.stdin.on('error', (err) => {
+  process.stdin.on('error', err => {
     const code = (err as ErrorWithCode).code
 
     // Is the error one that we'd expect from the input stream being
