@@ -279,22 +279,24 @@ export class GitProcess {
  */
 function ignoreClosedInputStream(process: ChildProcess) {
   process.stdin.on('error', (err) => {
-    const errWithCode = err as ErrorWithCode
+    const code = (err as ErrorWithCode).code
 
     // Is the error one that we'd expect from the input stream being
     // closed, i.e. EPIPE on macOS and EOF on Windows?
-    if (errWithCode.code !== 'EPIPE' && errWithCode.code !== 'EOF') {
-      // Nope, this is something else. Are there any other error listeners
-      // attached than us? If not we'll have to mimic the behavior of
-      // EventEmitter.
-      //
-      // See https://nodejs.org/api/errors.html#errors_error_propagation_and_interception
-      //
-      // "For all EventEmitter objects, if an 'error' event handler is not
-      //  provided, the error will be thrown"
-      if (process.stdin.listeners('error').length > 1) {
-        throw err
-      }
+    if (code === 'EPIPE' || code === 'EOF') {
+      return
+    }
+
+    // Nope, this is something else. Are there any other error listeners
+    // attached than us? If not we'll have to mimic the behavior of
+    // EventEmitter.
+    //
+    // See https://nodejs.org/api/errors.html#errors_error_propagation_and_interception
+    //
+    // "For all EventEmitter objects, if an 'error' event handler is not
+    //  provided, the error will be thrown"
+    if (process.stdin.listeners('error').length > 1) {
+      throw err
     }
   })
 }
