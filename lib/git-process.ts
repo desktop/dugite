@@ -8,6 +8,7 @@ import {
   GitNotFoundErrorCode
 } from './errors'
 import { ChildProcess } from 'child_process'
+import { Stream } from 'stream'
 
 import { setupEnvironment } from './git-environment'
 
@@ -124,7 +125,7 @@ export class GitProcess {
 
     const spawnedProcess = spawn(gitLocation, args, spawnArgs)
 
-    ignoreClosedInputStream(spawnedProcess)
+    ignoreClosedStreamErrors(spawnedProcess)
 
     return spawnedProcess
   }
@@ -226,7 +227,7 @@ export class GitProcess {
         }
       })
 
-      ignoreClosedInputStream(spawnedProcess)
+      ignoreClosedStreamErrors(spawnedProcess)
 
       if (options && options.stdin !== undefined) {
         // See https://github.com/nodejs/node/blob/7b5ffa46fe4d2868c1662694da06eb55ec744bde/test/parallel/test-stdin-pipe-large.js
@@ -279,15 +280,22 @@ export class GitProcess {
  *
  * See https://github.com/desktop/desktop/pull/4027#issuecomment-366213276
  */
-function ignoreClosedInputStream(process: ChildProcess) {
-  process.stdin.on('error', err => {
+function ignoreClosedStreamErrors(process: ChildProcess) {
+  // Suppress errors that we'd expect to see when the input
+  // stream closes abruptly, i.e. EPIPE on macOS and EOF on Windows.
+  suppressStreamErrors(process.stdin, 'EPIPE', 'EOF')
+
+  // Suppress errors that we'd expect to see when one of the
+  // output streams closes abruptly.
+  suppressStreamErrors(process.stdout, 'ECONNRESET')
+  suppressStreamErrors(process.stderr, 'ECONNRESET')
+}
+
+function suppressStreamErrors(stream: Stream, ...errorCodes: string[]) {
+  stream.on('error', err => {
     const code = (err as ErrorWithCode).code
 
-    // Is the error one that we'd expect from the input stream being
-    // closed, i.e. EPIPE on macOS and EOF on Windows. We've also
-    // seen ECONNRESET failures on Linux hosts so let's throw that in
-    // there for good measure.
-    if (code === 'EPIPE' || code === 'EOF' || code === 'ECONNRESET') {
+    if (typeof code === 'string' && errorCodes.indexOf(code) !== -1) {
       return
     }
 
@@ -299,7 +307,7 @@ function ignoreClosedInputStream(process: ChildProcess) {
     //
     // "For all EventEmitter objects, if an 'error' event handler is not
     //  provided, the error will be thrown"
-    if (process.stdin.listeners('error').length <= 1) {
+    if (stream.listeners('error').length <= 1) {
       throw err
     }
   })
