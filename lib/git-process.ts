@@ -297,7 +297,7 @@ function ignoreClosedInputStream(process: ChildProcess) {
     //
     // "For all EventEmitter objects, if an 'error' event handler is not
     //  provided, the error will be thrown"
-    if (process.stdin.listeners('error').length > 1) {
+    if (process.stdin.listeners('error').length <= 1) {
       throw err
     }
   })
