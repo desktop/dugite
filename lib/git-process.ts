@@ -284,8 +284,10 @@ function ignoreClosedInputStream(process: ChildProcess) {
     const code = (err as ErrorWithCode).code
 
     // Is the error one that we'd expect from the input stream being
-    // closed, i.e. EPIPE on macOS and EOF on Windows?
-    if (code === 'EPIPE' || code === 'EOF') {
+    // closed, i.e. EPIPE on macOS and EOF on Windows. We've also
+    // seen ECONNRESET failures on Linux hosts so let's throw that in
+    // there for good measure.
+    if (code === 'EPIPE' || code === 'EOF' || code === 'ECONNRESET') {
       return
     }
 
