@@ -124,6 +124,8 @@ export class GitProcess {
 
     const spawnedProcess = spawn(gitLocation, args, spawnArgs)
 
+    ignoreClosedInputStream(spawnedProcess)
+
     return spawnedProcess
   }
 
@@ -224,6 +226,8 @@ export class GitProcess {
         }
       })
 
+      ignoreClosedInputStream(spawnedProcess)
+
       if (options && options.stdin !== undefined) {
         // See https://github.com/nodejs/node/blob/7b5ffa46fe4d2868c1662694da06eb55ec744bde/test/parallel/test-stdin-pipe-large.js
         spawnedProcess.stdin.end(options.stdin, options.stdinEncoding)
@@ -246,4 +250,57 @@ export class GitProcess {
 
     return null
   }
+}
+
+/**
+ * Prevent errors originating from the stdin stream related
+ * to the child process closing the pipe from bubbling up and
+ * causing an unhandled exception when no error handler is
+ * attached to the input stream.
+ *
+ * The common scenario where this happens is if the consumer
+ * is writing data to the stdin stream of a child process and
+ * the child process for one reason or another decides to either
+ * terminate or simply close its standard input. Imagine this
+ * scenario
+ *
+ *  cat /dev/zero | head -c 1
+ *
+ * The 'head' command would close its standard input (by terminating)
+ * the moment it has read one byte. In the case of Git this could
+ * happen if you for example pass badly formed input to apply-patch.
+ *
+ * Since consumers of dugite using the `exec` api are unable to get
+ * a hold of the stream until after we've written data to it they're
+ * unable to fix it themselves so we'll just go ahead and ignore the
+ * error for them. By supressing the stream error we can pick up on
+ * the real error when the process exits when we parse the exit code
+ * and the standard error.
+ *
+ * See https://github.com/desktop/desktop/pull/4027#issuecomment-366213276
+ */
+function ignoreClosedInputStream(process: ChildProcess) {
+  process.stdin.on('error', err => {
+    const code = (err as ErrorWithCode).code
+
+    // Is the error one that we'd expect from the input stream being
+    // closed, i.e. EPIPE on macOS and EOF on Windows. We've also
+    // seen ECONNRESET failures on Linux hosts so let's throw that in
+    // there for good measure.
+    if (code === 'EPIPE' || code === 'EOF' || code === 'ECONNRESET') {
+      return
+    }
+
+    // Nope, this is something else. Are there any other error listeners
+    // attached than us? If not we'll have to mimic the behavior of
+    // EventEmitter.
+    //
+    // See https://nodejs.org/api/errors.html#errors_error_propagation_and_interception
+    //
+    // "For all EventEmitter objects, if an 'error' event handler is not
+    //  provided, the error will be thrown"
+    if (process.stdin.listeners('error').length <= 1) {
+      throw err
+    }
+  })
 }
