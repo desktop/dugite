@@ -21,9 +21,15 @@ function getConfig() {
     config.source =
       'https://github.com/desktop/dugite-native/releases/download/v2.16.2/dugite-native-v2.16.2-win32-119.tar.gz'
   } else if (process.platform === 'linux') {
-    config.checksum = '831dddd2381bb7a85f45b35911f123d062a2bdacf2116181503a1293e58a6e79'
-    config.source =
-      'https://github.com/desktop/dugite-native/releases/download/v2.16.2/dugite-native-v2.16.2-ubuntu-119.tar.gz'
+    if (os.arch() === 'arm64') {
+      config.checksum = '05f2d1681f0620689a6bc1abae417d0d23e3bea55e28f4bc91467c41edc9dd6d'
+      config.source =
+        'https://github.com/desktop/dugite-native/releases/download/v2.16.2/dugite-native-v2.16.2-arm64-119.tar.gz'
+    } else {
+      config.checksum = '831dddd2381bb7a85f45b35911f123d062a2bdacf2116181503a1293e58a6e79'
+      config.source =
+        'https://github.com/desktop/dugite-native/releases/download/v2.16.2/dugite-native-v2.16.2-ubuntu-119.tar.gz'
+    }
   }
 
   if (config.source !== '') {
