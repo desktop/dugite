@@ -30,6 +30,7 @@ export enum GitError {
   NotAGitRepository,
   CannotMergeUnrelatedHistories,
   LFSAttributeDoesNotMatch,
+  BranchRenameFailed,
   // GitHub-specific error codes
   PushWithFileSizeExceedingLimit,
   HexBranchNameRejected,
@@ -88,6 +89,7 @@ export const GitErrorRegexes = {
     GitError.NotAGitRepository,
   'fatal: refusing to merge unrelated histories': GitError.CannotMergeUnrelatedHistories,
   'The .+ attribute should be .+ but is .+': GitError.LFSAttributeDoesNotMatch,
+  'fatal: Branch rename failed': GitError.BranchRenameFailed,
   // GitHub-specific errors
   'error: GH001: ': GitError.PushWithFileSizeExceedingLimit,
   'error: GH002: ': GitError.HexBranchNameRejected,
