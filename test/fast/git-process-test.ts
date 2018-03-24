@@ -242,5 +242,13 @@ remote: http://github.com/settings/emails`
       const error = GitProcess.parseError(stderr)
       expect(error).to.equal(GitError.LFSAttributeDoesNotMatch)
     })
+
+    it('can parse rename Branch error', () => {
+      const stderr = `error: refname refs/heads/adding-renamefailed-error not found
+      fatal: Branch rename failed`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.BranchRenameFailed)
+    })
   })
 })
