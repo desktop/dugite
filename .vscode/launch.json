@@ -1,0 +1,55 @@
+{
+    // Use IntelliSense to learn about possible Node.js debug attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "protocol": "inspector",
+            "name": "Run Mocha Test",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "${file}",
+                "--no-timeouts",
+                "--colors",
+                "--require",
+                "ts-node/register"
+            ],
+            "env": {
+                "TS_NODE_PROJECT": "${workspaceRoot}/tsconfig.json",
+                "LOCAL_GIT_DIRECTORY": "${workspaceRoot}/git/"
+            },
+            "sourceMaps": true,
+            "smartStep": true,
+            "internalConsoleOptions": "openOnSessionStart",
+            "outputCapture": "std"
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "protocol": "inspector",
+            "name": "Watch Mocha Test",
+            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
+            "args": [
+                "${file}",
+                "--no-timeouts",
+                "--colors",
+                "--watch",
+                "--watch-extensions",
+                "ts",
+                "--require",
+                "ts-node/register"
+            ],
+            "env": {
+                "TS_NODE_PROJECT": "${workspaceRoot}/tsconfig.json",
+                "LOCAL_GIT_DIRECTORY": "${workspaceRoot}/git/"
+            },
+            "sourceMaps": true,
+            "smartStep": true,
+            "internalConsoleOptions": "openOnSessionStart",
+            "outputCapture": "std"
+        }
+    ]
+}
