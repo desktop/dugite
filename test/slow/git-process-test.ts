@@ -12,7 +12,7 @@ const temp = require('temp').track()
 
 describe('git-process', () => {
   describe('clone', () => {
-    it("returns exit code and error when repository doesn't exist", async () => {
+    it("returns exit code when repository doesn't exist", async () => {
       const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
       const options = {
         env: setupNoAuth()
@@ -30,11 +30,10 @@ describe('git-process', () => {
         testRepoPath,
         options
       )
+
       verify(result, r => {
         expect(r.exitCode).to.equal(128)
       })
-      const error = GitProcess.parseError(result.stderr)
-      expect(error).to.equal(GitError.HTTPSRepositoryNotFound)
     })
 
     it('returns exit code and error when repository requires credentials', async () => {
@@ -71,7 +70,7 @@ describe('git-process', () => {
   })
 
   describe('fetch', () => {
-    it("returns exit code and error when repository doesn't exist", async () => {
+    it("returns exit code when repository doesn't exist", async () => {
       const testRepoPath = await initialize('desktop-git-fetch-failure')
 
       // GitHub will prompt for (and validate) credentials for non-public
@@ -96,9 +95,6 @@ describe('git-process', () => {
       verify(result, r => {
         expect(r.exitCode).to.equal(128)
       })
-
-      const error = GitProcess.parseError(result.stderr)
-      expect(error).to.equal(GitError.HTTPSRepositoryNotFound)
     })
 
     it('returns exit code and error when repository requires credentials', async () => {
