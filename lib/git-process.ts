@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 
-import { execFile, spawn, ExecOptionsWithStringEncoding } from 'child_process'
+import { spawn, SpawnOptions } from 'child_process'
 import {
   GitError,
   GitErrorRegexes,
@@ -152,28 +152,26 @@ export class GitProcess {
 
       const { env, gitLocation } = setupEnvironment(customEnv)
 
-      // Explicitly annotate opts since typescript is unable to infer the correct
-      // signature for execFile when options is passed as an opaque hash. The type
-      // definition for execFile currently infers based on the encoding parameter
-      // which could change between declaration time and being passed to execFile.
-      // See https://git.io/vixyQ
-      const execOptions: ExecOptionsWithStringEncoding = {
+      const spawnOptions: SpawnOptions = {
         cwd: path,
-        encoding: 'utf8',
-        maxBuffer: options ? options.maxBuffer : 10 * 1024 * 1024,
         env
       }
 
-      const spawnedProcess = execFile(gitLocation, args, execOptions, function(
-        err: Error | null,
-        stdout,
-        stderr
-      ) {
-        if (!err) {
-          resolve({ stdout, stderr, exitCode: 0 })
-          return
-        }
+      const command = [gitLocation, ...args].join(' ')
+      let spawnedProcess: ChildProcess
+      if ('win32' === process.platform) {
+        spawnedProcess = spawn('cmd.exe', ['/s', '/c', '"' + command + '"'], spawnOptions)
+      } else {
+        spawnedProcess = spawn('/bin/sh', ['-c', command], spawnOptions)
+      }
 
+      const stdoutBuffers: Buffer[] = []
+      const stderrBuffers: Buffer[] = []
+      const toUtf8String = (buffers: Buffer[]): string => {
+        return Buffer.concat(buffers).toString('utf8')
+      }
+
+      spawnedProcess.on('error', err => {
         const errWithCode = err as ErrorWithCode
 
         let code = errWithCode.code
@@ -206,23 +204,30 @@ export class GitProcess {
         }
 
         if (typeof code === 'number') {
-          resolve({ stdout, stderr, exitCode: code })
+          resolve({
+            stdout: toUtf8String(stdoutBuffers),
+            stderr: toUtf8String(stderrBuffers),
+            exitCode: code
+          })
           return
         }
 
-        // Git has returned an output that couldn't fit in the specified buffer
-        // as we don't know how many bytes it requires, rethrow the error with
-        // details about what it was previously set to...
-        if (err.message === 'stdout maxBuffer exceeded') {
-          reject(
-            new Error(
-              `The output from the command could not fit into the allocated stdout buffer. Set options.maxBuffer to a larger value than ${
-                execOptions.maxBuffer
-              } bytes`
-            )
-          )
-        } else {
-          reject(err)
+        reject(err)
+      })
+
+      spawnedProcess.stdout.on('data', (b: Buffer) => stdoutBuffers.push(b))
+      spawnedProcess.stderr.on('data', (b: Buffer) => stderrBuffers.push(b))
+
+      spawnedProcess.on('exit', (code, signal) => {
+        if (code !== null) {
+          resolve({
+            stdout: toUtf8String(stdoutBuffers),
+            stderr: toUtf8String(stderrBuffers),
+            exitCode: code
+          })
+        }
+        if (signal !== null) {
+          // TODO: handle signal. Should we reject?
         }
       })
 
