@@ -31,6 +31,9 @@ export enum GitError {
   CannotMergeUnrelatedHistories,
   LFSAttributeDoesNotMatch,
   BranchRenameFailed,
+  PathDoesNotExist,
+  InvalidObjectName,
+  OutsideRepository,
   // GitHub-specific error codes
   PushWithFileSizeExceedingLimit,
   HexBranchNameRejected,
@@ -90,6 +93,9 @@ export const GitErrorRegexes = {
   'fatal: refusing to merge unrelated histories': GitError.CannotMergeUnrelatedHistories,
   'The .+ attribute should be .+ but is .+': GitError.LFSAttributeDoesNotMatch,
   'fatal: Branch rename failed': GitError.BranchRenameFailed,
+  "fatal: Path '(.+)' does not exist .+": GitError.PathDoesNotExist,
+  "fatal: Invalid object name '(.+)'.": GitError.InvalidObjectName,
+  "fatal: .+: '(.+)' is outside repository": GitError.OutsideRepository,
   // GitHub-specific errors
   'error: GH001: ': GitError.PushWithFileSizeExceedingLimit,
   'error: GH002: ': GitError.HexBranchNameRejected,

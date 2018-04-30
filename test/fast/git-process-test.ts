@@ -6,6 +6,7 @@ import * as fs from 'fs'
 import * as crypto from 'crypto'
 
 import { GitProcess, GitError, RepositoryDoesNotExistErrorCode } from '../../lib'
+import { GitErrorRegexes } from '../../lib/errors'
 import { initialize, verify } from '../helpers'
 
 import { gitVersion } from '../helpers'
@@ -106,9 +107,88 @@ describe('git-process', () => {
         expect(throws).to.be.true
       })
     })
+
+    describe('show', () => {
+      it('exiting file', async () => {
+        const testRepoPath = await initialize('desktop-show-existing')
+        const filePath = path.join(testRepoPath, 'file.txt')
+
+        fs.writeFileSync(filePath, 'some content', { encoding: 'utf8' })
+
+        await GitProcess.exec(['add', '.'], testRepoPath)
+        await GitProcess.exec(['commit', '-m', '"added a file"'], testRepoPath)
+
+        const result = await GitProcess.exec(['show', ':file.txt'], testRepoPath)
+        verify(result, r => {
+          expect(r.exitCode).to.be.equal(0)
+          expect(r.stdout.trim()).to.be.equal('some content')
+        })
+      })
+      it('missing from index', async () => {
+        const testRepoPath = await initialize('desktop-show-missing-index')
+
+        const result = await GitProcess.exec(['show', ':missing.txt'], testRepoPath)
+        verify(result, r => {
+          expect(GitProcess.parseError(r.stderr)).to.be.equal(GitError.PathDoesNotExist)
+        })
+      })
+      it('missing from commitish', async () => {
+        const testRepoPath = await initialize('desktop-show-missing-commitish')
+
+        const filePath = path.join(testRepoPath, 'file.txt')
+
+        fs.writeFileSync(filePath, 'some content', { encoding: 'utf8' })
+
+        await GitProcess.exec(['add', '.'], testRepoPath)
+        await GitProcess.exec(['commit', '-m', '"added a file"'], testRepoPath)
+
+        const result = await GitProcess.exec(['show', 'HEAD:missing.txt'], testRepoPath)
+        verify(result, r => {
+          expect(GitProcess.parseError(r.stderr)).to.be.equal(GitError.PathDoesNotExist)
+        })
+      })
+      it('invalid object name - empty repository', async () => {
+        const testRepoPath = await initialize('desktop-show-invalid-object-empty')
+
+        const result = await GitProcess.exec(['show', 'HEAD:missing.txt'], testRepoPath)
+        verify(result, r => {
+          expect(GitProcess.parseError(r.stderr)).to.be.equal(GitError.InvalidObjectName)
+        })
+      })
+      it('outside repository', async () => {
+        const testRepoPath = await initialize('desktop-show-outside')
+
+        const filePath = path.join(testRepoPath, 'file.txt')
+
+        fs.writeFileSync(filePath, 'some content', { encoding: 'utf8' })
+
+        await GitProcess.exec(['add', '.'], testRepoPath)
+        await GitProcess.exec(['commit', '-m', '"added a file"'], testRepoPath)
+
+        const result = await GitProcess.exec(['show', '--', '/missing.txt'], testRepoPath)
+        verify(result, r => {
+          expect(GitProcess.parseError(r.stderr)).to.be.equal(GitError.OutsideRepository)
+        })
+      })
+    })
   })
 
   describe('errors', () => {
+    it('each error code should have its corresponding regexp', () => {
+      const difference = (left: number[], right: number[]) =>
+        left.filter(item => right.indexOf(item) === -1)
+      const errorCodes = Object.keys(GitError)
+        .map(key => (GitError as any)[key])
+        .filter(ordinal => Number.isInteger(ordinal))
+      const regexes = Object.keys(GitErrorRegexes).map(key => (GitErrorRegexes as any)[key])
+
+      const errorCodesWithoutRegex = difference(errorCodes, regexes)
+      const regexWithoutErrorCodes = difference(regexes, errorCodes)
+
+      expect(errorCodesWithoutRegex).to.be.empty
+      expect(regexWithoutErrorCodes).to.be.empty
+    })
+
     it('raises error when folder does not exist', async () => {
       const testRepoPath = path.join(temp.path(), 'desktop-does-not-exist')
 
@@ -249,6 +329,35 @@ remote: http://github.com/settings/emails`
 
       const error = GitProcess.parseError(stderr)
       expect(error).to.equal(GitError.BranchRenameFailed)
+    })
+
+    it('can parse path does not exist error - neither on disk nor in the index', () => {
+      const stderr =
+        "fatal: Path 'missing.txt' does not exist (neither on disk nor in the index).\n"
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.PathDoesNotExist)
+    })
+
+    it('can parse path does not exist error - in commitish', () => {
+      const stderr = "fatal: Path 'missing.txt' does not exist in 'HEAD'\n"
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.PathDoesNotExist)
+    })
+
+    it('can parse invalid object name error', () => {
+      const stderr = "fatal: Invalid object name 'HEAD'.\n"
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.InvalidObjectName)
+    })
+
+    it('can parse is outside repository error', () => {
+      const stderr = "fatal: /missing.txt: '/missing.txt' is outside repository\n"
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.OutsideRepository)
     })
   })
 })
