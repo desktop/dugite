@@ -34,6 +34,7 @@ export enum GitError {
   PathDoesNotExist,
   InvalidObjectName,
   OutsideRepository,
+  LockFileAlreadyExists,
   // GitHub-specific error codes
   PushWithFileSizeExceedingLimit,
   HexBranchNameRejected,
@@ -96,6 +97,7 @@ export const GitErrorRegexes = {
   "fatal: Path '(.+)' does not exist .+": GitError.PathDoesNotExist,
   "fatal: Invalid object name '(.+)'.": GitError.InvalidObjectName,
   "fatal: .+: '(.+)' is outside repository": GitError.OutsideRepository,
+  "Another git process seems to be running in this repository, e.g.": GitError.LockFileAlreadyExists,
   // GitHub-specific errors
   'error: GH001: ': GitError.PushWithFileSizeExceedingLimit,
   'error: GH002: ': GitError.HexBranchNameRejected,
