@@ -359,5 +359,18 @@ remote: http://github.com/settings/emails`
       const error = GitProcess.parseError(stderr)
       expect(error).to.equal(GitError.OutsideRepository)
     })
+
+    it('can parse lock file exists error', () => {
+      const stderr = `Unable to create  'path_to_repo/.git/index.lock: File exists.
+
+Another git process seems to be running in this repository, e.g.
+an editor opened by 'git commit'. Please make sure all processes
+are terminated then try again. If it still fails, a git process
+may have crashed in this repository earlier:
+remove the file manually to continue.`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.LockFileAlreadyExists)
+    })
   })
 })
