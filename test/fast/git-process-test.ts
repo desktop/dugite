@@ -1,8 +1,8 @@
 import * as chai from 'chai'
 const expect = chai.expect
 
-import * as path from 'path'
-import * as fs from 'fs'
+import * as Path from 'path'
+import * as Fs from 'fs'
 import * as crypto from 'crypto'
 
 import { GitProcess, GitError, RepositoryDoesNotExistErrorCode } from '../../lib'
@@ -49,8 +49,8 @@ describe('git-process', () => {
       it('returns expected error code for initial commit when creating diff', async () => {
         const testRepoPath = await initialize('blank-no-commits')
 
-        const file = path.join(testRepoPath, 'new-file.md')
-        fs.writeFileSync(file, 'this is a new file')
+        const file = Path.join(testRepoPath, 'new-file.md')
+        Fs.writeFileSync(file, 'this is a new file')
         const result = await GitProcess.exec(
           ['diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md'],
           testRepoPath
@@ -64,8 +64,8 @@ describe('git-process', () => {
 
       it('returns expected error code for repository with history when creating diff', async () => {
         const testRepoPath = await initialize('blank-then-commit')
-        const readme = path.join(testRepoPath, 'README.md')
-        fs.writeFileSync(readme, 'hello world!')
+        const readme = Path.join(testRepoPath, 'README.md')
+        Fs.writeFileSync(readme, 'hello world!')
         await GitProcess.exec(['add', '.'], testRepoPath)
 
         const commit = await GitProcess.exec(['commit', '-F', '-'], testRepoPath, {
@@ -73,8 +73,8 @@ describe('git-process', () => {
         })
         expect(commit.exitCode).to.eq(0)
 
-        const file = path.join(testRepoPath, 'new-file.md')
-        fs.writeFileSync(file, 'this is a new file')
+        const file = Path.join(testRepoPath, 'new-file.md')
+        Fs.writeFileSync(file, 'this is a new file')
         const result = await GitProcess.exec(
           ['diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md'],
           testRepoPath
@@ -92,19 +92,74 @@ describe('git-process', () => {
         // NOTE: if we change the default buffer size in git-process
         // this test may no longer fail as expected - see https://git.io/v1dq3
         const output = crypto.randomBytes(10 * 1024 * 1024).toString('hex')
-        const file = path.join(testRepoPath, 'new-file.md')
-        fs.writeFileSync(file, output)
+        const file = Path.join(testRepoPath, 'new-file.md')
+        Fs.writeFileSync(file, output)
 
         let throws = false
         try {
-          await GitProcess.exec(
+          const result = await GitProcess.exec(
             ['diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'new-file.md'],
             testRepoPath
           )
+          expect(result.stdout.indexOf(output)).to.be.greaterThan(-1)
         } catch {
           throws = true
         }
-        expect(throws).to.be.true
+        expect(throws).to.be.false
+      })
+    })
+  })
+
+  describe('check-ignore', () => {
+    it('should list the ignored files form the root - w/ *', async () => {
+      const testRepoPath = await initialize('check-ignore-with-star')
+
+      const aFile = Path.join(testRepoPath, 'a.txt')
+      Fs.writeFileSync(aFile, 'foo')
+      expect(Fs.readFileSync(aFile, { encoding: 'utf8' })).to.be.equal('foo')
+
+      const gitignore = Path.join(testRepoPath, '.gitignore')
+      Fs.writeFileSync(gitignore, 'a.txt')
+      expect(Fs.readFileSync(gitignore, { encoding: 'utf8' })).to.be.equal('a.txt')
+
+      const result = await GitProcess.exec(['check-ignore', '*'], testRepoPath)
+
+      verify(result, r => {
+        // Exit code `0`: One or more of the provided paths is ignored.
+        expect(r.exitCode).to.be.equal(0)
+        expect(r.stdout.trim()).to.be.equal('a.txt')
+        expect(r.stderr.trim()).to.be.equal('')
+      })
+    })
+    it('should list the ignored files from the root - w/o *', async () => {
+      const testRepoPath = await initialize('check-ignore-without-star')
+
+      const aFile = Path.join(testRepoPath, 'a.txt')
+      Fs.writeFileSync(aFile, 'foo')
+      expect(Fs.readFileSync(aFile, { encoding: 'utf8' })).to.be.equal('foo')
+
+      const bFile = Path.join(testRepoPath, 'a.txt')
+      Fs.writeFileSync(bFile, 'bar')
+      expect(Fs.readFileSync(bFile, { encoding: 'utf8' })).to.be.equal('bar')
+
+      const gitignore = Path.join(testRepoPath, '.gitignore')
+      Fs.writeFileSync(gitignore, 'a.txt')
+      expect(Fs.readFileSync(gitignore, { encoding: 'utf8' })).to.be.equal('a.txt')
+
+      const aResult = await GitProcess.exec(['check-ignore', 'a.txt'], testRepoPath)
+      verify(aResult, r => {
+        // Exit code `0`: One or more of the provided paths is ignored.
+        expect(r.exitCode).to.be.equal(0)
+        expect(r.stdout.trim()).to.be.equal('a.txt')
+        expect(r.stderr.trim()).to.be.equal('')
+      })
+
+      const bResult = await GitProcess.exec(['check-ignore', 'b.txt'], testRepoPath)
+      verify(bResult, r => {
+        // Exit code `1`: None of the provided paths are ignored.
+        expect(r.exitCode).to.be.equal(1)
+        expect(r.stdout.trim()).to.be.equal('')
+        expect(r.stderr.trim()).to.be.equal('')
       })
     })
 
@@ -190,7 +245,7 @@ describe('git-process', () => {
     })
 
     it('raises error when folder does not exist', async () => {
-      const testRepoPath = path.join(temp.path(), 'desktop-does-not-exist')
+      const testRepoPath = Path.join(temp.path(), 'desktop-does-not-exist')
 
       let error: Error | null = null
       try {
