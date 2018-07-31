@@ -89,7 +89,7 @@ export const GitErrorRegexes = {
     GitError.PatchDoesNotApply,
   "fatal: A branch named '(.+)' already exists.": GitError.BranchAlreadyExists,
   "fatal: bad revision '(.*)'": GitError.BadRevision,
-  'fatal: Not a git repository \\(or any of the parent directories\\): (.*)':
+  'fatal: [Nn]ot a git repository \\(or any of the parent directories\\): (.*)':
     GitError.NotAGitRepository,
   'fatal: refusing to merge unrelated histories': GitError.CannotMergeUnrelatedHistories,
   'The .+ attribute should be .+ but is .+': GitError.LFSAttributeDoesNotMatch,
