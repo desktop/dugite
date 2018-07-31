@@ -372,5 +372,19 @@ remove the file manually to continue.`
       const error = GitProcess.parseError(stderr)
       expect(error).to.equal(GitError.LockFileAlreadyExists)
     })
+
+    it('can parse the previous not found repository error', () => {
+      const stderr = 'fatal: Not a git repository (or any of the parent directories): .git'
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.NotAGitRepository)
+    })
+
+    it('can parse the current found repository error', () => {
+      const stderr = 'fatal: not a git repository (or any of the parent directories): .git'
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.NotAGitRepository)
+    })
   })
 })
