@@ -13,22 +13,22 @@ function getConfig() {
   }
 
   if (process.platform === 'darwin') {
-    config.checksum = '4d6a3f410617a9c5d2b9df5ffc4717ddf314167ba22ea11349198894f35e4391'
+    config.checksum = '9856da255c89ab4954bd336f8b7e757babf6f8ec6c15d5b594b002440834b779'
     config.source =
-      'https://github.com/desktop/dugite-native/releases/download/v2.18.0-2/dugite-native-v2.18.0-macOS.tar.gz'
+      'https://github.com/desktop/dugite-native/releases/download/v2.18.0-3/dugite-native-v2.18.0-macOS.tar.gz'
   } else if (process.platform === 'win32') {
-    config.checksum = 'ae76a27123657ca521d72618ebff0ae1e6b55af6c21deed4ef9345eaae18fb3b'
+    config.checksum = 'a29d099b4463d43ca056beb0dbbfc1b7cccf894c13812fb0c65227cb1289e78b'
     config.source =
-      'https://github.com/desktop/dugite-native/releases/download/v2.18.0-2/dugite-native-v2.18.0-win32.tar.gz'
+      'https://github.com/desktop/dugite-native/releases/download/v2.18.0-3/dugite-native-v2.18.0-win32.tar.gz'
   } else if (process.platform === 'linux') {
     if (os.arch() === 'arm64') {
-      config.checksum = '26754bf876e24d93100c55a760df22adf10a47f45bcaccdfbf6b7c073f6633d8'
+      config.checksum = 'be04e349f1cf842e5794e094ef11012e4837996ec334fc68a7c3efe9f320818a'
       config.source =
-        'https://github.com/desktop/dugite-native/releases/download/v2.18.0-2/dugite-native-v2.18.0-arm64.tar.gz'
+        'https://github.com/desktop/dugite-native/releases/download/v2.18.0-3/dugite-native-v2.18.0-arm64.tar.gz'
     } else {
-      config.checksum = '38c865df026552284266211f96cde4ccbc145cb813a0d5651ada5fd704a881fd'
+      config.checksum = 'e6405a1ab0e39a265526c95a14bb780d9b694ce612d526f695529416451b53b7'
       config.source =
-        'https://github.com/desktop/dugite-native/releases/download/v2.18.0-2/dugite-native-v2.18.0-ubuntu.tar.gz'
+        'https://github.com/desktop/dugite-native/releases/download/v2.18.0-3/dugite-native-v2.18.0-ubuntu.tar.gz'
     }
   }
 
