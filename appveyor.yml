@@ -5,10 +5,10 @@ platform:
   - x86
 
 environment:
+  DUGITE_CACHE_DIR: '%USERPROFILE%\.dugite\'
   matrix:
     - nodejs_version: '8'
     - nodejs_version: '10'
-  DUGITE_CACHE_DIR: '%USERPROFILE%\.dugite\'
 
 cache:
   - node_modules
