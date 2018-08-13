@@ -28,13 +28,13 @@ function getConfig() {
     }
   } else if (process.platform === 'linux') {
     if (os.arch() === 'arm64') {
-      config.checksum = 'be04e349f1cf842e5794e094ef11012e4837996ec334fc68a7c3efe9f320818a'
+      config.checksum = '5182bc8660ec3052d9ae05ee209f95a567eed30d7c6c60920c25ca68ce6f032b'
       config.source =
-        'https://github.com/desktop/dugite-native/releases/download/v2.18.0-3/dugite-native-v2.18.0-arm64.tar.gz'
+        'https://github.com/desktop/dugite-native/releases/download/v2.18.0-4/dugite-native-v2.18.0-arm64.tar.gz'
     } else {
       config.checksum = '8eb1468bd10927229c7adbc41e0dec2b0f1fdbd0605fda9194cca028b35d52b1'
       config.source =
-        'https://github.com/desktop/dugite-native/releases/download/v2.18.0-3/dugite-native-v2.18.0-ubuntu.tar.gz'
+        'https://github.com/desktop/dugite-native/releases/download/v2.18.0-4/dugite-native-v2.18.0-ubuntu.tar.gz'
     }
   }
 
