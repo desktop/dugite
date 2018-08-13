@@ -33,6 +33,7 @@
   "homepage": "https://github.com/desktop/dugite#readme",
   "dependencies": {
     "checksum": "^0.1.1",
+    "debug": "^3.1.0",
     "mkdirp": "^0.5.1",
     "progress": "^2.0.0",
     "request": "^2.86.0",
@@ -42,6 +43,7 @@
   "devDependencies": {
     "@types/chai": "^4.0.5",
     "@types/checksum": "^0.1.30",
+    "@types/debug": "0.0.30",
     "@types/mkdirp": "^0.5.1",
     "@types/mocha": "^2.2.44",
     "@types/node": "^8.0.53",
