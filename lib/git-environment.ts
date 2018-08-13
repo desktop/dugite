@@ -57,7 +57,11 @@ function resolveGitExecPath(): string {
   ) {
     return path.join(gitDir, 'libexec', 'git-core')
   } else if (process.platform === 'win32') {
-    return path.join(gitDir, 'mingw64', 'libexec', 'git-core')
+    if (process.arch === 'x64') {
+      return path.join(gitDir, 'mingw64', 'libexec', 'git-core')
+    }
+
+    return path.join(gitDir, 'mingw32', 'libexec', 'git-core')
   }
 
   throw new Error('Git not supported on platform: ' + process.platform)
@@ -80,7 +84,11 @@ export function setupEnvironment(
   const gitDir = resolveGitDir()
 
   if (process.platform === 'win32') {
-    envPath = `${gitDir}\\mingw64\\bin;${gitDir}\\mingw64\\usr\\bin;${envPath}`
+    if (process.arch === 'x64') {
+      envPath = `${gitDir}\\mingw64\\bin;${gitDir}\\mingw64\\usr\\bin;${envPath}`
+    } else {
+      envPath = `${gitDir}\\mingw32\\bin;${gitDir}\\mingw32\\usr\\bin;${envPath}`
+    }
   }
 
   const env = Object.assign(
