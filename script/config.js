@@ -13,22 +13,28 @@ function getConfig() {
   }
 
   if (process.platform === 'darwin') {
-    config.checksum = '9856da255c89ab4954bd336f8b7e757babf6f8ec6c15d5b594b002440834b779'
+    config.checksum = 'e95eefd33c8305aa4b362fe76d4a499cd7c1f11ff3183fc10009317466bc309f'
     config.source =
-      'https://github.com/desktop/dugite-native/releases/download/v2.18.0-3/dugite-native-v2.18.0-macOS.tar.gz'
+      'https://github.com/desktop/dugite-native/releases/download/v2.18.0-4/dugite-native-v2.18.0-macOS.tar.gz'
   } else if (process.platform === 'win32') {
-    config.checksum = 'a29d099b4463d43ca056beb0dbbfc1b7cccf894c13812fb0c65227cb1289e78b'
-    config.source =
-      'https://github.com/desktop/dugite-native/releases/download/v2.18.0-3/dugite-native-v2.18.0-win32.tar.gz'
+    if (os.arch() === 'x64') {
+      config.checksum = '186cba377cbb7f2bb0d0061ccdd9ddc12c7acc8381a2f56e3c59952a1ecc09a9'
+      config.source =
+        'https://github.com/desktop/dugite-native/releases/download/v2.18.0-4/dugite-native-v2.18.0-windows-x64.tar.gz'
+    } else {
+      config.checksum = '680769787069722f283bf0e5f0acaed37c049bbe81a27ebda6fa4b9b8ffe86d1'
+      config.source =
+        'https://github.com/desktop/dugite-native/releases/download/v2.18.0-4/dugite-native-v2.18.0-windows-x86.tar.gz'
+    }
   } else if (process.platform === 'linux') {
     if (os.arch() === 'arm64') {
-      config.checksum = 'be04e349f1cf842e5794e094ef11012e4837996ec334fc68a7c3efe9f320818a'
+      config.checksum = '5182bc8660ec3052d9ae05ee209f95a567eed30d7c6c60920c25ca68ce6f032b'
       config.source =
-        'https://github.com/desktop/dugite-native/releases/download/v2.18.0-3/dugite-native-v2.18.0-arm64.tar.gz'
+        'https://github.com/desktop/dugite-native/releases/download/v2.18.0-4/dugite-native-v2.18.0-arm64.tar.gz'
     } else {
-      config.checksum = 'e6405a1ab0e39a265526c95a14bb780d9b694ce612d526f695529416451b53b7'
+      config.checksum = '8eb1468bd10927229c7adbc41e0dec2b0f1fdbd0605fda9194cca028b35d52b1'
       config.source =
-        'https://github.com/desktop/dugite-native/releases/download/v2.18.0-3/dugite-native-v2.18.0-ubuntu.tar.gz'
+        'https://github.com/desktop/dugite-native/releases/download/v2.18.0-4/dugite-native-v2.18.0-ubuntu.tar.gz'
     }
   }
 
