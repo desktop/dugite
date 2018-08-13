@@ -3,8 +3,7 @@ notifications:
     on_success: never
     on_failure: change
 
-env:
-  DUGITE_CACHE_DIR=$HOME/.dugite/
+env: DUGITE_CACHE_DIR=$HOME/.dugite/
 
 os:
   - linux
@@ -16,8 +15,8 @@ branches:
 
 language: node_js
 node_js:
-  - "8"
-  - "9"
+  - '8'
+  - '9'
 
 cache:
   timeout: 600
