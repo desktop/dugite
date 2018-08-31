@@ -1,10 +1,18 @@
 import * as path from 'path'
 
 function resolveEmbeddedGitDir(): string {
-  const s = path.sep
-  return path
-    .resolve(__dirname, '..', '..', 'git')
-    .replace(/[\\\/]app.asar[\\\/]/, `${s}app.asar.unpacked${s}`)
+  if (
+    process.platform === 'darwin' ||
+    process.platform === 'linux' ||
+    process.platform === 'android' ||
+    process.platform === 'win32'
+  ) {
+    const s = path.sep
+    return path
+      .resolve(__dirname, '..', '..', 'git')
+      .replace(/[\\\/]app.asar[\\\/]/, `${s}app.asar.unpacked${s}`)
+  }
+  throw new Error('Git not supported on platform: ' + process.platform)
 }
 
 /**
@@ -26,17 +34,11 @@ function resolveGitDir(): string {
  */
 function resolveGitBinary(): string {
   const gitDir = resolveGitDir()
-  if (
-    process.platform === 'darwin' ||
-    process.platform === 'linux' ||
-    process.platform === 'android'
-  ) {
-    return path.join(gitDir, 'bin', 'git')
-  } else if (process.platform === 'win32') {
+  if (process.platform === 'win32') {
     return path.join(gitDir, 'cmd', 'git.exe')
+  } else {
+    return path.join(gitDir, 'bin', 'git')
   }
-
-  throw new Error('Git not supported on platform: ' + process.platform)
 }
 
 /**
@@ -50,21 +52,15 @@ function resolveGitExecPath(): string {
     return path.resolve(process.env.GIT_EXEC_PATH)
   }
   const gitDir = resolveGitDir()
-  if (
-    process.platform === 'darwin' ||
-    process.platform === 'linux' ||
-    process.platform === 'android'
-  ) {
-    return path.join(gitDir, 'libexec', 'git-core')
-  } else if (process.platform === 'win32') {
+  if (process.platform === 'win32') {
     if (process.arch === 'x64') {
       return path.join(gitDir, 'mingw64', 'libexec', 'git-core')
     }
 
     return path.join(gitDir, 'mingw32', 'libexec', 'git-core')
+  } else {
+    return path.join(gitDir, 'libexec', 'git-core')
   }
-
-  throw new Error('Git not supported on platform: ' + process.platform)
 }
 
 /**
