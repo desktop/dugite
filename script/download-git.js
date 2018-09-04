@@ -58,7 +58,8 @@ const downloadAndUnpack = () => {
     headers: {
       Accept: 'application/octet-stream',
       'User-Agent': 'dugite'
-    }
+    },
+    secureProtocol: 'TLSv1_2_method'
   }
 
   const req = request.get(options)
