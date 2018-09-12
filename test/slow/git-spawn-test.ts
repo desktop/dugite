@@ -27,9 +27,7 @@ function bufferOutput(process: ChildProcess, failPromiseWhenLengthExceeded: bool
       if (failPromiseWhenLengthExceeded && output.length >= maximumStringSize) {
         reject(
           new Error(
-            `Process output is greater than known V8 limit on string size: ${
-              maximumStringSize
-            } bytes`
+            `Process output is greater than known V8 limit on string size: ${maximumStringSize} bytes`
           )
         )
       } else {

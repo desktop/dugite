@@ -188,9 +188,7 @@ export class GitProcess {
               message = 'Unable to find path to repository on disk.'
               code = RepositoryDoesNotExistErrorCode
             } else {
-              message = `Git could not be found at the expected path: '${
-                gitLocation
-              }'. This might be a problem with how the application is packaged, so confirm this folder hasn't been removed when packaging.`
+              message = `Git could not be found at the expected path: '${gitLocation}'. This might be a problem with how the application is packaged, so confirm this folder hasn't been removed when packaging.`
               code = GitNotFoundErrorCode
             }
 
