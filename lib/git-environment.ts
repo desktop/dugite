@@ -22,7 +22,7 @@ function resolveEmbeddedGitDir(): string {
  *  returns with it after resolving it as a path.
  */
 function resolveGitDir(): string {
-  if (process.env.LOCAL_GIT_DIRECTORY) {
+  if (process.env.LOCAL_GIT_DIRECTORY != null) {
     return path.resolve(process.env.LOCAL_GIT_DIRECTORY)
   } else {
     return resolveEmbeddedGitDir()
@@ -48,7 +48,7 @@ function resolveGitBinary(): string {
  * then it returns with it after resolving it as a path.
  */
 function resolveGitExecPath(): string {
-  if (process.env.GIT_EXEC_PATH) {
+  if (process.env.GIT_EXEC_PATH != null) {
     return path.resolve(process.env.GIT_EXEC_PATH)
   }
   const gitDir = resolveGitDir()
@@ -72,8 +72,8 @@ function resolveGitExecPath(): string {
  * @param additional options to include with the process
  */
 export function setupEnvironment(
-  environmentVariables: Object
-): { env: Object; gitLocation: string } {
+  environmentVariables: NodeJS.ProcessEnv
+): { env: NodeJS.ProcessEnv; gitLocation: string } {
   const gitLocation = resolveGitBinary()
 
   let envPath: string = process.env.PATH || ''

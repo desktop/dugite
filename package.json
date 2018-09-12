@@ -43,8 +43,8 @@
     "@types/chai": "^4.0.5",
     "@types/checksum": "^0.1.30",
     "@types/mkdirp": "^0.5.1",
-    "@types/mocha": "^2.2.44",
-    "@types/node": "^8.0.53",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^10.9.4",
     "@types/progress": "^2.0.0",
     "@types/request": "^2.0.8",
     "@types/rimraf": "2.0.2",
@@ -53,10 +53,10 @@
     "chai-as-promised": "^7.1.1",
     "cross-env": "^5.1.1",
     "find-git-exec": "0.0.1-alpha.2",
-    "mocha": "^4.0.1",
+    "mocha": "^5.2.0",
     "prettier": "^1.8.2",
     "temp": "^0.8.3",
-    "ts-node": "^3.0.2",
-    "typescript": "^2.6.1"
+    "ts-node": "^7.0.1",
+    "typescript": "^3.0.3"
   }
 }
