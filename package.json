@@ -10,7 +10,7 @@
     "prepare": "npm run build && npm run test",
     "postpublish": "git push --follow-tags",
     "test": "npm run test:fast && npm run test:slow && npm run test:external",
-    "test:fast": "cross-env LOCAL_GIT_DIRECTORY=./git/ mocha --require ts-node/register test/fast/*.ts test/auth/*.ts",
+    "test:fast": "cross-env LOCAL_GIT_DIRECTORY=./git/ mocha -t 5000ms --require ts-node/register test/fast/*.ts test/auth/*.ts",
     "test:slow": "cross-env LOCAL_GIT_DIRECTORY=./git/ mocha -t 20000ms --require ts-node/register test/slow/*.ts test/auth/*.ts",
     "test:external": "mocha -t 20000ms --require ts-node/register test/external/*.ts",
     "postinstall": "node ./script/download-git.js",
