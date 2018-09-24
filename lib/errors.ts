@@ -100,6 +100,7 @@ export const GitErrorRegexes = {
   "fatal: .+: '(.+)' is outside repository": GitError.OutsideRepository,
   'Another git process seems to be running in this repository, e.g.':
     GitError.LockFileAlreadyExists,
+  'fatal: There is no merge to abort': GitError.NoMergeToAbort,
   // GitHub-specific errors
   'error: GH001: ': GitError.PushWithFileSizeExceedingLimit,
   'error: GH002: ': GitError.HexBranchNameRejected,
@@ -113,8 +114,7 @@ export const GitErrorRegexes = {
     GitError.ProtectedBranchDeleteRejected,
   'error: GH006: Protected branch update failed for (.+).\nremote: error: Required status check "(.+)" is expected':
     GitError.ProtectedBranchRequiredStatus,
-  'error: GH007: Your push would publish a private email address.': GitError.PushWithPrivateEmail,
-  'fatal: There is no merge to abort (MERGE_HEAD missing).': GitError.NoMergeToAbort
+  'error: GH007: Your push would publish a private email address.': GitError.PushWithPrivateEmail
 }
 
 /**
