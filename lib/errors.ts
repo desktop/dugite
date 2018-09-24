@@ -35,6 +35,7 @@ export enum GitError {
   InvalidObjectName,
   OutsideRepository,
   LockFileAlreadyExists,
+  NoMergeToAbort,
   // GitHub-specific error codes
   PushWithFileSizeExceedingLimit,
   HexBranchNameRejected,
@@ -112,7 +113,8 @@ export const GitErrorRegexes = {
     GitError.ProtectedBranchDeleteRejected,
   'error: GH006: Protected branch update failed for (.+).\nremote: error: Required status check "(.+)" is expected':
     GitError.ProtectedBranchRequiredStatus,
-  'error: GH007: Your push would publish a private email address.': GitError.PushWithPrivateEmail
+  'error: GH007: Your push would publish a private email address.': GitError.PushWithPrivateEmail,
+  'fatal: There is no merge to abort (MERGE_HEAD missing).': GitError.NoMergeToAbort
 }
 
 /**
