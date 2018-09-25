@@ -386,5 +386,12 @@ remove the file manually to continue.`
       const error = GitProcess.parseError(stderr)
       expect(error).to.equal(GitError.NotAGitRepository)
     })
+
+    it('can parse the no merge to abort error', () => {
+      const stderr = 'fatal: There is no merge to abort (MERGE_HEAD missing).\n'
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).to.equal(GitError.NoMergeToAbort)
+    })
   })
 })

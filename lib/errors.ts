@@ -35,6 +35,7 @@ export enum GitError {
   InvalidObjectName,
   OutsideRepository,
   LockFileAlreadyExists,
+  NoMergeToAbort,
   // GitHub-specific error codes
   PushWithFileSizeExceedingLimit,
   HexBranchNameRejected,
@@ -99,6 +100,7 @@ export const GitErrorRegexes = {
   "fatal: .+: '(.+)' is outside repository": GitError.OutsideRepository,
   'Another git process seems to be running in this repository, e.g.':
     GitError.LockFileAlreadyExists,
+  'fatal: There is no merge to abort': GitError.NoMergeToAbort,
   // GitHub-specific errors
   'error: GH001: ': GitError.PushWithFileSizeExceedingLimit,
   'error: GH002: ': GitError.HexBranchNameRejected,
