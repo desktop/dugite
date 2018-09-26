@@ -1,0 +1,27 @@
+{
+  "win32-x64": {
+    "name": "dugite-native-v2.19.0-windows-x64.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.19.0-1/dugite-native-v2.19.0-windows-x64.tar.gz",
+    "checksum": "d38baa1e5c559e2d0172a84f6e5ce996946f60ddd4432632c4ead90e49b73d60"
+  },
+  "win32-ia32": {
+    "name": "dugite-native-v2.19.0-windows-x86.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.19.0-1/dugite-native-v2.19.0-windows-x86.tar.gz",
+    "checksum": "44dc57777959309ed4115e24ce0598dae19c93ce9731ef3a612f549b53e7ae9e"
+  },
+  "darwin-x64": {
+    "name": "dugite-native-v2.19.0-macOS.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.19.0-1/dugite-native-v2.19.0-macOS.tar.gz",
+    "checksum": "53dcc276a404c8769104fa3ddf5595a86a7e22016449fb79d9bc5724a5563d80"
+  },
+  "linux-x64": {
+    "name": "dugite-native-v2.19.0-ubuntu.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.19.0-1/dugite-native-v2.19.0-ubuntu.tar.gz",
+    "checksum": "04b4f70544e798467f07905b0b05853d6a34f4cfcbf63481e94907c6b9aa5876"
+  },
+  "linux-arm64": {
+    "name": "dugite-native-v2.19.0-arm64.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.19.0-1/dugite-native-v2.19.0-arm64.tar.gz",
+    "checksum": "0589faac66321c27175f6fc9b19de13e6c1c091ea9de1f206d184d42ee020b47"
+  }
+}

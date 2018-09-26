@@ -15,7 +15,8 @@
     "test:external": "mocha -t 30000 --require ts-node/register test/external/*.ts",
     "postinstall": "node ./script/download-git.js",
     "prettify": "prettier \"{examples,lib,script,test}/**/*.ts\" --write",
-    "is-it-pretty": "prettier \"{examples,lib,script,test}/**/*.ts\" --list-different"
+    "is-it-pretty": "prettier \"{examples,lib,script,test}/**/*.ts\" --list-different",
+    "update-embedded-git": "node ./script/update-embedded-git.js"
   },
   "engines": {
     "node": ">= 6",

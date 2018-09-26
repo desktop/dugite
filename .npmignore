@@ -31,3 +31,12 @@ tsconfig.json
 
 # config files
 *.yml
+
+# assorted unimportant tooling files
+.vscode/
+.prettierrc
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+
+# for tooling purposes only
+/script/update-embedded-git.js
