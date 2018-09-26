@@ -59,6 +59,10 @@ request(options, async (err, response, release) => {
   const embeddedGitPath = path.join(__dirname, 'embedded-git.json')
 
   fs.writeFileSync(embeddedGitPath, fileContents, 'utf8')
+
+  console.log(
+    `Done! Don't forget to commit any changes and run the test suite again with \`npm i\` to confirm they pass!`
+  )
 })
 
 function downloadChecksum(url) {
