@@ -22,37 +22,13 @@ request(options, async (err, response, release) => {
 
   console.log(`Updating embedded git config to use version ${tag_name}`)
 
-  const output = {}
-
-  const windows64bit = assets.find(a => a.name.endsWith('-windows-x64.tar.gz'))
-  if (windows64bit == null) {
-    throw new Error('Could not find Windows 64-bit archive in latest release')
+  const output = {
+    'win32-x64': await findWindows64BitRelease(assets),
+    'win32-x86': await findWindows32BitRelease(assets),
+    'darwin-x64': await findMacOS64BitRelease(assets),
+    'linux-x64': await findLinux64BitRelease(assets),
+    'linux-arm64': await findLinuxARM64Release(assets)
   }
-  output['win32-x64'] = await getDetailsForAsset(assets, windows64bit)
-
-  const windows32bit = assets.find(a => a.name.endsWith('-windows-x86.tar.gz'))
-  if (windows32bit == null) {
-    throw new Error('Could not find Windows 32-bit archive in latest release')
-  }
-  output['win32-x86'] = await getDetailsForAsset(assets, windows32bit)
-
-  const macOS = assets.find(a => a.name.endsWith('-macOS.tar.gz'))
-  if (macOS == null) {
-    throw new Error('Could not find macOS archive on latest release')
-  }
-  output['darwin-x64'] = await getDetailsForAsset(assets, macOS)
-
-  const linux64bit = assets.find(a => a.name.endsWith('-ubuntu.tar.gz'))
-  if (linux64bit == null) {
-    throw new Error('Could not find Linux archive on latest release')
-  }
-  output['linux-x64'] = await getDetailsForAsset(assets, linux64bit)
-
-  const linuxARM = assets.find(a => a.name.endsWith('-arm64.tar.gz'))
-  if (linuxARM == null) {
-    throw new Error('Could not find ARM64 archive on latest release')
-  }
-  output['linux-arm64'] = await getDetailsForAsset(assets, linuxARM)
 
   const fileContents = JSON.stringify(output, null, 2)
 
@@ -64,6 +40,46 @@ request(options, async (err, response, release) => {
     `Done! Don't forget to commit any changes and run the test suite again with \`npm i\` to confirm they pass!`
   )
 })
+
+function findWindows64BitRelease(assets) {
+  const asset = assets.find(a => a.name.endsWith('-windows-x64.tar.gz'))
+  if (asset == null) {
+    throw new Error('Could not find Windows 64-bit archive in latest release')
+  }
+  return getDetailsForAsset(assets, asset)
+}
+
+function findWindows32BitRelease(assets) {
+  const asset = assets.find(a => a.name.endsWith('-windows-x86.tar.gz'))
+  if (asset == null) {
+    throw new Error('Could not find Windows 32-bit archive in latest release')
+  }
+  return getDetailsForAsset(assets, asset)
+}
+
+function findMacOS64BitRelease(assets) {
+  const asset = assets.find(a => a.name.endsWith('-macOS.tar.gz'))
+  if (asset == null) {
+    throw new Error('Could not find MacOS 64-bit archive in latest release')
+  }
+  return getDetailsForAsset(assets, asset)
+}
+
+function findLinux64BitRelease(assets) {
+  const asset = assets.find(a => a.name.endsWith('-ubuntu.tar.gz'))
+  if (asset == null) {
+    throw new Error('Could not find Linux 64-bit archive in latest release')
+  }
+  return getDetailsForAsset(assets, asset)
+}
+
+function findLinuxARM64Release(assets) {
+  const asset = assets.find(a => a.name.endsWith('-arm64.tar.gz'))
+  if (asset == null) {
+    throw new Error('Could not find Linux ARM64 archive in latest release')
+  }
+  return getDetailsForAsset(assets, asset)
+}
 
 function downloadChecksum(url) {
   return new Promise((resolve, reject) => {
