@@ -1,9 +1,25 @@
 # Releases
 
+## Update Git
+
+The most important part of the release process is updating the embedded Git package. This can be done using this one-liner:
+
+```sh
+npm run update-embedded-git
+```
+
+This script:
+
+- retrieves the latest `dugite-native` release from the GitHub API
+- gets the checksums embedded in the release
+- generates the `script/embedded-git.json` payload to be used at install time
+
+## Publishing to NPM
+
 Releases are done to NPM, and are currently limited to the core team.
 
 ```sh
-# to ensure everything is up-to-date
+# to ensure everything is up-to-date and tests pass
 npm i
 # you might need to do a different sort of version bump here
 npm version minor
