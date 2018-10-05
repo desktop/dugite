@@ -1,7 +1,8 @@
 import { GitProcess, IGitResult } from '../lib'
 
 // NOTE: bump these versions to the latest stable releases
-export const gitVersion = process.platform === 'darwin' ? '2.19.1' : '2.19.0'
+export const gitVersion =
+  process.platform === 'darwin' || process.platform === 'linux' ? '2.19.1' : '2.19.0'
 export const gitLfsVersion = '2.5.2'
 
 const temp = require('temp').track()
