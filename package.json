@@ -45,7 +45,7 @@
     "@types/checksum": "^0.1.30",
     "@types/mkdirp": "^0.5.2",
     "@types/mocha": "^5.2.5",
-    "@types/node": "^10.11.7",
+    "@types/node": "^10.12.1",
     "@types/progress": "^2.0.1",
     "@types/request": "^2.47.1",
     "@types/rimraf": "2.0.2",
