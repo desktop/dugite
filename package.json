@@ -10,8 +10,8 @@
     "prepare": "npm run build && npm run test",
     "postpublish": "git push --follow-tags",
     "test": "npm run test:fast && npm run test:slow && npm run test:external",
-    "test:fast": "cross-env LOCAL_GIT_DIRECTORY=./git/ mocha -t 5000 --require ts-node/register test/fast/*.ts test/auth/*.ts",
-    "test:slow": "cross-env LOCAL_GIT_DIRECTORY=./git/ mocha -t 30000 --require ts-node/register test/slow/*.ts test/auth/*.ts",
+    "test:fast": "cross-env LOCAL_GIT_DIRECTORY=./git/ jest --detectOpenHandles --silent --config ./jest.fast.config.js",
+    "test:slow": "cross-env LOCAL_GIT_DIRECTORY=./git/ jest -t 30000 --silent --config ./jest.slow.config.js",
     "test:external": "mocha -t 30000 --require ts-node/register test/external/*.ts",
     "postinstall": "node ./script/download-git.js",
     "prettify": "prettier \"{examples,lib,script,test}/**/*.ts\" --write",
@@ -41,8 +41,8 @@
     "tar": "^4.4.6"
   },
   "devDependencies": {
-    "@types/chai": "^4.1.4",
     "@types/checksum": "^0.1.30",
+    "@types/jest": "^23.3.9",
     "@types/mkdirp": "^0.5.2",
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.11.7",
@@ -50,13 +50,12 @@
     "@types/request": "^2.47.1",
     "@types/rimraf": "2.0.2",
     "byline": "^5.0.0",
-    "chai": "^4.1.2",
-    "chai-as-promised": "^7.1.1",
     "cross-env": "^5.2.0",
     "find-git-exec": "0.0.1-alpha.2",
-    "mocha": "^5.2.0",
+    "jest": "^23.6.0",
     "prettier": "^1.14.3",
     "temp": "^0.8.3",
+    "ts-jest": "^23.10.4",
     "ts-node": "^7.0.1",
     "typescript": "^3.1.1"
   }
