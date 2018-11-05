@@ -38,7 +38,7 @@
     "progress": "^2.0.0",
     "request": "^2.88.0",
     "rimraf": "^2.5.4",
-    "tar": "^4.4.6"
+    "tar": "^4.4.7"
   },
   "devDependencies": {
     "@types/checksum": "^0.1.30",
