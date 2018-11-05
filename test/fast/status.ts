@@ -1,6 +1,3 @@
-import * as chai from 'chai'
-const expect = chai.expect
-
 import { GitProcess } from '../../lib'
 import { verify } from '../helpers'
 
@@ -26,8 +23,8 @@ describe('status', () => {
     )
 
     verify(result, r => {
-      expect(r.exitCode).to.equal(0)
-      expect(r.stdout).to.contain('README.md')
+      expect(r.exitCode).toBe(0)
+      expect(r.stdout).toContain('README.md')
     })
   })
 })
