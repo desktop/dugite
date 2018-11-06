@@ -22,7 +22,7 @@ node_js:
 cache:
   timeout: 600
   directories:
-    - $HOME/.dugite/
+    - '$HOME/.dugite/'
     - '$HOME/.npm'
 
 install:
