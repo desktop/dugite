@@ -1,7 +1,7 @@
 module.exports = {
   roots: ['<rootDir>/lib/', '<rootDir>/test/'],
   testMatch: ['**/test/fast/**/*-test.ts'],
-  setupFiles: ['<rootDir>/test/fast-setup.ts'],
+  setupTestFrameworkScriptFile: ['<rootDir>/test/fast-setup.ts'],
   collectCoverageFrom: ['lib/**/*.{js,ts}', '!**/node_modules/**', '!**/index.ts'],
   coverageReporters: ['text-summary', 'json'],
   globals: {
