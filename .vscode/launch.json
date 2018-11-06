@@ -1,55 +1,38 @@
 {
-    // Use IntelliSense to learn about possible Node.js debug attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "node",
-            "request": "launch",
-            "protocol": "inspector",
-            "name": "Run Mocha Test",
-            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
-            "args": [
-                "${file}",
-                "--no-timeouts",
-                "--colors",
-                "--require",
-                "ts-node/register"
-            ],
-            "env": {
-                "TS_NODE_PROJECT": "${workspaceRoot}/tsconfig.json",
-                "LOCAL_GIT_DIRECTORY": "${workspaceRoot}/git/"
-            },
-            "sourceMaps": true,
-            "smartStep": true,
-            "internalConsoleOptions": "openOnSessionStart",
-            "outputCapture": "std"
-        },
-        {
-            "type": "node",
-            "request": "launch",
-            "protocol": "inspector",
-            "name": "Watch Mocha Test",
-            "program": "${workspaceRoot}/node_modules/mocha/bin/_mocha",
-            "args": [
-                "${file}",
-                "--no-timeouts",
-                "--colors",
-                "--watch",
-                "--watch-extensions",
-                "ts",
-                "--require",
-                "ts-node/register"
-            ],
-            "env": {
-                "TS_NODE_PROJECT": "${workspaceRoot}/tsconfig.json",
-                "LOCAL_GIT_DIRECTORY": "${workspaceRoot}/git/"
-            },
-            "sourceMaps": true,
-            "smartStep": true,
-            "internalConsoleOptions": "openOnSessionStart",
-            "outputCapture": "std"
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Jest Fast Tests",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["--silent", "--config", "${workspaceFolder}/jest.fast.config.js"],
+      "console": "integratedTerminal",
+      "env": {
+        "LOCAL_GIT_DIRECTORY": "./git/"
+      },
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Jest Slow Tests",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["--silent", "--config", "${workspaceFolder}/jest.slow.config.js"],
+      "console": "integratedTerminal",
+      "env": {
+        "LOCAL_GIT_DIRECTORY": "./git/"
+      },
+      "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Jest External Tests",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["--silent", "--config", "${workspaceFolder}/jest.external.config.js"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen"
+    }
+  ]
 }

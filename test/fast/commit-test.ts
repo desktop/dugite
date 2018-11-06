@@ -1,6 +1,3 @@
-import * as chai from 'chai'
-const expect = chai.expect
-
 import { GitProcess } from '../../lib'
 import { verify } from '../helpers'
 
@@ -28,8 +25,8 @@ describe('commit', () => {
     const result = await GitProcess.exec(['commit', '-F', '-'], testRepoPath, { stdin: message })
 
     verify(result, r => {
-      expect(r.exitCode).to.equal(0)
-      expect(r.stdout).to.contain(message)
+      expect(r.exitCode).toBe(0)
+      expect(r.stdout).toContain(message)
     })
   })
 })

@@ -22,11 +22,11 @@ node_js:
 cache:
   timeout: 600
   directories:
-    - node_modules
-    - $HOME/.dugite/
+    - '$HOME/.dugite/'
+    - '$HOME/.npm'
 
 install:
-  - npm install
+  - npm ci
   - npm run build
   - npm run is-it-pretty
 

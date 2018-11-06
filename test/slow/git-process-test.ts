@@ -1,6 +1,3 @@
-import * as chai from 'chai'
-const expect = chai.expect
-
 import * as Fs from 'fs'
 import * as Path from 'path'
 
@@ -32,7 +29,7 @@ describe('git-process', () => {
       )
 
       verify(result, r => {
-        expect(r.exitCode).to.equal(128)
+        expect(r.exitCode).toBe(128)
       })
     })
 
@@ -47,10 +44,10 @@ describe('git-process', () => {
         options
       )
       verify(result, r => {
-        expect(r.exitCode).to.equal(128)
+        expect(r.exitCode).toBe(128)
       })
       const error = GitProcess.parseError(result.stderr)
-      expect(error).to.equal(GitError.HTTPSAuthenticationFailed)
+      expect(error).toBe(GitError.HTTPSAuthenticationFailed)
     })
 
     it('returns exit code when successful', async () => {
@@ -64,7 +61,7 @@ describe('git-process', () => {
         options
       )
       verify(result, r => {
-        expect(r.exitCode).to.equal(0)
+        expect(r.exitCode).toBe(0)
       })
     })
   })
@@ -85,7 +82,7 @@ describe('git-process', () => {
         testRepoPath
       )
       verify(addRemote, r => {
-        expect(r.exitCode).to.equal(0)
+        expect(r.exitCode).toBe(0)
       })
 
       const options = {
@@ -93,7 +90,7 @@ describe('git-process', () => {
       }
       const result = await GitProcess.exec(['fetch', 'origin'], testRepoPath, options)
       verify(result, r => {
-        expect(r.exitCode).to.equal(128)
+        expect(r.exitCode).toBe(128)
       })
     })
 
@@ -104,7 +101,7 @@ describe('git-process', () => {
         testRepoPath
       )
       verify(addRemote, r => {
-        expect(r.exitCode).to.equal(0)
+        expect(r.exitCode).toBe(0)
       })
 
       const options = {
@@ -112,10 +109,10 @@ describe('git-process', () => {
       }
       const result = await GitProcess.exec(['fetch', 'origin'], testRepoPath, options)
       verify(result, r => {
-        expect(r.exitCode).to.equal(128)
+        expect(r.exitCode).toBe(128)
       })
       const error = GitProcess.parseError(result.stderr)
-      expect(error).to.equal(GitError.HTTPSAuthenticationFailed)
+      expect(error).toBe(GitError.HTTPSAuthenticationFailed)
     })
 
     it('returns exit code when successful', async () => {
@@ -125,7 +122,7 @@ describe('git-process', () => {
         testRepoPath
       )
       verify(addRemote, r => {
-        expect(r.exitCode).to.equal(0)
+        expect(r.exitCode).toBe(0)
       })
 
       const options = {
@@ -133,7 +130,7 @@ describe('git-process', () => {
       }
       const result = await GitProcess.exec(['fetch', 'origin'], testRepoPath, options)
       verify(result, r => {
-        expect(r.exitCode).to.equal(0)
+        expect(r.exitCode).toBe(0)
       })
     })
   })
@@ -158,8 +155,8 @@ echo 'post-check out hook ran'`
 
       const result = await GitProcess.exec(['checkout', 'master'], testRepoPath)
       verify(result, r => {
-        expect(r.exitCode).to.equal(0)
-        expect(r.stderr).contains('post-check out hook ran')
+        expect(r.exitCode).toBe(0)
+        expect(r.stderr).toContain('post-check out hook ran')
       })
     })
   })

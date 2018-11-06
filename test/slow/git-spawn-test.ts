@@ -1,6 +1,3 @@
-import * as chai from 'chai'
-const expect = chai.expect
-
 import * as Fs from 'fs'
 import * as Path from 'path'
 
@@ -41,7 +38,7 @@ describe('GitProcess.spawn', () => {
   it('can launch git', async () => {
     const process = GitProcess.spawn(['--version'], __dirname)
     const result = await bufferOutput(process)
-    expect(result).to.contain(`git version ${gitVersion}`)
+    expect(result).toContain(`git version ${gitVersion}`)
   })
 
   it('returns expected exit codes', done => {

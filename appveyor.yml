@@ -11,8 +11,8 @@ environment:
     - nodejs_version: '10'
 
 cache:
-  - node_modules
   - '%USERPROFILE%\.dugite\'
+  - '%USERPROFILE%\.npm\'
 
 branches:
   only:
@@ -25,7 +25,7 @@ version: '{build}'
 
 install:
   - ps: Install-Product node $env:nodejs_version $env:platform
-  - npm install
+  - npm ci
   - npm run is-it-pretty
 
 build_script:
