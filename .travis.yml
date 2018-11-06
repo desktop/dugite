@@ -24,9 +24,10 @@ cache:
   directories:
     - node_modules
     - $HOME/.dugite/
+    - '$HOME/.npm'
 
 install:
-  - npm install
+  - npm ci
   - npm run build
   - npm run is-it-pretty
 
