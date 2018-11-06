@@ -11,7 +11,6 @@ environment:
     - nodejs_version: '10'
 
 cache:
-  - node_modules
   - '%USERPROFILE%\.dugite\'
   - '%USERPROFILE%\.npm\'
 
