@@ -177,8 +177,8 @@ describe('git-process', () => {
       const difference = (left: GitError[], right: GitError[]) =>
         left.filter(item => right.indexOf(item) === -1)
 
-      const errorCodes = Object.keys(GitError).map(key => (GitError as any)[key] as GitError)
-      const regexes = new Array<GitError>(...GitErrorRegexes.values())
+      const errorCodes = Object.keys(GitError).map((key: keyof typeof GitError) => GitError[key])
+      const regexes = [...GitErrorRegexes.values()]
 
       const errorCodesWithoutRegex = difference(errorCodes, regexes)
       const regexWithoutErrorCodes = difference(regexes, errorCodes)
