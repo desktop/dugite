@@ -50,108 +50,149 @@ export enum GitError {
 
 /** A mapping from regexes to the git error they identify. */
 
-export const GitErrorRegexes = new Map<string, GitError>([
+export const GitErrorRegexes = new Map<RegExp, GitError>([
   [
-    'ERROR: ([\\s\\S]+?)\\n+\\[EPOLICYKEYAGE\\]\\n+fatal: Could not read from remote repository.',
+    new RegExp(
+      'ERROR: ([\\s\\S]+?)\\n+\\[EPOLICYKEYAGE\\]\\n+fatal: Could not read from remote repository.'
+    ),
     GitError.SSHKeyAuditUnverified
   ],
-  ["fatal: Authentication failed for 'https://", GitError.HTTPSAuthenticationFailed],
-  ['fatal: Authentication failed', GitError.SSHAuthenticationFailed],
-  ['fatal: Could not read from remote repository.', GitError.SSHPermissionDenied],
-  ['The requested URL returned error: 403', GitError.HTTPSAuthenticationFailed],
-  ['fatal: The remote end hung up unexpectedly', GitError.RemoteDisconnection],
-  ["fatal: unable to access '(.+)': Failed to connect to (.+): Host is down", GitError.HostDown],
-  ['Failed to merge in the changes.', GitError.RebaseConflicts],
+  [new RegExp("fatal: Authentication failed for 'https://"), GitError.HTTPSAuthenticationFailed],
+  [new RegExp('fatal: Authentication failed'), GitError.SSHAuthenticationFailed],
+  [new RegExp('fatal: Could not read from remote repository.'), GitError.SSHPermissionDenied],
+  [new RegExp('The requested URL returned error: 403'), GitError.HTTPSAuthenticationFailed],
+  [new RegExp('fatal: The remote end hung up unexpectedly'), GitError.RemoteDisconnection],
   [
-    '(Merge conflict|Automatic merge failed; fix conflicts and then commit the result)',
+    new RegExp("fatal: unable to access '(.+)': Failed to connect to (.+): Host is down"),
+    GitError.HostDown
+  ],
+  [new RegExp('Failed to merge in the changes.'), GitError.RebaseConflicts],
+  [
+    new RegExp('(Merge conflict|Automatic merge failed; fix conflicts and then commit the result)'),
     GitError.MergeConflicts
   ],
-  ["fatal: repository '(.+)' not found", GitError.HTTPSRepositoryNotFound],
-  ['ERROR: Repository not found', GitError.SSHRepositoryNotFound],
+  [new RegExp("fatal: repository '(.+)' not found"), GitError.HTTPSRepositoryNotFound],
+  [new RegExp('ERROR: Repository not found'), GitError.SSHRepositoryNotFound],
   [
-    "\\((non-fast-forward|fetch first)\\)\nerror: failed to push some refs to '.*'",
+    new RegExp("\\((non-fast-forward|fetch first)\\)\nerror: failed to push some refs to '.*'"),
     GitError.PushNotFastForward
   ],
-  ["error: unable to delete '(.+)': remote ref does not exist", GitError.BranchDeletionFailed],
   [
-    '\\[remote rejected\\] (.+) \\(deletion of the current branch prohibited\\)',
+    new RegExp("error: unable to delete '(.+)': remote ref does not exist"),
+    GitError.BranchDeletionFailed
+  ],
+  [
+    new RegExp('\\[remote rejected\\] (.+) \\(deletion of the current branch prohibited\\)'),
     GitError.DefaultBranchDeletionFailed
   ],
   [
-    "error: could not revert .*\nhint: after resolving the conflicts, mark the corrected paths\nhint: with 'git add <paths>' or 'git rm <paths>'\nhint: and commit the result with 'git commit'",
+    new RegExp(
+      "error: could not revert .*\nhint: after resolving the conflicts, mark the corrected paths\nhint: with 'git add <paths>' or 'git rm <paths>'\nhint: and commit the result with 'git commit'"
+    ),
     GitError.RevertConflicts
   ],
   [
-    "Applying: .*\nNo changes - did you forget to use 'git add'\\?\nIf there is nothing left to stage, chances are that something else\n.*",
+    new RegExp(
+      "Applying: .*\nNo changes - did you forget to use 'git add'\\?\nIf there is nothing left to stage, chances are that something else\n.*"
+    ),
     GitError.EmptyRebasePatch
   ],
   [
-    'There are no candidates for (rebasing|merging) among the refs that you just fetched.\nGenerally this means that you provided a wildcard refspec which had no\nmatches on the remote end.',
+    new RegExp(
+      'There are no candidates for (rebasing|merging) among the refs that you just fetched.\nGenerally this means that you provided a wildcard refspec which had no\nmatches on the remote end.'
+    ),
     GitError.NoMatchingRemoteBranch
   ],
-  ['nothing to commit', GitError.NothingToCommit],
-  ["No submodule mapping found in .gitmodules for path '(.+)'", GitError.NoSubmoduleMapping],
+  [new RegExp('nothing to commit'), GitError.NothingToCommit],
   [
-    "fatal: repository '(.+)' does not exist\nfatal: clone of '.+' into submodule path '(.+)' failed",
+    new RegExp("No submodule mapping found in .gitmodules for path '(.+)'"),
+    GitError.NoSubmoduleMapping
+  ],
+  [
+    new RegExp(
+      "fatal: repository '(.+)' does not exist\nfatal: clone of '.+' into submodule path '(.+)' failed"
+    ),
     GitError.SubmoduleRepositoryDoesNotExist
   ],
   [
-    "Fetched in submodule path '(.+)', but it did not contain (.+). Direct fetching of that commit failed.",
+    new RegExp(
+      "Fetched in submodule path '(.+)', but it did not contain (.+). Direct fetching of that commit failed."
+    ),
     GitError.InvalidSubmoduleSHA
   ],
   [
-    "fatal: could not create work tree dir '(.+)'.*: Permission denied",
+    new RegExp("fatal: could not create work tree dir '(.+)'.*: Permission denied"),
     GitError.LocalPermissionDenied
   ],
-  ['merge: (.+) - not something we can merge', GitError.InvalidMerge],
-  ['invalid upstream (.+)', GitError.InvalidRebase],
+  [new RegExp('merge: (.+) - not something we can merge'), GitError.InvalidMerge],
+  [new RegExp('invalid upstream (.+)'), GitError.InvalidRebase],
   [
-    'fatal: Non-fast-forward commit does not make sense into an empty head',
+    new RegExp('fatal: Non-fast-forward commit does not make sense into an empty head'),
     GitError.NonFastForwardMergeIntoEmptyHead
   ],
   [
-    'error: (.+): (patch does not apply|already exists in working directory)',
+    new RegExp('error: (.+): (patch does not apply|already exists in working directory)'),
     GitError.PatchDoesNotApply
   ],
-  ["fatal: A branch named '(.+)' already exists.", GitError.BranchAlreadyExists],
-  ["fatal: bad revision '(.*)'", GitError.BadRevision],
+  [new RegExp("fatal: A branch named '(.+)' already exists."), GitError.BranchAlreadyExists],
+  [new RegExp("fatal: bad revision '(.*)'"), GitError.BadRevision],
   [
-    'fatal: [Nn]ot a git repository \\(or any of the parent directories\\): (.*)',
+    new RegExp('fatal: [Nn]ot a git repository \\(or any of the parent directories\\): (.*)'),
     GitError.NotAGitRepository
   ],
-  ['fatal: refusing to merge unrelated histories', GitError.CannotMergeUnrelatedHistories],
-  ['The .+ attribute should be .+ but is .+', GitError.LFSAttributeDoesNotMatch],
-  ['fatal: Branch rename failed', GitError.BranchRenameFailed],
-  ["fatal: Path '(.+)' does not exist .+", GitError.PathDoesNotExist],
-  ["fatal: Invalid object name '(.+)'.", GitError.InvalidObjectName],
-  ["fatal: .+: '(.+)' is outside repository", GitError.OutsideRepository],
   [
-    'Another git process seems to be running in this repository, e.g.',
+    new RegExp('fatal: refusing to merge unrelated histories'),
+    GitError.CannotMergeUnrelatedHistories
+  ],
+  [new RegExp('The .+ attribute should be .+ but is .+'), GitError.LFSAttributeDoesNotMatch],
+  [new RegExp('fatal: Branch rename failed'), GitError.BranchRenameFailed],
+  [new RegExp("fatal: Path '(.+)' does not exist .+"), GitError.PathDoesNotExist],
+  [new RegExp("fatal: Invalid object name '(.+)'."), GitError.InvalidObjectName],
+  [new RegExp("fatal: .+: '(.+)' is outside repository"), GitError.OutsideRepository],
+  [
+    new RegExp('Another git process seems to be running in this repository, e.g.'),
     GitError.LockFileAlreadyExists
   ],
-  ['fatal: There is no merge to abort', GitError.NoMergeToAbort],
+  [new RegExp('fatal: There is no merge to abort'), GitError.NoMergeToAbort],
   // GitHub-specific errors
-  ['error: GH001: ', GitError.PushWithFileSizeExceedingLimit],
-  ['error: GH002: ', GitError.HexBranchNameRejected],
-  ['error: GH003: Sorry, force-pushing to (.+) is not allowed.', GitError.ForcePushRejected],
-  ['error: GH005: Sorry, refs longer than (.+) bytes are not allowed', GitError.InvalidRefLength],
+  [new RegExp('error: GH001: '), GitError.PushWithFileSizeExceedingLimit],
+  [new RegExp('error: GH002: '), GitError.HexBranchNameRejected],
   [
-    'error: GH006: Protected branch update failed for (.+)\nremote: error: At least one approved review is required',
+    new RegExp('error: GH003: Sorry, force-pushing to (.+) is not allowed.'),
+    GitError.ForcePushRejected
+  ],
+  [
+    new RegExp('error: GH005: Sorry, refs longer than (.+) bytes are not allowed'),
+    GitError.InvalidRefLength
+  ],
+  [
+    new RegExp(
+      'error: GH006: Protected branch update failed for (.+)\nremote: error: At least one approved review is required'
+    ),
     GitError.ProtectedBranchRequiresReview
   ],
   [
-    'error: GH006: Protected branch update failed for (.+)\nremote: error: Cannot force-push to a protected branch',
+    new RegExp(
+      'error: GH006: Protected branch update failed for (.+)\nremote: error: Cannot force-push to a protected branch'
+    ),
     GitError.ProtectedBranchForcePush
   ],
   [
-    'error: GH006: Protected branch update failed for (.+)\nremote: error: Cannot delete a protected branch',
+    new RegExp(
+      'error: GH006: Protected branch update failed for (.+)\nremote: error: Cannot delete a protected branch'
+    ),
     GitError.ProtectedBranchDeleteRejected
   ],
   [
-    'error: GH006: Protected branch update failed for (.+).\nremote: error: Required status check "(.+)" is expected',
+    new RegExp(
+      'error: GH006: Protected branch update failed for (.+).\nremote: error: Required status check "(.+)" is expected'
+    ),
     GitError.ProtectedBranchRequiredStatus
   ],
-  ['error: GH007: Your push would publish a private email address.', GitError.PushWithPrivateEmail]
+  [
+    new RegExp('error: GH007: Your push would publish a private email address.'),
+    GitError.PushWithPrivateEmail
+  ]
 ])
 
 /**
