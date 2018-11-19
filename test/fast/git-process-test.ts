@@ -174,12 +174,11 @@ describe('git-process', () => {
 
   describe('errors', () => {
     it('each error code should have its corresponding regexp', () => {
-      const difference = (left: number[], right: number[]) =>
+      const difference = (left: GitError[], right: GitError[]) =>
         left.filter(item => right.indexOf(item) === -1)
-      const errorCodes = Object.keys(GitError)
-        .map(key => (GitError as any)[key])
-        .filter(ordinal => Number.isInteger(ordinal))
-      const regexes = Object.keys(GitErrorRegexes).map(key => (GitErrorRegexes as any)[key])
+
+      const errorCodes = Object.keys(GitError).map(key => (GitError as any)[key] as GitError)
+      const regexes = new Array<GitError>(...GitErrorRegexes.values())
 
       const errorCodesWithoutRegex = difference(errorCodes, regexes)
       const regexWithoutErrorCodes = difference(regexes, errorCodes)
