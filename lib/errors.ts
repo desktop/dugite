@@ -67,6 +67,7 @@ export const GitErrorRegexes = new Map<RegExp, GitError>([
     GitError.MergeConflicts
   ],
   [/fatal: repository '(.+)' not found/, GitError.HTTPSRepositoryNotFound],
+  [/fatal: repository '(.+)' does not exist/, GitError.HTTPSRepositoryNotFound],
   [/ERROR: Repository not found/, GitError.SSHRepositoryNotFound],
   [
     /\((non-fast-forward|fetch first)\)\nerror: failed to push some refs to '.*'/,

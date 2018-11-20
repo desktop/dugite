@@ -366,6 +366,13 @@ fatal: revert failed`
       expect(error).toBe(GitError.RevertConflicts)
     })
 
+    it('can parse repository not found error', () => {
+      const stderr = `fatal: repository 'gsgdgsgdsgsgsgdsgds' does not exist`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).toBe(GitError.HTTPSRepositoryNotFound)
+    })
+
     it('can parse is outside repository error', () => {
       const stderr = "fatal: /missing.txt: '/missing.txt' is outside repository\n"
 
