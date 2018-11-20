@@ -17,6 +17,7 @@ cache:
 branches:
   only:
     - master
+    - v2
     - /^greenkeeper/.*$/
 
 skip_tags: true
