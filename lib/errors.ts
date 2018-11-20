@@ -77,10 +77,7 @@ export const GitErrorRegexes = new Map<RegExp, GitError>([
     /\[remote rejected\] (.+) \(deletion of the current branch prohibited\)/,
     GitError.DefaultBranchDeletionFailed
   ],
-  [
-    /error: could not revert .*\nhint: after resolving the conflicts, mark the corrected paths\nhint: with 'git add <paths>' or 'git rm <paths>'\nhint: and commit the result with 'git commit'/,
-    GitError.RevertConflicts
-  ],
+  [/error: Reverting is not possible because you have unmerged files./, GitError.RevertConflicts],
   [
     /Applying: .*\nNo changes - did you forget to use 'git add'\?\nIf there is nothing left to stage, chances are that something else\n.*/,
     GitError.EmptyRebasePatch

@@ -356,6 +356,16 @@ remote: http://github.com/settings/emails`
       expect(error).toBe(GitError.InvalidObjectName)
     })
 
+    it('can parse revert failed error', () => {
+      const stderr = `error: Reverting is not possible because you have unmerged files.
+hint: Fix them up in the work tree, and then use 'git add/rm <file>',
+as appropriate, to mark resolution and make a commit.
+fatal: revert failed`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).toBe(GitError.RevertConflicts)
+    })
+
     it('can parse is outside repository error', () => {
       const stderr = "fatal: /missing.txt: '/missing.txt' is outside repository\n"
 
