@@ -1,12 +1,7 @@
 import * as fs from 'fs'
 
 import { execFile, spawn, ExecOptionsWithStringEncoding } from 'child_process'
-import {
-  GitError,
-  GitErrorRegexes,
-  RepositoryDoesNotExistErrorCode,
-  GitNotFoundErrorCode
-} from './errors'
+import { RepositoryDoesNotExistErrorCode, GitNotFoundErrorCode } from './errors'
 import { ChildProcess } from 'child_process'
 
 import { setupEnvironment } from './git-environment'
@@ -235,17 +230,6 @@ export class GitProcess {
         options.processCallback(spawnedProcess)
       }
     })
-  }
-
-  /** Try to parse an error type from stderr. */
-  public static parseError(stderr: string): GitError | null {
-    for (const [regex, error] of GitErrorRegexes) {
-      if (stderr.match(regex)) {
-        return error
-      }
-    }
-
-    return null
   }
 }
 

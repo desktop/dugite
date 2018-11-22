@@ -159,3 +159,14 @@ export const GitNotFoundErrorCode = 'git-not-found-error'
 
 /** The error code for when the path to a repository doesn't exist. */
 export const RepositoryDoesNotExistErrorCode = 'repository-does-not-exist-error'
+
+/** Try to parse an error type from stderr. */
+export function parseError(stderr: string): GitError | null {
+  for (const [regex, error] of GitErrorRegexes) {
+    if (stderr.match(regex)) {
+      return error
+    }
+  }
+
+  return null
+}
