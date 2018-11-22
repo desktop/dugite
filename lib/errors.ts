@@ -170,3 +170,160 @@ export function parseError(stderr: string): GitError | null {
 
   return null
 }
+
+/** The git errors which can be parsed from failed git commands. */
+enum OldGitError {
+  SSHKeyAuditUnverified,
+  SSHAuthenticationFailed,
+  SSHPermissionDenied,
+  HTTPSAuthenticationFailed,
+  RemoteDisconnection,
+  HostDown,
+  RebaseConflicts,
+  MergeConflicts,
+  HTTPSRepositoryNotFound,
+  SSHRepositoryNotFound,
+  PushNotFastForward,
+  BranchDeletionFailed,
+  DefaultBranchDeletionFailed,
+  RevertConflicts,
+  EmptyRebasePatch,
+  NoMatchingRemoteBranch,
+  NothingToCommit,
+  NoSubmoduleMapping,
+  SubmoduleRepositoryDoesNotExist,
+  InvalidSubmoduleSHA,
+  LocalPermissionDenied,
+  InvalidMerge,
+  InvalidRebase,
+  NonFastForwardMergeIntoEmptyHead,
+  PatchDoesNotApply,
+  BranchAlreadyExists,
+  BadRevision,
+  NotAGitRepository,
+  CannotMergeUnrelatedHistories,
+  LFSAttributeDoesNotMatch,
+  BranchRenameFailed,
+  PathDoesNotExist,
+  InvalidObjectName,
+  OutsideRepository,
+  LockFileAlreadyExists,
+  NoMergeToAbort,
+  // GitHub-specific error codes
+  PushWithFileSizeExceedingLimit,
+  HexBranchNameRejected,
+  ForcePushRejected,
+  InvalidRefLength,
+  ProtectedBranchRequiresReview,
+  ProtectedBranchForcePush,
+  ProtectedBranchDeleteRejected,
+  ProtectedBranchRequiredStatus,
+  PushWithPrivateEmail
+}
+
+/**
+ * Support function to migrate a stored numeric error codes raised by dugite v2
+ * to their string representation.
+ *
+ * @deprecated this will be removed in `dugite` 2.1
+ *
+ * @returns the new string-backed enum, or `null` if number does not match a
+ *          known error code
+ */
+export function migrateOldErrorCode(oldErrorCode: OldGitError): GitError | null {
+  switch (oldErrorCode) {
+    case OldGitError.SSHKeyAuditUnverified:
+      return GitError.SSHKeyAuditUnverified
+    case OldGitError.SSHAuthenticationFailed:
+      return GitError.SSHAuthenticationFailed
+    case OldGitError.SSHPermissionDenied:
+      return GitError.SSHPermissionDenied
+    case OldGitError.HTTPSAuthenticationFailed:
+      return GitError.HTTPSAuthenticationFailed
+    case OldGitError.RemoteDisconnection:
+      return GitError.RemoteDisconnection
+    case OldGitError.HostDown:
+      return GitError.HostDown
+    case OldGitError.RebaseConflicts:
+      return GitError.RebaseConflicts
+    case OldGitError.MergeConflicts:
+      return GitError.MergeConflicts
+    case OldGitError.HTTPSRepositoryNotFound:
+      return GitError.HTTPSRepositoryNotFound
+    case OldGitError.SSHRepositoryNotFound:
+      return GitError.SSHRepositoryNotFound
+    case OldGitError.PushNotFastForward:
+      return GitError.PushNotFastForward
+    case OldGitError.BranchDeletionFailed:
+      return GitError.BranchDeletionFailed
+    case OldGitError.DefaultBranchDeletionFailed:
+      return GitError.DefaultBranchDeletionFailed
+    case OldGitError.RevertConflicts:
+      return GitError.RevertConflicts
+    case OldGitError.EmptyRebasePatch:
+      return GitError.EmptyRebasePatch
+    case OldGitError.NoMatchingRemoteBranch:
+      return GitError.NoMatchingRemoteBranch
+    case OldGitError.NothingToCommit:
+      return GitError.NothingToCommit
+    case OldGitError.NoSubmoduleMapping:
+      return GitError.NoSubmoduleMapping
+    case OldGitError.SubmoduleRepositoryDoesNotExist:
+      return GitError.SubmoduleRepositoryDoesNotExist
+    case OldGitError.InvalidSubmoduleSHA:
+      return GitError.InvalidSubmoduleSHA
+    case OldGitError.LocalPermissionDenied:
+      return GitError.LocalPermissionDenied
+    case OldGitError.InvalidMerge:
+      return GitError.InvalidMerge
+    case OldGitError.InvalidRebase:
+      return GitError.InvalidRebase
+    case OldGitError.NonFastForwardMergeIntoEmptyHead:
+      return GitError.NonFastForwardMergeIntoEmptyHead
+    case OldGitError.PatchDoesNotApply:
+      return GitError.PatchDoesNotApply
+    case OldGitError.BranchAlreadyExists:
+      return GitError.BranchAlreadyExists
+    case OldGitError.BadRevision:
+      return GitError.BadRevision
+    case OldGitError.NotAGitRepository:
+      return GitError.NotAGitRepository
+    case OldGitError.CannotMergeUnrelatedHistories:
+      return GitError.CannotMergeUnrelatedHistories
+    case OldGitError.LFSAttributeDoesNotMatch:
+      return GitError.LFSAttributeDoesNotMatch
+    case OldGitError.BranchRenameFailed:
+      return GitError.BranchRenameFailed
+    case OldGitError.PathDoesNotExist:
+      return GitError.PathDoesNotExist
+    case OldGitError.InvalidObjectName:
+      return GitError.InvalidObjectName
+    case OldGitError.OutsideRepository:
+      return GitError.OutsideRepository
+    case OldGitError.LockFileAlreadyExists:
+      return GitError.LockFileAlreadyExists
+    case OldGitError.NoMergeToAbort:
+      return GitError.NoMergeToAbort
+    // GitHub-specific error codes
+    case OldGitError.PushWithFileSizeExceedingLimit:
+      return GitError.PushWithFileSizeExceedingLimit
+    case OldGitError.HexBranchNameRejected:
+      return GitError.HexBranchNameRejected
+    case OldGitError.ForcePushRejected:
+      return GitError.ForcePushRejected
+    case OldGitError.InvalidRefLength:
+      return GitError.InvalidRefLength
+    case OldGitError.ProtectedBranchRequiresReview:
+      return GitError.ProtectedBranchRequiresReview
+    case OldGitError.ProtectedBranchForcePush:
+      return GitError.ProtectedBranchForcePush
+    case OldGitError.ProtectedBranchDeleteRejected:
+      return GitError.ProtectedBranchDeleteRejected
+    case OldGitError.ProtectedBranchRequiredStatus:
+      return GitError.ProtectedBranchRequiredStatus
+    case OldGitError.PushWithPrivateEmail:
+      return GitError.PushWithPrivateEmail
+    default:
+      return null
+  }
+}
