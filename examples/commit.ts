@@ -1,4 +1,4 @@
-import { GitProcess, GitError, IGitExecutionOptions, parseError } from '../lib/'
+import { GitProcess, parseError } from '../lib/'
 
 // for readability, let's alias this
 const git = GitProcess.exec
