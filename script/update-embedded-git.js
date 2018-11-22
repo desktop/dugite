@@ -36,9 +36,12 @@ request(options, async (err, response, release) => {
 
   fs.writeFileSync(embeddedGitPath, fileContents, 'utf8')
 
-  console.log(
-    `Done! Don't forget to commit any changes and run the test suite again with \`npm i\` to confirm they pass!`
-  )
+  console.log(`Done!`)
+  console.log()
+  console.log('Next you should prepare a new release:')
+  console.log(`- commit any changes`)
+  console.log(`- update the installed package with \`npm i\``)
+  console.log(`- run the test suite with \`npm test\``)
 })
 
 function findWindows64BitRelease(assets) {
