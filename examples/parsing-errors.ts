@@ -1,4 +1,4 @@
-import { GitProcess, GitError } from '../lib/'
+import { GitProcess, GitError, parseError } from '../lib/'
 
 async function getError() {
   const branch = 'master'
@@ -6,7 +6,7 @@ async function getError() {
 
   const result = await GitProcess.exec(['pull', 'origin', branch], path)
   if (result.exitCode !== 0) {
-    const error = GitProcess.parseError(result.stderr)
+    const error = parseError(result.stderr)
     if (error) {
       if (error === GitError.HTTPSAuthenticationFailed) {
         // invalid credentials
