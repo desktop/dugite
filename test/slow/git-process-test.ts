@@ -1,7 +1,7 @@
 import * as Fs from 'fs'
 import * as Path from 'path'
 
-import { GitProcess, GitError } from '../../lib'
+import { GitProcess, GitError, parseError } from '../../lib'
 import { initialize, verify } from '../helpers'
 import { setupAskPass, setupNoAuth } from './auth'
 
@@ -46,7 +46,7 @@ describe('git-process', () => {
       verify(result, r => {
         expect(r.exitCode).toBe(128)
       })
-      const error = GitProcess.parseError(result.stderr)
+      const error = parseError(result.stderr)
       expect(error).toBe(GitError.HTTPSAuthenticationFailed)
     })
 
@@ -111,7 +111,7 @@ describe('git-process', () => {
       verify(result, r => {
         expect(r.exitCode).toBe(128)
       })
-      const error = GitProcess.parseError(result.stderr)
+      const error = parseError(result.stderr)
       expect(error).toBe(GitError.HTTPSAuthenticationFailed)
     })
 
