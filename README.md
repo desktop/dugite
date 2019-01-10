@@ -11,7 +11,7 @@ The source is in TypeScript, but can be consumed by any JavaScript  application.
 Add it to your project:
 
 ```
-> npm install dugite --save
+> npm install dugite
 ```
 
 Then reference it in your application:
