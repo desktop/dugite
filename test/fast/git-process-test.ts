@@ -406,7 +406,7 @@ remove the file manually to continue.`
         'error: Your local changes to the following files would be overwritten by checkout:\n'
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.NoMergeToAbort)
+      expect(error).toBe(GitError.LocalChangesOverwritten)
     })
   })
 })
