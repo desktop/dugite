@@ -15,7 +15,7 @@
     "test:external": "jest --runInBand --silent --config ./jest.external.config.js",
     "postinstall": "node ./script/download-git.js",
     "prettify": "prettier \"{examples,lib,script,test}/**/*.ts\" --write",
-    "is-it-pretty": "prettier \"{examples,lib,script,test}/**/*.ts\" --list-different",
+    "is-it-pretty": "prettier --check \"{examples,lib,script,test}/**/*.ts\"",
     "update-embedded-git": "node ./script/update-embedded-git.js"
   },
   "engines": {
