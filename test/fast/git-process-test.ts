@@ -400,5 +400,13 @@ remove the file manually to continue.`
       const error = GitProcess.parseError(stderr)
       expect(error).toBe(GitError.NoExistingRemoteBranch)
     })
+
+    it('can parse the local files overwritten error', () => {
+      const stderr =
+        'error: Your local changes to the following files would be overwritten by checkout:\n'
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).toBe(GitError.LocalChangesOverwritten)
+    })
   })
 })
