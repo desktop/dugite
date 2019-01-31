@@ -105,7 +105,7 @@ export const GitErrorRegexes = {
   'Another git process seems to be running in this repository, e.g.':
     GitError.LockFileAlreadyExists,
   'fatal: There is no merge to abort': GitError.NoMergeToAbort,
-  'error: Your local changes to the following files would be overwritten by checkout:':
+  'error: Your (?:local changes to the following|following untracked working tree) files would be overwritten by checkout:':
     GitError.LocalChangesOverwritten,
   // GitHub-specific errors
   'error: GH001: ': GitError.PushWithFileSizeExceedingLimit,
