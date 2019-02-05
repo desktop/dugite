@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@types/checksum": "^0.1.30",
-    "@types/jest": "^23.3.9",
+    "@types/jest": "^24.0.0",
     "@types/mkdirp": "^0.5.2",
     "@types/node": "^10.12.15",
     "@types/progress": "^2.0.1",
