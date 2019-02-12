@@ -1,10 +1,8 @@
 # Dugite - JS bindings for Git
 
-[![Greenkeeper badge](https://badges.greenkeeper.io/desktop/dugite.svg)](https://greenkeeper.io/)
-
 This project provides bindings for Node applications to interact with Git repositories, using the same command line interface that core Git offers.
 
-The source is in TypeScript, but can be consumed by any JavaScript  application.
+The source is in TypeScript, but can be consumed by any JavaScript application.
 
 ### Getting Started
 
