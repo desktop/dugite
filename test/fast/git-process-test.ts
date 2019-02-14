@@ -402,10 +402,16 @@ remove the file manually to continue.`
     })
 
     it('can parse the local files overwritten error', () => {
-      const stderr =
+      let stderr =
         'error: Your local changes to the following files would be overwritten by checkout:\n'
 
-      const error = GitProcess.parseError(stderr)
+      let error = GitProcess.parseError(stderr)
+      expect(error).toBe(GitError.LocalChangesOverwritten)
+
+      stderr =
+        'error: The following untracked working tree files would be overwritten by checkout:\n'
+
+      error = GitProcess.parseError(stderr)
       expect(error).toBe(GitError.LocalChangesOverwritten)
     })
   })
