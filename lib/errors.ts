@@ -76,7 +76,7 @@ export const GitErrorRegexes = {
     GitError.EmptyRebasePatch,
   'There are no candidates for (rebasing|merging) among the refs that you just fetched.\nGenerally this means that you provided a wildcard refspec which had no\nmatches on the remote end.':
     GitError.NoMatchingRemoteBranch,
-  "Your configuration specifies to merge with the ref '(.+)' from the remote, but no such ref was fetched.":
+  "Your configuration specifies to merge with the ref '(.+)'\nfrom the remote, but no such ref was fetched.":
     GitError.NoExistingRemoteBranch,
   'nothing to commit': GitError.NothingToCommit,
   "No submodule mapping found in .gitmodules for path '(.+)'": GitError.NoSubmoduleMapping,
