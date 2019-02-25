@@ -395,7 +395,7 @@ remove the file manually to continue.`
 
     it('can parse the pulling non-existent remote branch error', () => {
       const stderr =
-        "Your configuration specifies to merge with the ref 'refs/heads/tierninho-patch-1' from the remote, but no such ref was fetched.\n"
+        "Your configuration specifies to merge with the ref 'refs/heads/tierninho-patch-1'\nfrom the remote, but no such ref was fetched.\n"
 
       const error = GitProcess.parseError(stderr)
       expect(error).toBe(GitError.NoExistingRemoteBranch)
