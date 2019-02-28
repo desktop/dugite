@@ -38,6 +38,7 @@ export enum GitError {
   LockFileAlreadyExists,
   NoMergeToAbort,
   LocalChangesOverwritten,
+  UnresolvedConflicts,
   // GitHub-specific error codes
   PushWithFileSizeExceedingLimit,
   HexBranchNameRejected,
@@ -107,6 +108,8 @@ export const GitErrorRegexes = {
   'fatal: There is no merge to abort': GitError.NoMergeToAbort,
   'error: (?:Your local changes to the following|The following untracked working tree) files would be overwritten by checkout:':
     GitError.LocalChangesOverwritten,
+  'You must edit all merge conflicts and then\nmark them as resolved using git add':
+    GitError.UnresolvedConflicts,
   // GitHub-specific errors
   'error: GH001: ': GitError.PushWithFileSizeExceedingLimit,
   'error: GH002: ': GitError.HexBranchNameRejected,
