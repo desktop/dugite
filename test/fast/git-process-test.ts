@@ -414,5 +414,14 @@ remove the file manually to continue.`
       error = GitProcess.parseError(stderr)
       expect(error).toBe(GitError.LocalChangesOverwritten)
     })
+
+    it('can parse the unresovled conflicts error', () => {
+      const stderr = `2-simple-rebase-conflict/LICENSE.md: needs merge
+You must edit all merge conflicts and then
+mark them as resolved using git add`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).toBe(GitError.UnresolvedConflicts)
+    })
   })
 })
