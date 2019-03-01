@@ -423,5 +423,12 @@ mark them as resolved using git add`
       const error = GitProcess.parseError(stderr)
       expect(error).toBe(GitError.UnresolvedConflicts)
     })
+
+    it('can parse the could not resolve host error', () => {
+      const stderr = `"Cloning into '/cloneablepath/'... fatal: unable to access 'https://github.com/Daniel-McCarthy/dugite.git/': Could not resolve host: github.com"`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).toBe(GitError.HostDown)
+    })
   })
 })
