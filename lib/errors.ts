@@ -61,7 +61,7 @@ export const GitErrorRegexes = {
   'The requested URL returned error: 403': GitError.HTTPSAuthenticationFailed,
   'fatal: The remote end hung up unexpectedly': GitError.RemoteDisconnection,
   "fatal: unable to access '(.+)': Failed to connect to (.+): Host is down": GitError.HostDown,
-  "Cloning into '(.+)'...↵fatal: unable to access '(.+)': Could not resolve host: (.+)↵":
+  "Cloning into '(.+)'...\nfatal: unable to access '(.+)': Could not resolve host: (.+)\n":
     GitError.HostDown,
   'Failed to merge in the changes.': GitError.RebaseConflicts,
   '(Merge conflict|Automatic merge failed; fix conflicts and then commit the result)':
