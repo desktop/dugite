@@ -6,10 +6,10 @@
   "typings": "./build/lib/index.d.ts",
   "scripts": {
     "clean": "rimraf build",
-    "build": "npm run clean && tsc -p ./tsconfig.json && tsc -p ./examples/tsconfig.json",
-    "prepack": "npm run build && npm run test",
+    "build": "yarn run clean && tsc -p ./tsconfig.json && tsc -p ./examples/tsconfig.json",
+    "prepack": "yarn run build && yarn run test",
     "postpublish": "git push --follow-tags",
-    "test": "npm run test:fast && npm run test:slow && npm run test:external",
+    "test": "yarn run test:fast && yarn run test:slow && yarn run test:external",
     "test:fast": "cross-env LOCAL_GIT_DIRECTORY=./git/ jest --runInBand --silent --config ./jest.fast.config.js",
     "test:slow": "cross-env LOCAL_GIT_DIRECTORY=./git/ jest --runInBand --silent --config ./jest.slow.config.js",
     "test:external": "jest --runInBand --silent --config ./jest.external.config.js",

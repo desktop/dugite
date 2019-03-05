@@ -12,7 +12,7 @@ const maximumStringSize = 268435441
 function bufferOutput(process: ChildProcess, failPromiseWhenLengthExceeded: boolean = true) {
   return new Promise<string>((resolve, reject) => {
     const stdout: Array<Buffer> = []
-    process.stdout.on('data', chunk => {
+    process.stdout!.on('data', chunk => {
       if (chunk instanceof Buffer) {
         stdout.push(chunk)
       } else {

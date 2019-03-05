@@ -228,7 +228,7 @@ export class GitProcess {
 
       if (options && options.stdin !== undefined) {
         // See https://github.com/nodejs/node/blob/7b5ffa46fe4d2868c1662694da06eb55ec744bde/test/parallel/test-stdin-pipe-large.js
-        spawnedProcess.stdin.end(options.stdin, options.stdinEncoding)
+        spawnedProcess.stdin!.end(options.stdin, options.stdinEncoding)
       }
 
       if (options && options.processCallback) {
@@ -278,7 +278,7 @@ export class GitProcess {
  * See https://github.com/desktop/desktop/pull/4027#issuecomment-366213276
  */
 function ignoreClosedInputStream(process: ChildProcess) {
-  process.stdin.on('error', err => {
+  process.stdin!.on('error', err => {
     const code = (err as ErrorWithCode).code
 
     // Is the error one that we'd expect from the input stream being
@@ -297,7 +297,7 @@ function ignoreClosedInputStream(process: ChildProcess) {
     //
     // "For all EventEmitter objects, if an 'error' event handler is not
     //  provided, the error will be thrown"
-    if (process.stdin.listeners('error').length <= 1) {
+    if (process.stdin!.listeners('error').length <= 1) {
       throw err
     }
   })
