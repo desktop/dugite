@@ -22,7 +22,7 @@ Releases are done to NPM, and are currently limited to the core team.
 # to ensure everything is up-to-date and tests pass
 yarn
 # you might need to do a different sort of version bump here
-yarn version minor
+yarn version
 # this will also run the test suite and fail if any errors found
 yarn publish
 # ensure the version bump is published too
