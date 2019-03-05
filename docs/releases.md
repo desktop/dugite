@@ -5,7 +5,7 @@
 The most important part of the release process is updating the embedded Git package. This can be done using this one-liner:
 
 ```sh
-npm run update-embedded-git
+yarn update-embedded-git
 ```
 
 This script:
@@ -20,11 +20,11 @@ Releases are done to NPM, and are currently limited to the core team.
 
 ```sh
 # to ensure everything is up-to-date and tests pass
-npm i
+yarn
 # you might need to do a different sort of version bump here
-npm version minor
+yarn version minor
 # this will also run the test suite and fail if any errors found
-npm publish
+yarn publish
 # ensure the version bump is published too
 git push origin master
 # as well as the new tag

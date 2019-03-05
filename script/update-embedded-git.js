@@ -40,8 +40,8 @@ request(options, async (err, response, release) => {
   console.log()
   console.log('Next you should prepare a new release:')
   console.log(`- commit any changes`)
-  console.log(`- update the installed package with \`npm i\``)
-  console.log(`- run the test suite with \`npm test\``)
+  console.log(`- update the installed package with \`yarn\``)
+  console.log(`- run the test suite with \`yarn test\``)
 })
 
 function findWindows64BitRelease(assets) {
