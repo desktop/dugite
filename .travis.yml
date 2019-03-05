@@ -28,9 +28,9 @@ cache:
     - '$HOME/.npm'
 
 install:
-  - npm ci
-  - npm run build
-  - npm run is-it-pretty
+  - yarn install
+  - yarn build
+  - yarn is-it-pretty
 
 script:
-  - TEST=1 npm test
+  - TEST=1 yarn test

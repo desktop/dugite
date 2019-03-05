@@ -27,12 +27,12 @@ version: '{build}'
 
 install:
   - ps: Install-Product node $env:nodejs_version $env:platform
-  - npm ci
-  - npm run is-it-pretty
+  - yarn install
+  - yarn is-it-pretty
 
 build_script:
-  - npm run build
+  - yarn build
 
 test_script:
   - set TEST=1
-  - npm test
+  - yarn test
