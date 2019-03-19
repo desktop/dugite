@@ -39,6 +39,7 @@ export enum GitError {
   NoMergeToAbort,
   LocalChangesOverwritten,
   UnresolvedConflicts,
+  DirtyIndexCannotApplyPatches,
   // GitHub-specific error codes
   PushWithFileSizeExceedingLimit,
   HexBranchNameRejected,
@@ -112,6 +113,7 @@ export const GitErrorRegexes = {
     GitError.LocalChangesOverwritten,
   'You must edit all merge conflicts and then\nmark them as resolved using git add':
     GitError.UnresolvedConflicts,
+  'fatal: Dirty index: cannot apply patches': GitError.DirtyIndexCannotApplyPatches,
   // GitHub-specific errors
   'error: GH001: ': GitError.PushWithFileSizeExceedingLimit,
   'error: GH002: ': GitError.HexBranchNameRejected,
