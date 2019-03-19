@@ -430,5 +430,12 @@ mark them as resolved using git add`
       const error = GitProcess.parseError(stderr)
       expect(error).toBe(GitError.HostDown)
     })
+
+    it('can parse dirty index error', () => {
+      const stderr = `fatal: Dirty index: cannot apply patches (dirty: .DS_Store TestWebAppProject/Controllers/HomeController.cs sdfsd)`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).toBe(GitError.DirtyIndexCannotApplyPatches)
+    })
   })
 })
