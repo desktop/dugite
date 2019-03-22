@@ -1,6 +1,6 @@
 # Dugite - JS bindings for Git
 
-This project provides bindings for Node applications to interact with Git repositories, using the same command line interface that core Git offers.
+This project provides bindings for Node applications to interact with Git repositories, using the same command line interface that core Git offers. Development is primarily driven by Git-related projects at GitHub such as [GitHub Desktop](https://github.com/desktop/desktop).
 
 The source is in TypeScript, but can be consumed by any JavaScript application.
 
