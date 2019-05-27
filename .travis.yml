@@ -13,7 +13,6 @@ branches:
   only:
     - master
     - v2
-    - /^greenkeeper/.*$/
 
 language: node_js
 node_js:
