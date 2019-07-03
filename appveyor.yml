@@ -20,6 +20,7 @@ branches:
     - master
     - v2
     - /^greenkeeper/.*$/
+    - /releases\/.*/
 
 skip_tags: true
 
