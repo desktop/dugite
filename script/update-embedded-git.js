@@ -1,9 +1,10 @@
-const request = require('request')
+const got = require('got')
 const fs = require('fs')
 const path = require('path')
 
+const url = `https://api.github.com/repos/desktop/dugite-native/releases/latest`
+
 const options = {
-  url: `https://api.github.com/repos/desktop/dugite-native/releases/latest`,
   headers: {
     Accept: 'application/json',
     'User-Agent': 'dugite'
@@ -12,7 +13,7 @@ const options = {
   json: true
 }
 
-request(options, async (err, response, release) => {
+got(url, options, async (err, response, release) => {
   if (err) {
     console.error('Unable to get latest release', err)
     return
@@ -84,10 +85,9 @@ function findLinuxARM64Release(assets) {
   return getDetailsForAsset(assets, asset)
 }
 
-function downloadChecksum(url) {
+function downloadChecksum(csUrl) {
   return new Promise((resolve, reject) => {
     const options = {
-      url,
       headers: {
         Accept: 'application/octet-stream',
         'User-Agent': 'dugite-native'
@@ -95,7 +95,7 @@ function downloadChecksum(url) {
       secureProtocol: 'TLSv1_2_method'
     }
 
-    request(options, (err, response, body) => {
+    got(csUrl, options, (err, response, body) => {
       if (err) {
         reject(err)
         return
