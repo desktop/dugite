@@ -44,7 +44,7 @@
     "@types/checksum": "^0.1.30",
     "@types/jest": "^24.0.0",
     "@types/mkdirp": "^0.5.2",
-    "@types/node": "^11.9.0",
+    "@types/node": "^12.6.2",
     "@types/progress": "^2.0.1",
     "@types/request": "^2.47.1",
     "@types/rimraf": "2.0.2",
