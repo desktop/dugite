@@ -13,14 +13,13 @@ branches:
   only:
     - master
     - v2
-    - /^greenkeeper/.*$/
     - /releases\/.*/
 
 language: node_js
 node_js:
   - '8'
   - '10'
-  - '11'
+  - '12'
 
 cache:
   timeout: 600
