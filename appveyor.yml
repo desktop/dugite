@@ -19,6 +19,7 @@ branches:
   only:
     - master
     - v2
+    - /releases\/.*/
 
 skip_tags: true
 

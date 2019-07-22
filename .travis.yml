@@ -13,6 +13,7 @@ branches:
   only:
     - master
     - v2
+    - /releases\/.*/
 
 language: node_js
 node_js:
