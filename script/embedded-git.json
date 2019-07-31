@@ -9,6 +9,11 @@
     "url": "https://github.com/desktop/dugite-native/releases/download/v2.21.0/dugite-native-v2.21.0-954b7fe-windows-x86.tar.gz",
     "checksum": "79183f337de97ff01cfaff5f12bbe6201a08ba63802c01f74c524128eeca7a4f"
   },
+  "win32-arm64": {
+    "name": "dugite-native-v2.21.0-954b7fe-windows-x86.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.21.0/dugite-native-v2.21.0-954b7fe-windows-x86.tar.gz",
+    "checksum": "79183f337de97ff01cfaff5f12bbe6201a08ba63802c01f74c524128eeca7a4f"
+  },
   "darwin-x64": {
     "name": "dugite-native-v2.21.0-954b7fe-macOS.tar.gz",
     "url": "https://github.com/desktop/dugite-native/releases/download/v2.21.0/dugite-native-v2.21.0-954b7fe-macOS.tar.gz",

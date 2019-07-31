@@ -14,7 +14,8 @@ function getConfig() {
     tempFile: ''
   }
 
-  const key = `${process.platform}-${os.arch()}`
+  const targetArch = process.env.DUGITE_DOWNLOAD_ARCH || os.arch()
+  const key = `${process.platform}-${targetArch}`
 
   const entry = embeddedGit[key]
 

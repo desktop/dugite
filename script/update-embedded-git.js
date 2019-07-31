@@ -21,6 +21,7 @@ got(url, options).then(
     const output = {
       'win32-x64': await findWindows64BitRelease(assets),
       'win32-ia32': await findWindows32BitRelease(assets),
+      'win32-arm64': await findWindows32BitRelease(assets),
       'darwin-x64': await findMacOS64BitRelease(assets),
       'linux-x64': await findLinux64BitRelease(assets),
       'linux-arm64': await findLinuxARM64Release(assets)
