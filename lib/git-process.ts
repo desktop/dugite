@@ -278,6 +278,13 @@ export class GitProcess {
  * See https://github.com/desktop/desktop/pull/4027#issuecomment-366213276
  */
 function ignoreClosedInputStream(process: ChildProcess) {
+  // If Node fails to spawn due to a runtime error (EACCESS, EAGAIN, etc)
+  // it will not setup the stdio streams, see
+  // https://github.com/nodejs/node/blob/v10.16.0/lib/internal/child_process.js#L342-L354
+  // The error itself will be emitted asynchronously but we're still in
+  // the synchronous path so if we attempts to call `.on` on `.stdin`
+  // (which is undefined) that error would be thrown before the underlying
+  // error.
   if (!process.stdin) {
     return
   }
