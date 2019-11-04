@@ -278,6 +278,9 @@ export class GitProcess {
  * See https://github.com/desktop/desktop/pull/4027#issuecomment-366213276
  */
 function ignoreClosedInputStream(process: ChildProcess) {
+  if (!process.stdin) {
+    return
+  }
   process.stdin.on('error', err => {
     const code = (err as ErrorWithCode).code
 
