@@ -48,7 +48,8 @@ export enum GitError {
   ProtectedBranchForcePush,
   ProtectedBranchDeleteRejected,
   ProtectedBranchRequiredStatus,
-  PushWithPrivateEmail
+  PushWithPrivateEmail,
+  ConfigLockFileAlreadyExists
 }
 
 /** A mapping from regexes to the git error they identify. */
@@ -125,7 +126,8 @@ export const GitErrorRegexes = {
     GitError.ProtectedBranchDeleteRejected,
   'error: GH006: Protected branch update failed for (.+).\nremote: error: Required status check "(.+)" is expected':
     GitError.ProtectedBranchRequiredStatus,
-  'error: GH007: Your push would publish a private email address.': GitError.PushWithPrivateEmail
+  'error: GH007: Your push would publish a private email address.': GitError.PushWithPrivateEmail,
+  'could not lock config file (.+): File exists': GitError.ConfigLockFileAlreadyExists
 }
 
 /**
