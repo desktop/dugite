@@ -127,7 +127,7 @@ export const GitErrorRegexes = {
   'error: GH006: Protected branch update failed for (.+).\nremote: error: Required status check "(.+)" is expected':
     GitError.ProtectedBranchRequiredStatus,
   'error: GH007: Your push would publish a private email address.': GitError.PushWithPrivateEmail,
-  'could not lock config file (.+): File exists': GitError.ConfigLockFileAlreadyExists
+  'error: could not lock config file (.+): File exists': GitError.ConfigLockFileAlreadyExists
 }
 
 /**
