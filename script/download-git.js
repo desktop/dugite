@@ -1,6 +1,6 @@
 const fs = require('fs')
 
-const request = require('request')
+const got = require('got')
 const ProgressBar = require('progress')
 const mkdirp = require('mkdirp')
 const checksum = require('checksum')
@@ -20,8 +20,7 @@ function extract(source, callback) {
       callback()
     })
 
-  fs
-    .createReadStream(source)
+  fs.createReadStream(source)
     .on('error', function(error) {
       callback(error)
     })
@@ -54,7 +53,6 @@ const downloadAndUnpack = () => {
   console.log(`Downloading Git from: ${config.source}`)
 
   const options = {
-    url: config.source,
     headers: {
       Accept: 'application/octet-stream',
       'User-Agent': 'dugite'
@@ -62,11 +60,11 @@ const downloadAndUnpack = () => {
     secureProtocol: 'TLSv1_2_method'
   }
 
-  const req = request.get(options)
+  const client = got.stream(config.source, options)
 
-  req.pipe(fs.createWriteStream(config.tempFile))
+  client.pipe(fs.createWriteStream(config.tempFile))
 
-  req.on('error', function(error) {
+  client.on('error', function(error) {
     if (error.code === 'ETIMEDOUT') {
       console.log(
         `A timeout has occurred while downloading '${config.source}' - check ` +
@@ -80,7 +78,7 @@ const downloadAndUnpack = () => {
     process.exit(1)
   })
 
-  req.on('response', function(res) {
+  client.on('response', function(res) {
     if (res.statusCode !== 200) {
       console.log(`Non-200 response returned from ${config.source} - (${res.statusCode})`)
       process.exit(1)

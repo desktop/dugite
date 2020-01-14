@@ -1,6 +1,6 @@
 {
   "name": "dugite",
-  "version": "1.87.2",
+  "version": "1.88.0-beta.0",
   "description": "Elegant bindings for Git",
   "main": "./build/lib/index.js",
   "typings": "./build/lib/index.d.ts",
@@ -34,19 +34,19 @@
   "homepage": "https://github.com/desktop/dugite#readme",
   "dependencies": {
     "checksum": "^0.1.1",
+    "got": "^9.6.0",
     "mkdirp": "^0.5.1",
     "progress": "^2.0.3",
-    "request": "^2.88.0",
     "rimraf": "^2.5.4",
     "tar": "^4.4.7"
   },
   "devDependencies": {
     "@types/checksum": "^0.1.30",
+    "@types/got": "^9.6.0",
     "@types/jest": "^24.0.0",
     "@types/mkdirp": "^0.5.2",
     "@types/node": "^11.9.0",
     "@types/progress": "^2.0.1",
-    "@types/request": "^2.47.1",
     "@types/rimraf": "2.0.2",
     "byline": "^5.0.0",
     "cross-env": "^5.2.0",
