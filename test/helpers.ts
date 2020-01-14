@@ -1,12 +1,8 @@
 import { GitProcess, IGitResult } from '../lib'
 
 // NOTE: bump these versions to the latest stable releases
-// We're currently using 2.19. instead of 2.19.3 because we're
-// shipping 2.19.3 on macOS/Linux and 2.19.2.windows.4 on Windows.
-// This is a temporary state and we should revert to specifying the
-// patch on the next git version bump.
-export const gitVersion = '2.19.'
-export const gitLfsVersion = '2.6.0'
+export const gitVersion = '2.21.0'
+export const gitLfsVersion = '2.6.1'
 
 const temp = require('temp').track()
 

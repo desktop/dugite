@@ -9,7 +9,7 @@ environment:
   matrix:
     - nodejs_version: '8'
     - nodejs_version: '10'
-    - nodejs_version: '11'
+    - nodejs_version: '12'
 
 cache:
   - '%USERPROFILE%\.dugite\'
@@ -19,14 +19,15 @@ branches:
   only:
     - master
     - v2
-    - /^greenkeeper/.*$/
+    - /releases\/.*/
 
 skip_tags: true
 
 version: '{build}'
 
 install:
-  - ps: Install-Product node $env:nodejs_version $env:platform
+  # https://www.appveyor.com/docs/lang/nodejs-iojs/#installing-any-version-of-nodejs-or-iojs
+  - ps: Update-NodeJsInstallation (Get-NodeJsLatestBuild $env:nodejs_version) $env:PLATFORM
   - npm ci
   - npm run is-it-pretty
 
