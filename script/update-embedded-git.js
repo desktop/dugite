@@ -22,8 +22,7 @@ got(url, options).then(
       'win32-x64': await findWindows64BitRelease(assets),
       'win32-ia32': await findWindows32BitRelease(assets),
       'darwin-x64': await findMacOS64BitRelease(assets),
-      'linux-x64': await findLinux64BitRelease(assets),
-      'linux-arm64': await findLinuxARM64Release(assets)
+      'linux-x64': await findLinux64BitRelease(assets)
     }
 
     const fileContents = JSON.stringify(output, null, 2)
@@ -72,14 +71,6 @@ function findLinux64BitRelease(assets) {
   const asset = assets.find(a => a.name.endsWith('-ubuntu.tar.gz'))
   if (asset == null) {
     throw new Error('Could not find Linux 64-bit archive in latest release')
-  }
-  return getDetailsForAsset(assets, asset)
-}
-
-function findLinuxARM64Release(assets) {
-  const asset = assets.find(a => a.name.endsWith('-arm64.tar.gz'))
-  if (asset == null) {
-    throw new Error('Could not find Linux ARM64 archive in latest release')
   }
   return getDetailsForAsset(assets, asset)
 }
