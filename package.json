@@ -1,6 +1,6 @@
 {
   "name": "dugite",
-  "version": "1.88.1",
+  "version": "1.88.2-beta.0",
   "description": "Elegant bindings for Git",
   "main": "./build/lib/index.js",
   "typings": "./build/lib/index.d.ts",
