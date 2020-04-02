@@ -50,7 +50,8 @@ export enum GitError {
   ProtectedBranchRequiredStatus,
   PushWithPrivateEmail,
   ConfigLockFileAlreadyExists,
-  RemoteAlreadyExists
+  RemoteAlreadyExists,
+  TagAlreadyExists
 }
 
 /** A mapping from regexes to the git error they identify. */
@@ -129,7 +130,8 @@ export const GitErrorRegexes = {
     GitError.ProtectedBranchRequiredStatus,
   'error: GH007: Your push would publish a private email address.': GitError.PushWithPrivateEmail,
   'error: could not lock config file (.+): File exists': GitError.ConfigLockFileAlreadyExists,
-  'fatal: remote (.+) already exists.': GitError.RemoteAlreadyExists
+  'fatal: remote (.+) already exists.': GitError.RemoteAlreadyExists,
+  "fatal: tag '(.+)' already exists": GitError.TagAlreadyExists
 }
 
 /**
