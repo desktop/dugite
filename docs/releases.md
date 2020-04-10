@@ -14,19 +14,27 @@ This script:
 - gets the checksums embedded in the release
 - generates the `script/embedded-git.json` payload to be used at install time
 
+### Note
+
+If you don't want the latest dugite-native release for some reason, you can edit the release URL in `script/update-embedded-git.js` to point to a different GitHub release URL.
+
+```js
+const url = `https://api.github.com/repos/desktop/dugite-native/releases/23544533`
+```
+
 ## Publishing to NPM
 
 Releases are done to NPM, and are currently limited to the core team.
 
 ```sh
 # to ensure everything is up-to-date and tests pass
-npm i
+npm ci
+npm test
+
 # you might need to do a different sort of version bump here
 npm version minor
+
 # this will also run the test suite and fail if any errors found
+# this will also run `git push --follow-tags` at the end
 npm publish
-# ensure the version bump is published too
-git push origin master
-# as well as the new tag
-git push origin --tags
 ```
