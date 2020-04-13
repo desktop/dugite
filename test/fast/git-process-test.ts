@@ -332,21 +332,21 @@ remote: http://github.com/settings/emails`
 
     it('can parse path does not exist error - neither on disk nor in the index', () => {
       const stderr =
-        "fatal: Path 'missing.txt' does not exist (neither on disk nor in the index).\n"
+        "fatal: path 'missing.txt' does not exist (neither on disk nor in the index).\n"
 
       const error = GitProcess.parseError(stderr)
       expect(error).toBe(GitError.PathDoesNotExist)
     })
 
     it('can parse path does not exist error - in commitish', () => {
-      const stderr = "fatal: Path 'missing.txt' does not exist in 'HEAD'\n"
+      const stderr = "fatal: path 'missing.txt' does not exist in 'HEAD'\n"
 
       const error = GitProcess.parseError(stderr)
       expect(error).toBe(GitError.PathDoesNotExist)
     })
 
     it('can parse invalid object name error', () => {
-      const stderr = "fatal: Invalid object name 'HEAD'.\n"
+      const stderr = "fatal: invalid object name 'HEAD'.\n"
 
       const error = GitProcess.parseError(stderr)
       expect(error).toBe(GitError.InvalidObjectName)
