@@ -14,6 +14,33 @@ export async function initialize(repositoryName: string): Promise<string> {
   return testRepoPath
 }
 
+/**
+ * Initialize a repository with a remote pointing to a local bare repository.
+ * If the remotePath is not specified, the remote repository will get automatically created.
+ *
+ * @param repositoryName
+ * @param remotePath
+ */
+export async function initializeWithRemote(
+  repositoryName: string,
+  remotePath: string | null
+): Promise<{ path: string; remote: string }> {
+  if (remotePath === null) {
+    const path = temp.mkdirSync(`desktop-git-test-remote-${repositoryName}`)
+    await GitProcess.exec(['init', '--bare'], path)
+    remotePath = path
+  }
+
+  if (remotePath === null) {
+    throw new Error('for TypeScript')
+  }
+
+  const testRepoPath = await initialize(repositoryName)
+  await GitProcess.exec(['remote', 'add', 'origin', remotePath], testRepoPath)
+
+  return { path: testRepoPath, remote: remotePath }
+}
+
 export function verify(result: IGitResult, callback: (result: IGitResult) => void) {
   try {
     callback(result)
