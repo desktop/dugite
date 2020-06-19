@@ -239,9 +239,8 @@ export class GitProcess {
 
   /** Try to parse an error type from stderr. */
   public static parseError(stderr: string): GitError | null {
-    for (const regex in GitErrorRegexes) {
+    for (const [regex, error] of Object.entries(GitErrorRegexes)) {
       if (stderr.match(regex)) {
-        const error: GitError = (GitErrorRegexes as any)[regex]
         return error
       }
     }
