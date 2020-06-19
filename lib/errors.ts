@@ -39,7 +39,7 @@ export enum GitError {
   NoMergeToAbort,
   LocalChangesOverwritten,
   UnresolvedConflicts,
-  // GitHub-specific error codes
+  // Start of GitHub-specific error codes
   PushWithFileSizeExceedingLimit,
   HexBranchNameRejected,
   ForcePushRejected,
@@ -49,6 +49,7 @@ export enum GitError {
   ProtectedBranchDeleteRejected,
   ProtectedBranchRequiredStatus,
   PushWithPrivateEmail,
+  // End of GitHub-specific error codes
   ConfigLockFileAlreadyExists,
   RemoteAlreadyExists,
   TagAlreadyExists
