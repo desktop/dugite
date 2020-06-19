@@ -18,8 +18,8 @@ export async function initialize(repositoryName: string): Promise<string> {
  * Initialize a repository with a remote pointing to a local bare repository.
  * If the remotePath is not specified, the remote repository will get automatically created.
  *
- * @param repositoryName
- * @param remotePath
+ * @param repositoryName    The name of the repository to create
+ * @param remotePath        The path of the remote reposiry (when null a new repository will get created)
  */
 export async function initializeWithRemote(
   repositoryName: string,
