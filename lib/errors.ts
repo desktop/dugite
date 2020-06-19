@@ -52,7 +52,9 @@ export enum GitError {
   // End of GitHub-specific error codes
   ConfigLockFileAlreadyExists,
   RemoteAlreadyExists,
-  TagAlreadyExists
+  TagAlreadyExists,
+  MergeWithLocalChanges,
+  RebaseWithLocalChanges
 }
 
 /** A mapping from regexes to the git error they identify. */
@@ -132,7 +134,11 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
   'error: GH007: Your push would publish a private email address.': GitError.PushWithPrivateEmail,
   'error: could not lock config file (.+): File exists': GitError.ConfigLockFileAlreadyExists,
   'fatal: remote (.+) already exists.': GitError.RemoteAlreadyExists,
-  "fatal: tag '(.+)' already exists": GitError.TagAlreadyExists
+  "fatal: tag '(.+)' already exists": GitError.TagAlreadyExists,
+  'error: Your local changes to the following files would be overwritten by merge:\n':
+    GitError.MergeWithLocalChanges,
+  'error: cannot (pull with rebase|rebase): You have unstaged changes\\.\n\\s*error: [Pp]lease commit or stash them\\.':
+    GitError.RebaseWithLocalChanges
 }
 
 /**
