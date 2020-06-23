@@ -4,7 +4,7 @@ import * as crypto from 'crypto'
 
 import { GitProcess, GitError, RepositoryDoesNotExistErrorCode } from '../../lib'
 import { GitErrorRegexes } from '../../lib/errors'
-import { initialize, verify } from '../helpers'
+import { initialize, verify, initializeWithRemote } from '../helpers'
 
 import { gitVersion } from '../helpers'
 
@@ -429,6 +429,138 @@ mark them as resolved using git add`
 
       const error = GitProcess.parseError(stderr)
       expect(error).toBe(GitError.HostDown)
+    })
+
+    it('can parse an error when merging with local changes', async () => {
+      const repoPath = await initialize('desktop-merge-with-local-changes')
+      const readmePath = path.join(repoPath, 'Readme.md')
+
+      // Add a commit to the default branch.
+      fs.writeFileSync(readmePath, '# README', { encoding: 'utf8' })
+      await GitProcess.exec(['add', '.'], repoPath)
+      await GitProcess.exec(['commit', '-m', '"added README"'], repoPath)
+
+      // Create another branch and add commit.
+      await GitProcess.exec(['checkout', '-b', 'some-other-branch'], repoPath)
+      fs.writeFileSync(readmePath, '# README modified in branch', { encoding: 'utf8' })
+      await GitProcess.exec(['add', '.'], repoPath)
+      await GitProcess.exec(['commit', '-m', '"updated README"'], repoPath)
+
+      // Go back to the default branch and modify a file.
+      await GitProcess.exec(['checkout', '-'], repoPath)
+      fs.writeFileSync(readmePath, '# README modified in master', { encoding: 'utf8' })
+
+      // Execute a merge.
+      const result = await GitProcess.exec(['merge', 'some-other-branch'], repoPath)
+
+      verify(result, r => {
+        expect(GitProcess.parseError(r.stderr)).toBe(GitError.MergeWithLocalChanges)
+      })
+    })
+
+    it('can parse an error when renasing with local changes', async () => {
+      const repoPath = await initialize('desktop-merge-with-local-changes')
+      const readmePath = path.join(repoPath, 'Readme.md')
+
+      // Add a commit to the default branch.
+      fs.writeFileSync(readmePath, '# README', { encoding: 'utf8' })
+      await GitProcess.exec(['add', '.'], repoPath)
+      await GitProcess.exec(['commit', '-m', '"added README"'], repoPath)
+
+      // Create another branch and add commit.
+      await GitProcess.exec(['checkout', '-b', 'some-other-branch'], repoPath)
+      fs.writeFileSync(readmePath, '# README modified in branch', { encoding: 'utf8' })
+      await GitProcess.exec(['add', '.'], repoPath)
+      await GitProcess.exec(['commit', '-m', '"updated README"'], repoPath)
+
+      // Go back to the default branch and modify a file.
+      await GitProcess.exec(['checkout', '-'], repoPath)
+      fs.writeFileSync(readmePath, '# README modified in master', { encoding: 'utf8' })
+
+      // Execute a rebase.
+      const result = await GitProcess.exec(['rebase', 'some-other-branch'], repoPath)
+
+      verify(result, r => {
+        expect(GitProcess.parseError(r.stderr)).toBe(GitError.RebaseWithLocalChanges)
+      })
+    })
+
+    it('can parse an error when pulling with merge with local changes', async () => {
+      const { path: repoPath, remote: remoteRepositoryPath } = await initializeWithRemote(
+        'desktop-pullrebase-with-local-changes',
+        null
+      )
+      const { path: forkRepoPath } = await initializeWithRemote(
+        'desktop-pullrebase-with-local-changes-fork',
+        remoteRepositoryPath
+      )
+      await GitProcess.exec(['config', 'pull.rebase', 'false'], forkRepoPath)
+      const readmePath = path.join(repoPath, 'Readme.md')
+      const readmePathInFork = path.join(forkRepoPath, 'Readme.md')
+
+      // Add a commit to the default branch.
+      fs.writeFileSync(readmePath, '# README', { encoding: 'utf8' })
+      await GitProcess.exec(['add', '.'], repoPath)
+      await GitProcess.exec(['commit', '-m', '"added README"'], repoPath)
+
+      // Push the commit and fetch it from the fork.
+      await GitProcess.exec(['push', 'origin', 'HEAD', '-u'], repoPath)
+      await GitProcess.exec(['pull', 'origin', 'HEAD'], forkRepoPath)
+
+      // Add another commit and push it
+      fs.writeFileSync(readmePath, '# README modified from upstream', { encoding: 'utf8' })
+      await GitProcess.exec(['add', '.'], repoPath)
+      await GitProcess.exec(['commit', '-m', '"updated README"'], repoPath)
+      await GitProcess.exec(['push', 'origin'], repoPath)
+
+      // Modify locally the Readme file in the fork.
+      fs.writeFileSync(readmePathInFork, '# README modified from fork', { encoding: 'utf8' })
+
+      // Pull from the fork
+      const result = await GitProcess.exec(['pull', 'origin', 'HEAD'], forkRepoPath)
+
+      verify(result, r => {
+        expect(GitProcess.parseError(r.stderr)).toBe(GitError.MergeWithLocalChanges)
+      })
+    })
+
+    it('can parse an error when pulling with rebase with local changes', async () => {
+      const { path: repoPath, remote: remoteRepositoryPath } = await initializeWithRemote(
+        'desktop-pullrebase-with-local-changes',
+        null
+      )
+      const { path: forkRepoPath } = await initializeWithRemote(
+        'desktop-pullrebase-with-local-changes-fork',
+        remoteRepositoryPath
+      )
+      await GitProcess.exec(['config', 'pull.rebase', 'true'], forkRepoPath)
+      const readmePath = path.join(repoPath, 'Readme.md')
+      const readmePathInFork = path.join(forkRepoPath, 'Readme.md')
+
+      // Add a commit to the default branch.
+      fs.writeFileSync(readmePath, '# README', { encoding: 'utf8' })
+      await GitProcess.exec(['add', '.'], repoPath)
+      await GitProcess.exec(['commit', '-m', '"added README"'], repoPath)
+
+      // Push the commit and fetch it from the fork.
+      await GitProcess.exec(['push', 'origin', 'HEAD', '-u'], repoPath)
+      await GitProcess.exec(['pull', 'origin', 'HEAD'], forkRepoPath)
+
+      // Add another commit and push it
+      fs.writeFileSync(readmePath, '# README modified from upstream', { encoding: 'utf8' })
+      await GitProcess.exec(['add', '.'], repoPath)
+      await GitProcess.exec(['commit', '-m', '"updated README"'], repoPath)
+      await GitProcess.exec(['push', 'origin'], repoPath)
+
+      // Modify locally the Readme file in the fork.
+      fs.writeFileSync(readmePathInFork, '# README modified from fork', { encoding: 'utf8' })
+
+      // Pull from the fork
+      const result = await GitProcess.exec(['pull', 'origin', 'HEAD'], forkRepoPath)
+
+      verify(result, r => {
+        expect(GitProcess.parseError(r.stderr)).toBe(GitError.RebaseWithLocalChanges)
+      })
     })
   })
 })

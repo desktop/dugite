@@ -39,7 +39,7 @@ export enum GitError {
   NoMergeToAbort,
   LocalChangesOverwritten,
   UnresolvedConflicts,
-  // GitHub-specific error codes
+  // Start of GitHub-specific error codes
   PushWithFileSizeExceedingLimit,
   HexBranchNameRejected,
   ForcePushRejected,
@@ -49,13 +49,16 @@ export enum GitError {
   ProtectedBranchDeleteRejected,
   ProtectedBranchRequiredStatus,
   PushWithPrivateEmail,
+  // End of GitHub-specific error codes
   ConfigLockFileAlreadyExists,
   RemoteAlreadyExists,
-  TagAlreadyExists
+  TagAlreadyExists,
+  MergeWithLocalChanges,
+  RebaseWithLocalChanges
 }
 
 /** A mapping from regexes to the git error they identify. */
-export const GitErrorRegexes = {
+export const GitErrorRegexes: { [regexp: string]: GitError } = {
   'ERROR: ([\\s\\S]+?)\\n+\\[EPOLICYKEYAGE\\]\\n+fatal: Could not read from remote repository.':
     GitError.SSHKeyAuditUnverified,
   "fatal: Authentication failed for 'https://": GitError.HTTPSAuthenticationFailed,
@@ -131,7 +134,11 @@ export const GitErrorRegexes = {
   'error: GH007: Your push would publish a private email address.': GitError.PushWithPrivateEmail,
   'error: could not lock config file (.+): File exists': GitError.ConfigLockFileAlreadyExists,
   'fatal: remote (.+) already exists.': GitError.RemoteAlreadyExists,
-  "fatal: tag '(.+)' already exists": GitError.TagAlreadyExists
+  "fatal: tag '(.+)' already exists": GitError.TagAlreadyExists,
+  'error: Your local changes to the following files would be overwritten by merge:\n':
+    GitError.MergeWithLocalChanges,
+  'error: cannot (pull with rebase|rebase): You have unstaged changes\\.\n\\s*error: [Pp]lease commit or stash them\\.':
+    GitError.RebaseWithLocalChanges
 }
 
 /**
