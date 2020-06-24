@@ -1,22 +1,22 @@
 {
   "win32-x64": {
-    "name": "dugite-native-v2.23.3-c6632a4-windows-x64.tar.gz",
-    "url": "https://github.com/desktop/dugite-native/releases/download/v2.23.3-1/dugite-native-v2.23.3-c6632a4-windows-x64.tar.gz",
-    "checksum": "0e6a736a1113a26ee03ec15dc0a6b43b8759c8f4d69eded6906fd642788d88f5"
+    "name": "dugite-native-v2.26.2-63eeb68-windows-x64.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.26.2/dugite-native-v2.26.2-63eeb68-windows-x64.tar.gz",
+    "checksum": "13d1e73bd91948554419579a7f49f5a8ec574c1d53146091f9ee12dc66f4d0a8"
   },
   "win32-ia32": {
-    "name": "dugite-native-v2.23.3-c6632a4-windows-x86.tar.gz",
-    "url": "https://github.com/desktop/dugite-native/releases/download/v2.23.3-1/dugite-native-v2.23.3-c6632a4-windows-x86.tar.gz",
-    "checksum": "b64f0ca5bd141a7c4f26545cec97430a74d0aad271ad44ebdc3c20a3b323fdc9"
+    "name": "dugite-native-v2.26.2-63eeb68-windows-x86.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.26.2/dugite-native-v2.26.2-63eeb68-windows-x86.tar.gz",
+    "checksum": "fa461e090b44b1003c742a97a2796e886d85236a98752fa86035bbe82910f75f"
   },
   "darwin-x64": {
-    "name": "dugite-native-v2.23.3-c6632a4-macOS.tar.gz",
-    "url": "https://github.com/desktop/dugite-native/releases/download/v2.23.3-1/dugite-native-v2.23.3-c6632a4-macOS.tar.gz",
-    "checksum": "2f7d7f3e045f8ebe38510f2fbb7fc71a8e55f4cd821b06a0ab2af1311396f307"
+    "name": "dugite-native-v2.26.2-63eeb68-macOS.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.26.2/dugite-native-v2.26.2-63eeb68-macOS.tar.gz",
+    "checksum": "702e0f8c8c83bb1cc6f358a884ec1bc5dabaf0a478a4a50cc024b0c5d1c3d807"
   },
   "linux-x64": {
-    "name": "dugite-native-v2.23.3-c6632a4-ubuntu.tar.gz",
-    "url": "https://github.com/desktop/dugite-native/releases/download/v2.23.3-1/dugite-native-v2.23.3-c6632a4-ubuntu.tar.gz",
-    "checksum": "24b214455789498a2ae371046e0d8a905fb8dc9cfe85965ea16e2742971af67c"
+    "name": "dugite-native-v2.26.2-63eeb68-ubuntu.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.26.2/dugite-native-v2.26.2-63eeb68-ubuntu.tar.gz",
+    "checksum": "6b515e7eb744eb0f3edcef55d4cacd1e92eb4feae3a6078e27758c4735f230e1"
   }
 }
