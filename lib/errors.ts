@@ -69,7 +69,7 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
   "fatal: unable to access '(.+)': Failed to connect to (.+): Host is down": GitError.HostDown,
   "Cloning into '(.+)'...\nfatal: unable to access '(.+)': Could not resolve host: (.+)":
     GitError.HostDown,
-  'Failed to merge in the changes.': GitError.RebaseConflicts,
+  'Resolve all conflicts manually, mark them as resolved with': GitError.RebaseConflicts,
   '(Merge conflict|Automatic merge failed; fix conflicts and then commit the result)':
     GitError.MergeConflicts,
   "fatal: repository '(.+)' not found": GitError.HTTPSRepositoryNotFound,

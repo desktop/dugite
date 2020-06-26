@@ -550,5 +550,59 @@ mark them as resolved using git add`
 
       expect(result).toHaveGitError(GitError.RebaseWithLocalChanges)
     })
+
+    it('can parse an error when there is a conflict while merging', async () => {
+      const repoPath = await initialize('desktop-pullrebase-with-local-changes')
+      const readmePath = path.join(repoPath, 'Readme.md')
+
+      // Create a commit on the default branch.
+      fs.writeFileSync(readmePath, '# README', { encoding: 'utf8' })
+      await GitProcess.exec(['add', '.'], repoPath)
+      await GitProcess.exec(['commit', '-m', '"initial commit"'], repoPath)
+
+      // Create a branch and add another commit.
+      await GitProcess.exec(['checkout', '-b', 'my-branch'], repoPath)
+      fs.writeFileSync(readmePath, '# README from my-branch', { encoding: 'utf8' })
+      await GitProcess.exec(['add', '.'], repoPath)
+      await GitProcess.exec(['commit', '-m', '"modify README in my-branch"'], repoPath)
+
+      // Go back to the default branch and add a commit that conflicts.
+      await GitProcess.exec(['checkout', '-'], repoPath)
+      fs.writeFileSync(readmePath, '# README from default', { encoding: 'utf8' })
+      await GitProcess.exec(['add', '.'], repoPath)
+      await GitProcess.exec(['commit', '-m', '"modifiy README in default branch"'], repoPath)
+
+      // Try to merge the branch.
+      const result = await GitProcess.exec(['merge', 'my-branch'], repoPath)
+
+      expect(result).toHaveGitError(GitError.MergeConflicts)
+    })
+
+    it('can parse an error when there is a conflict while rebasing', async () => {
+      const repoPath = await initialize('desktop-pullrebase-with-local-changes')
+      const readmePath = path.join(repoPath, 'Readme.md')
+
+      // Create a commit on the default branch.
+      fs.writeFileSync(readmePath, '# README', { encoding: 'utf8' })
+      await GitProcess.exec(['add', '.'], repoPath)
+      await GitProcess.exec(['commit', '-m', '"initial commit"'], repoPath)
+
+      // Create a branch and add another commit.
+      await GitProcess.exec(['checkout', '-b', 'my-branch'], repoPath)
+      fs.writeFileSync(readmePath, '# README from my-branch', { encoding: 'utf8' })
+      await GitProcess.exec(['add', '.'], repoPath)
+      await GitProcess.exec(['commit', '-m', '"modify README in my-branch"'], repoPath)
+
+      // Go back to the default branch and add a commit that conflicts.
+      await GitProcess.exec(['checkout', '-'], repoPath)
+      fs.writeFileSync(readmePath, '# README from default', { encoding: 'utf8' })
+      await GitProcess.exec(['add', '.'], repoPath)
+      await GitProcess.exec(['commit', '-m', '"modifiy README in default branch"'], repoPath)
+
+      // Try to merge the branch.
+      const result = await GitProcess.exec(['rebase', 'my-branch'], repoPath)
+
+      expect(result).toHaveGitError(GitError.RebaseConflicts)
+    })
   })
 })
