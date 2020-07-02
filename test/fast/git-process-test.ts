@@ -127,9 +127,8 @@ describe('git-process', () => {
         const testRepoPath = await initialize('desktop-show-missing-index')
 
         const result = await GitProcess.exec(['show', ':missing.txt'], testRepoPath)
-        verify(result, r => {
-          expect(GitProcess.parseError(r.stderr)).toBe(GitError.PathDoesNotExist)
-        })
+
+        expect(result).toHaveGitError(GitError.PathDoesNotExist)
       })
       it('missing from commitish', async () => {
         const testRepoPath = await initialize('desktop-show-missing-commitish')
@@ -142,17 +141,15 @@ describe('git-process', () => {
         await GitProcess.exec(['commit', '-m', '"added a file"'], testRepoPath)
 
         const result = await GitProcess.exec(['show', 'HEAD:missing.txt'], testRepoPath)
-        verify(result, r => {
-          expect(GitProcess.parseError(r.stderr)).toBe(GitError.PathDoesNotExist)
-        })
+
+        expect(result).toHaveGitError(GitError.PathDoesNotExist)
       })
       it('invalid object name - empty repository', async () => {
         const testRepoPath = await initialize('desktop-show-invalid-object-empty')
 
         const result = await GitProcess.exec(['show', 'HEAD:missing.txt'], testRepoPath)
-        verify(result, r => {
-          expect(GitProcess.parseError(r.stderr)).toBe(GitError.InvalidObjectName)
-        })
+
+        expect(result).toHaveGitError(GitError.InvalidObjectName)
       })
       it('outside repository', async () => {
         const testRepoPath = await initialize('desktop-show-outside')
@@ -165,9 +162,8 @@ describe('git-process', () => {
         await GitProcess.exec(['commit', '-m', '"added a file"'], testRepoPath)
 
         const result = await GitProcess.exec(['show', '--', '/missing.txt'], testRepoPath)
-        verify(result, r => {
-          expect(GitProcess.parseError(r.stderr)).toBe(GitError.OutsideRepository)
-        })
+
+        expect(result).toHaveGitError(GitError.OutsideRepository)
       })
     })
   })
@@ -453,9 +449,7 @@ mark them as resolved using git add`
       // Execute a merge.
       const result = await GitProcess.exec(['merge', 'some-other-branch'], repoPath)
 
-      verify(result, r => {
-        expect(GitProcess.parseError(r.stderr)).toBe(GitError.MergeWithLocalChanges)
-      })
+      expect(result).toHaveGitError(GitError.MergeWithLocalChanges)
     })
 
     it('can parse an error when renasing with local changes', async () => {
@@ -480,9 +474,7 @@ mark them as resolved using git add`
       // Execute a rebase.
       const result = await GitProcess.exec(['rebase', 'some-other-branch'], repoPath)
 
-      verify(result, r => {
-        expect(GitProcess.parseError(r.stderr)).toBe(GitError.RebaseWithLocalChanges)
-      })
+      expect(result).toHaveGitError(GitError.RebaseWithLocalChanges)
     })
 
     it('can parse an error when pulling with merge with local changes', async () => {
@@ -519,9 +511,7 @@ mark them as resolved using git add`
       // Pull from the fork
       const result = await GitProcess.exec(['pull', 'origin', 'HEAD'], forkRepoPath)
 
-      verify(result, r => {
-        expect(GitProcess.parseError(r.stderr)).toBe(GitError.MergeWithLocalChanges)
-      })
+      expect(result).toHaveGitError(GitError.MergeWithLocalChanges)
     })
 
     it('can parse an error when pulling with rebase with local changes', async () => {
@@ -558,9 +548,7 @@ mark them as resolved using git add`
       // Pull from the fork
       const result = await GitProcess.exec(['pull', 'origin', 'HEAD'], forkRepoPath)
 
-      verify(result, r => {
-        expect(GitProcess.parseError(r.stderr)).toBe(GitError.RebaseWithLocalChanges)
-      })
+      expect(result).toHaveGitError(GitError.RebaseWithLocalChanges)
     })
   })
 })

@@ -1,5 +1,5 @@
 import { GitProcess, GitError } from '../../lib'
-import { verify, initialize } from '../helpers'
+import { initialize } from '../helpers'
 import { writeFileSync } from 'fs'
 import { join } from 'path'
 
@@ -14,9 +14,7 @@ describe('detects errors', () => {
       repoPath
     )
 
-    verify(result, r => {
-      expect(GitProcess.parseError(r.stderr)).toBe(GitError.RemoteAlreadyExists)
-    })
+    expect(result).toHaveGitError(GitError.RemoteAlreadyExists)
   })
   it('TagAlreadyExists', async () => {
     const repoPath = await initialize('tag-already-exists-test-repo')
@@ -31,6 +29,6 @@ describe('detects errors', () => {
     // try to make the same tag again
     const result = await GitProcess.exec(['tag', 'v0.1'], repoPath)
 
-    expect(GitProcess.parseError(result.stderr)).toBe(GitError.TagAlreadyExists)
+    expect(result).toHaveGitError(GitError.TagAlreadyExists)
   })
 })
