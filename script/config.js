@@ -28,9 +28,9 @@ function getConfig() {
     arch = 'ia32';
   }
 
-  // Os.arch() calls it x32, dugite-native calls it x86
-  if (arch === 'x32') {
-    arch = 'x86'
+  // Os.arch() calls it x32, we use x86 in actions, dugite-native calls it x86 and our embedded-git.json calls it ia32
+  if (arch === 'x32' || arch === 'x86') {
+    arch = 'ia32'
   }
 
   const key = `${process.platform}-${arch}`
