@@ -28,6 +28,11 @@ function getConfig() {
     arch = 'ia32';
   }
 
+  // Os.arch() calls it x32, dugite-native calls it x86
+  if (arch === 'x32') {
+    arch = 'x86'
+  }
+
   const key = `${process.platform}-${arch}`
 
   const entry = embeddedGit[key]
