@@ -34,12 +34,10 @@ tsconfig.json
 
 # assorted unimportant tooling files
 .vscode/
+.github/
 .prettierrc
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
 
 # for tooling purposes only
 /script/update-embedded-git.js
-
-# GitHub-specific configuration
-.github/
