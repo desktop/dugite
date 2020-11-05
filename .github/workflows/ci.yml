@@ -14,7 +14,6 @@ jobs:
       fail-fast: false
       matrix:
         node: [14, 12]
-    timeout-minutes: 45
         os: [macos-10.15, windows-2019, ubuntu-18.04]
         include:
           - os: macos-10.15
@@ -23,6 +22,7 @@ jobs:
             friendlyName: Windows
           - os: ubuntu-18.04
             friendlyName: Linux
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v2
         with:
