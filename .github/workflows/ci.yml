@@ -8,13 +8,12 @@ on:
 
 jobs:
   build:
-    name: Node ${{ matrix.node }} on ${{ matrix.friendlyName }} ${{ matrix.arch }}
+    name: ${{ matrix.friendlyName }} ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         arch: [x64]
-        node: [12]
         os: [macos-10.15, windows-2019, ubuntu-18.04]
         include:
           - os: macos-10.15
@@ -34,7 +33,7 @@ jobs:
       - name: Use Node.js ${{ matrix.node }}
         uses: actions/setup-node@v1
         with:
-          node-version: ${{ matrix.node }}
+          node-version: 12
       - name: Install and build dependencies
         run: npm ci
       - name: Build
