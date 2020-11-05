@@ -30,10 +30,11 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-      - name: Use Node.js ${{ matrix.node }}
-        uses: actions/setup-node@v1
+      - name: Install Node s ${{ matrix.arch }}
+        uses: aminya/setup-node@9acb334
         with:
           node-version: 12
+          node-arch: ${{ matrix.arch }}
       - name: Install and build dependencies
         run: npm ci
         env:
