@@ -8,12 +8,12 @@ on:
 
 jobs:
   build:
-    name: Node ${{ matrix.node }} on ${{ matrix.friendlyName }}
+    name: Node ${{ matrix.node }} on ${{ matrix.friendlyName }} ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        arch: x64
+        arch: [x64]
         node: 12
         os: [macos-10.15, windows-2019, ubuntu-18.04]
         include:
