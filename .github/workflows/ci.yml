@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: Node ${{ matrix.node } on ${{ matrix.friendlyName }}
+    name: Node ${{ matrix.node }} on ${{ matrix.friendlyName }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
