@@ -34,6 +34,7 @@ tsconfig.json
 
 # assorted unimportant tooling files
 .vscode/
+.github/
 .prettierrc
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
