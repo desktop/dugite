@@ -40,3 +40,6 @@ CONTRIBUTING.md
 
 # for tooling purposes only
 /script/update-embedded-git.js
+
+# GitHub-specific configuration
+.github/
