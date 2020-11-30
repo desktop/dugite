@@ -28,6 +28,12 @@ function getConfig() {
     arch = 'ia32';
   }
 
+  if (process.platform === 'darwin' && arch === 'arm64') {
+    // Use the Dugite Native x64 package for MacOS arm64 (arm64 can run x64 code through emulation with Rosetta)
+    console.log('Downloading x64 Dugite Native for Apple Silicon (arm64)');
+    arch = 'x64';
+  }
+
   // Os.arch() calls it x32, we use x86 in actions, dugite-native calls it x86 and our embedded-git.json calls it ia32
   if (arch === 'x32' || arch === 'x86') {
     arch = 'ia32'
