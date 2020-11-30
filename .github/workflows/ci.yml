@@ -31,7 +31,7 @@ jobs:
         with:
           submodules: recursive
       - name: Install Node.js ${{ matrix.arch }}
-        uses: aminya/setup-node@9acb334
+        uses: aminya/setup-node@0cf46aa
         with:
           node-version: 12
           node-arch: ${{ matrix.arch }}
