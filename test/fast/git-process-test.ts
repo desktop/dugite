@@ -13,9 +13,9 @@ const temp = require('temp').track()
 describe('git-process', () => {
   it('can launch git', async () => {
     const result = await GitProcess.exec(['--version'], __dirname)
-    verify(result, r => {
-      expect(r.stdout).toContain(`git version ${gitVersion}`)
-    })
+    expect(result.stderr).toBe('')
+    expect(result.stdout).toContain(`git version ${gitVersion}`)
+    expect(result.exitCode).toBe(0)
   })
 
   describe('exitCode', () => {
