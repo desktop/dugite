@@ -22,12 +22,6 @@ function getConfig() {
     arch = process.env.npm_config_arch;
   }
 
-  if (process.platform === 'win32' && arch === 'arm64') {
-    // Use the Dugite Native ia32 package for Windows arm64 (arm64 can run 32-bit code through emulation)
-    console.log('Downloading 32-bit Dugite Native for Windows arm64');
-    arch = 'ia32';
-  }
-
   if (process.platform === 'darwin' && arch === 'arm64') {
     // Use the Dugite Native x64 package for MacOS arm64 (arm64 can run x64 code through emulation with Rosetta)
     console.log('Downloading x64 Dugite Native for Apple Silicon (arm64)');
