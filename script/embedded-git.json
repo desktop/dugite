@@ -1,22 +1,22 @@
 {
   "win32-x64": {
-    "name": "dugite-native-v2.29.2-c61cacf-windows-x64.tar.gz",
-    "url": "https://github.com/desktop/dugite-native/releases/download/v2.29.2-1/dugite-native-v2.29.2-c61cacf-windows-x64.tar.gz",
-    "checksum": "48966848636e4e86fd4bdeb3c381baa85a15620ad049d40a4205112e26b4655d"
+    "name": "dugite-native-v2.29.2-f9ceb12-windows-x64.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.29.2-2/dugite-native-v2.29.2-f9ceb12-windows-x64.tar.gz",
+    "checksum": "b783f64d4abe3327ddb7fb1ad4ebb3027dd610752b5684d79d60f7ad75926be5"
   },
   "win32-ia32": {
-    "name": "dugite-native-v2.29.2-c61cacf-windows-x86.tar.gz",
-    "url": "https://github.com/desktop/dugite-native/releases/download/v2.29.2-1/dugite-native-v2.29.2-c61cacf-windows-x86.tar.gz",
-    "checksum": "3bad0832b614cc823189d83c0a9e670145a815badae1541f98e4dbb7127280da"
+    "name": "dugite-native-v2.29.2-f9ceb12-windows-x86.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.29.2-2/dugite-native-v2.29.2-f9ceb12-windows-x86.tar.gz",
+    "checksum": "a983bd0e0fedc994906a3759a19325038a29ba8f172f93576d7b2ea0c5f72e44"
   },
   "darwin-x64": {
-    "name": "dugite-native-v2.29.2-c61cacf-macOS.tar.gz",
-    "url": "https://github.com/desktop/dugite-native/releases/download/v2.29.2-1/dugite-native-v2.29.2-c61cacf-macOS.tar.gz",
-    "checksum": "b48823dab406c0bf3b5f364616e618c1cf1d9a4e279ccfb7f20b3246abf316ee"
+    "name": "dugite-native-v2.29.2-f9ceb12-macOS.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.29.2-2/dugite-native-v2.29.2-f9ceb12-macOS.tar.gz",
+    "checksum": "ff16488ebbb3a0000fac34c8afc01bc4e839ad478717fbcbbe0c207642b5872c"
   },
   "linux-x64": {
-    "name": "dugite-native-v2.29.2-c61cacf-ubuntu.tar.gz",
-    "url": "https://github.com/desktop/dugite-native/releases/download/v2.29.2-1/dugite-native-v2.29.2-c61cacf-ubuntu.tar.gz",
-    "checksum": "9ab4841b76a3629d94ed04a5c57d661111bd2823104deb31e5076bee9d8e5e68"
+    "name": "dugite-native-v2.29.2-f9ceb12-ubuntu.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.29.2-2/dugite-native-v2.29.2-f9ceb12-ubuntu.tar.gz",
+    "checksum": "c23de590ba88f73cb3dc96a7d34d6b9b0432bb801c8c330529a72d6f6a0fd14e"
   }
 }
