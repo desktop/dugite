@@ -116,7 +116,7 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
   'fatal: There is no merge to abort': GitError.NoMergeToAbort,
   'error: (?:Your local changes to the following|The following untracked working tree) files would be overwritten by checkout:':
     GitError.LocalChangesOverwritten,
-  'You must edit all merge conflicts and then\nmark them as resolved using git add':
+  'You must edit all merge conflicts and then\nmark them as resolved using git add|fatal: Exiting because of an unresolved conflict':
     GitError.UnresolvedConflicts,
   // GitHub-specific errors
   'error: GH001: ': GitError.PushWithFileSizeExceedingLimit,
