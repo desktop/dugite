@@ -55,6 +55,8 @@ function resolveGitExecPath(): string {
   if (process.platform === 'win32') {
     if (process.arch === 'x64') {
       return path.join(gitDir, 'mingw64', 'libexec', 'git-core')
+    } else if (process.arch === 'arm64') {
+      return path.join(gitDir, 'arm64', 'libexec', 'git-core')
     }
 
     return path.join(gitDir, 'mingw32', 'libexec', 'git-core')
@@ -82,6 +84,13 @@ export function setupEnvironment(
   if (process.platform === 'win32') {
     if (process.arch === 'x64') {
       envPath = `${gitDir}\\mingw64\\bin;${gitDir}\\mingw64\\usr\\bin;${envPath}`
+    } else if (process.arch === 'arm64') {
+      /**
+       * Git for Windows arm64 doesn't have all binaries available natively yet,
+       * but we can leverage 32-bit emulation on this platform. Therefore we fallback
+       * to mingw32 binaries in case native ones aren't available.
+       */
+      envPath = `${gitDir}\\arm64\\bin;${gitDir}\\arm64\\usr\\bin;${gitDir}\\mingw32\\bin;${gitDir}\\mingw32\\usr\\bin;${envPath}`
     } else {
       envPath = `${gitDir}\\mingw32\\bin;${gitDir}\\mingw32\\usr\\bin;${envPath}`
     }
