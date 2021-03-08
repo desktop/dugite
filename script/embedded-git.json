@@ -10,9 +10,9 @@
     "checksum": "a983bd0e0fedc994906a3759a19325038a29ba8f172f93576d7b2ea0c5f72e44"
   },
   "win32-arm64": {
-    "name": "dugite-native-v2.30.0-f58d9fd-windows-arm64.tar.gz",
-    "url": "https://github.com/dennisameling/dugite-native/releases/download/v2.30.0-beta/dugite-native-v2.30.0-f58d9fd-windows-arm64.tar.gz",
-    "checksum": "2d5cb56283a3522ed80a16634c3b84e61da3e090c80db66f182136a35bfb1c2e"
+    "name": "dugite-native-v2.29.2-5aad8ba-windows-arm64.tar.gz",
+    "url": "https://github.com/dennisameling/dugite-native/releases/download/v2.31.0-rc6/dugite-native-v2.29.2-5aad8ba-windows-arm64.tar.gz",
+    "checksum": "abd38f61068f7c67a8747517910f3762e12b2f873427e480a82985dff02e42a8"
   },
   "darwin-x64": {
     "name": "dugite-native-v2.29.2-f9ceb12-macOS.tar.gz",
