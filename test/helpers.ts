@@ -2,6 +2,7 @@ import { GitProcess, IGitResult, GitError } from '../lib'
 
 // NOTE: bump these versions to the latest stable releases
 export const gitVersion = '2.29.3'
+export const gitForWindowsVersion = '2.29.2.windows.4'
 export const gitLfsVersion = '2.13.2'
 
 const temp = require('temp').track()
