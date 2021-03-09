@@ -4,7 +4,7 @@ import * as Path from 'path'
 import { ChildProcess } from 'child_process'
 import { GitProcess } from '../../lib'
 
-import { gitVersion } from '../helpers'
+import { gitForWindowsVersion, gitVersion } from '../helpers'
 const temp = require('temp').track()
 
 const maximumStringSize = 268435441
@@ -38,7 +38,11 @@ describe('GitProcess.spawn', () => {
   it('can launch git', async () => {
     const process = GitProcess.spawn(['--version'], __dirname)
     const result = await bufferOutput(process)
-    expect(result).toContain(`git version ${gitVersion}`)
+    if (result.includes('windows')) {
+      expect(result).toContain(`git version ${gitForWindowsVersion}`)
+    } else {
+      expect(result).toContain(`git version ${gitVersion}`)
+    }
   })
 
   it('returns expected exit codes', done => {
