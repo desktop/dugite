@@ -54,7 +54,8 @@ export enum GitError {
   RemoteAlreadyExists,
   TagAlreadyExists,
   MergeWithLocalChanges,
-  RebaseWithLocalChanges
+  RebaseWithLocalChanges,
+  MergeCommitNoMainlineOption
 }
 
 /** A mapping from regexes to the git error they identify. */
@@ -138,7 +139,8 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
   'error: Your local changes to the following files would be overwritten by merge:\n':
     GitError.MergeWithLocalChanges,
   'error: cannot (pull with rebase|rebase): You have unstaged changes\\.\n\\s*error: [Pp]lease commit or stash them\\.':
-    GitError.RebaseWithLocalChanges
+    GitError.RebaseWithLocalChanges,
+  'error: commit (.+) is a merge but no -m option was given': GitError.MergeCommitNoMainlineOption
 }
 
 /**
