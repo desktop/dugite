@@ -31,7 +31,7 @@ jobs:
         with:
           submodules: recursive
       - name: Install Node.js ${{ matrix.arch }}
-        uses: niik/setup-node@f9547c9
+        uses: niik/setup-node@f9547c97f4c519f71dc42e652d6d2c53f9527c1d
         with:
           node-version: 12
           node-arch: ${{ matrix.arch }}
