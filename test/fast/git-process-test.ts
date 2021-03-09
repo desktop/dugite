@@ -4,7 +4,7 @@ import * as crypto from 'crypto'
 
 import { GitProcess, GitError, RepositoryDoesNotExistErrorCode } from '../../lib'
 import { GitErrorRegexes } from '../../lib/errors'
-import { initialize, verify, initializeWithRemote } from '../helpers'
+import { initialize, verify, initializeWithRemote, gitForWindowsVersion } from '../helpers'
 
 import { gitVersion } from '../helpers'
 
@@ -14,7 +14,11 @@ describe('git-process', () => {
   it('can launch git', async () => {
     const result = await GitProcess.exec(['--version'], __dirname)
     expect(result.stderr).toBe('')
-    expect(result.stdout).toContain(`git version ${gitVersion}`)
+    if (result.stdout.includes('windows')) {
+      expect(result.stdout).toContain(`git version ${gitForWindowsVersion}`)
+    } else {
+      expect(result.stdout).toContain(`git version ${gitVersion}`)
+    }
     expect(result.exitCode).toBe(0)
   })
 
