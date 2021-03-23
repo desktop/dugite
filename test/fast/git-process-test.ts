@@ -424,6 +424,15 @@ mark them as resolved using git add`
       expect(error).toBe(GitError.UnresolvedConflicts)
     })
 
+    it('can parse the failed to sign data error within a rebase', () => {
+      const stderr = `Rebasing (1/4)
+      Rebasing (2/4)
+      error: gpg failed to sign the data`
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).toBe(GitError.GPGFailedToSignData)
+    })
+
     it('can parse the could not resolve host error', () => {
       const stderr = `"Cloning into '/cloneablepath/'...\nfatal: unable to access 'https://github.com/Daniel-McCarthy/dugite.git/': Could not resolve host: github.com\n"`
 

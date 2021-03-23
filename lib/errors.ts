@@ -39,6 +39,7 @@ export enum GitError {
   NoMergeToAbort,
   LocalChangesOverwritten,
   UnresolvedConflicts,
+  GPGFailedToSignData,
   // Start of GitHub-specific error codes
   PushWithFileSizeExceedingLimit,
   HexBranchNameRejected,
@@ -119,6 +120,7 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
     GitError.LocalChangesOverwritten,
   'You must edit all merge conflicts and then\nmark them as resolved using git add|fatal: Exiting because of an unresolved conflict':
     GitError.UnresolvedConflicts,
+  'error: gpg failed to sign the data': GitError.GPGFailedToSignData,
   // GitHub-specific errors
   'error: GH001: ': GitError.PushWithFileSizeExceedingLimit,
   'error: GH002: ': GitError.HexBranchNameRejected,
