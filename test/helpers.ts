@@ -7,9 +7,10 @@ export const gitLfsVersion = '2.13.2'
 
 const temp = require('temp').track()
 
-export async function initialize(repositoryName: string): Promise<string> {
+export async function initialize(repositoryName: string, defaultBranch?: string): Promise<string> {
   const testRepoPath = temp.mkdirSync(`desktop-git-test-${repositoryName}`)
-  await GitProcess.exec(['init'], testRepoPath)
+  const branchArgs = defaultBranch !== undefined ? ['-b', defaultBranch] : []
+  await GitProcess.exec(['init', ...branchArgs], testRepoPath)
   await GitProcess.exec(['config', 'user.email', '"some.user@email.com"'], testRepoPath)
   await GitProcess.exec(['config', 'user.name', '"Some User"'], testRepoPath)
   return testRepoPath

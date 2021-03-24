@@ -137,7 +137,7 @@ describe('git-process', () => {
 
   describe('checkout', () => {
     it('runs hook without error', async () => {
-      const testRepoPath = await initialize('desktop-git-checkout-hooks')
+      const testRepoPath = await initialize('desktop-git-checkout-hooks', 'main')
       const readme = Path.join(testRepoPath, 'README.md')
 
       Fs.writeFileSync(readme, '# README', { encoding: 'utf8' })
@@ -153,7 +153,7 @@ echo 'post-check out hook ran'`
 
       Fs.writeFileSync(postCheckoutFile, postCheckoutScript, { encoding: 'utf8', mode: '755' })
 
-      const result = await GitProcess.exec(['checkout', 'master'], testRepoPath)
+      const result = await GitProcess.exec(['checkout', 'main'], testRepoPath)
       verify(result, r => {
         expect(r.exitCode).toBe(0)
         expect(r.stderr).toContain('post-check out hook ran')
