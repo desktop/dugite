@@ -617,5 +617,13 @@ mark them as resolved using git add`
 
       expect(result).toHaveGitError(GitError.RebaseConflicts)
     })
+
+    it('can parse conflict modify delete error', () => {
+      const stderr =
+        'CONFLICT (modify/delete): a/path/to/a/file.md deleted in HEAD and modified in 1234567 (A commit message). Version 1234567 (A commit message) of a/path/to/a/file.md left in tree.'
+
+      const error = GitProcess.parseError(stderr)
+      expect(error).toBe(GitError.ConflictModifyDeletedInBranch)
+    })
   })
 })
