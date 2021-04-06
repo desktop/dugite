@@ -8,6 +8,7 @@ import {
   GitNotFoundErrorCode
 } from './errors'
 import { ChildProcess } from 'child_process'
+import { Readable } from 'stream'
 
 import { setupEnvironment } from './git-environment'
 
@@ -227,8 +228,10 @@ export class GitProcess {
       ignoreClosedInputStream(spawnedProcess)
 
       if (options && options.stdin !== undefined) {
-        // See https://github.com/nodejs/node/blob/7b5ffa46fe4d2868c1662694da06eb55ec744bde/test/parallel/test-stdin-pipe-large.js
-        spawnedProcess.stdin.end(options.stdin, options.stdinEncoding)
+        const stdinStream = new Readable();
+        stdinStream.push(options.stdin, options.stdinEncoding);
+        stdinStream.push(null);
+        stdinStream.pipe(spawnedProcess.stdin);
       }
 
       if (options && options.processCallback) {
