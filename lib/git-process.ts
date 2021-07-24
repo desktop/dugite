@@ -227,6 +227,8 @@ export class GitProcess {
         }
       })
 
+      result.setPid(spawnedProcess.pid)
+
       ignoreClosedInputStream(spawnedProcess)
 
       if (options && options.stdin !== undefined) {
@@ -320,6 +322,9 @@ function ignoreClosedInputStream(process: ChildProcess) {
 export class GitTask{
   private pid?: number
   public result: Promise<IGitResult>
+  public setPid(pid: number){
+    this.pid=pid
+  }
   public cancel(): boolean {
     if (this.pid !== undefined) {
       try {
