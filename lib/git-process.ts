@@ -143,8 +143,11 @@ export class GitProcess {
     args: string[],
     path: string,
     options?: IGitExecutionOptions
-  ): Promise<IGitResult> {
-    return new Promise<IGitResult>(function(resolve, reject) {
+  ): GitTask {
+    let result = new GitTask()
+
+    result.result = new Promise<IGitResult>(function(resolve, reject) {
+
       let customEnv = {}
       if (options && options.env) {
         customEnv = options.env
@@ -235,6 +238,8 @@ export class GitProcess {
         options.processCallback(spawnedProcess)
       }
     })
+
+    return result
   }
 
   /** Try to parse an error type from stderr. */
@@ -310,4 +315,20 @@ function ignoreClosedInputStream(process: ChildProcess) {
       throw err
     }
   })
+}
+
+export class GitTask{
+  private pid?: number
+  public result: Promise<IGitResult>
+  public cancel(): boolean {
+    if (this.pid !== undefined) {
+      try {
+        fs.process.kill(this.pid)
+        return true
+      } catch (e) {
+        return false
+      }
+    }
+    return false
+  }
 }
