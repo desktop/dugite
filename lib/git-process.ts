@@ -143,6 +143,29 @@ export class GitProcess {
     args: string[],
     path: string,
     options?: IGitExecutionOptions
+  ){
+    return this.execTask(args, path, options).result
+  }
+
+  /**
+   * Execute a command and read the output using the embedded Git environment.
+   *
+   * The returned GitTask will will contain `result`, `setPid`, `cancel`
+   * `result` will be a promise, which will reject when the git
+   * executable fails to launch, in which case the thrown Error will
+   * have a string `code` property. See `errors.ts` for some of the
+   * known error codes.
+   * See the result's `stderr` and `exitCode` for any potential git error
+   * information.
+   *
+   * As for, `setPid(pid)`, this is to set the PID
+   *
+   * And `cancel()` will try to cancel the git process
+   */
+  public static execTask(
+    args: string[],
+    path: string,
+    options?: IGitExecutionOptions
   ): GitTask {
     let result = new GitTask()
 
