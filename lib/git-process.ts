@@ -139,11 +139,7 @@ export class GitProcess {
    * See the result's `stderr` and `exitCode` for any potential git error
    * information.
    */
-  public static exec(
-    args: string[],
-    path: string,
-    options?: IGitExecutionOptions
-  ){
+  public static exec(args: string[], path: string, options?: IGitExecutionOptions) {
     return this.execTask(args, path, options).result
   }
 
@@ -162,109 +158,104 @@ export class GitProcess {
    *
    * And `cancel()` will try to cancel the git process
    */
-  public static execTask(
-    args: string[],
-    path: string,
-    options?: IGitExecutionOptions
-  ): GitTask {
-    let result = new GitTask()
-
-    result.result = new Promise<IGitResult>(function(resolve, reject) {
-
-      let customEnv = {}
-      if (options && options.env) {
-        customEnv = options.env
-      }
-
-      const { env, gitLocation } = setupEnvironment(customEnv)
-
-      // Explicitly annotate opts since typescript is unable to infer the correct
-      // signature for execFile when options is passed as an opaque hash. The type
-      // definition for execFile currently infers based on the encoding parameter
-      // which could change between declaration time and being passed to execFile.
-      // See https://git.io/vixyQ
-      const execOptions: ExecOptionsWithStringEncoding = {
-        cwd: path,
-        encoding: 'utf8',
-        maxBuffer: options ? options.maxBuffer : 10 * 1024 * 1024,
-        env
-      }
-
-      const spawnedProcess = execFile(gitLocation, args, execOptions, function(
-        err: Error | null,
-        stdout,
-        stderr
-      ) {
-        if (!err) {
-          resolve({ stdout, stderr, exitCode: 0 })
-          return
+  public static execTask(args: string[], path: string, options?: IGitExecutionOptions): IGitTask {
+    let result = new GitTask(
+      new Promise<IGitResult>(function(resolve, reject) {
+        let customEnv = {}
+        if (options && options.env) {
+          customEnv = options.env
         }
 
-        const errWithCode = err as ErrorWithCode
+        const { env, gitLocation } = setupEnvironment(customEnv)
 
-        let code = errWithCode.code
+        // Explicitly annotate opts since typescript is unable to infer the correct
+        // signature for execFile when options is passed as an opaque hash. The type
+        // definition for execFile currently infers based on the encoding parameter
+        // which could change between declaration time and being passed to execFile.
+        // See https://git.io/vixyQ
+        const execOptions: ExecOptionsWithStringEncoding = {
+          cwd: path,
+          encoding: 'utf8',
+          maxBuffer: options ? options.maxBuffer : 10 * 1024 * 1024,
+          env
+        }
 
-        // If the error's code is a string then it means the code isn't the
-        // process's exit code but rather an error coming from Node's bowels,
-        // e.g., ENOENT.
-        if (typeof code === 'string') {
-          if (code === 'ENOENT') {
-            let message = err.message
-            if (GitProcess.pathExists(path) === false) {
-              message = 'Unable to find path to repository on disk.'
-              code = RepositoryDoesNotExistErrorCode
+        const spawnedProcess = execFile(gitLocation, args, execOptions, function(
+          err: Error | null,
+          stdout,
+          stderr
+        ) {
+          if (!err) {
+            resolve({ stdout, stderr, exitCode: 0 })
+            return
+          }
+
+          const errWithCode = err as ErrorWithCode
+
+          let code = errWithCode.code
+
+          // If the error's code is a string then it means the code isn't the
+          // process's exit code but rather an error coming from Node's bowels,
+          // e.g., ENOENT.
+          if (typeof code === 'string') {
+            if (code === 'ENOENT') {
+              let message = err.message
+              if (GitProcess.pathExists(path) === false) {
+                message = 'Unable to find path to repository on disk.'
+                code = RepositoryDoesNotExistErrorCode
+              } else {
+                message = `Git could not be found at the expected path: '${gitLocation}'. This might be a problem with how the application is packaged, so confirm this folder hasn't been removed when packaging.`
+                code = GitNotFoundErrorCode
+              }
+
+              const error = new Error(message) as ErrorWithCode
+              error.name = err.name
+              error.code = code
+              reject(error)
             } else {
-              message = `Git could not be found at the expected path: '${gitLocation}'. This might be a problem with how the application is packaged, so confirm this folder hasn't been removed when packaging.`
-              code = GitNotFoundErrorCode
+              reject(err)
             }
 
-            const error = new Error(message) as ErrorWithCode
-            error.name = err.name
-            error.code = code
-            reject(error)
+            return
+          }
+
+          if (typeof code === 'number') {
+            resolve({ stdout, stderr, exitCode: code })
+            return
+          }
+
+          // Git has returned an output that couldn't fit in the specified buffer
+          // as we don't know how many bytes it requires, rethrow the error with
+          // details about what it was previously set to...
+          if (err.message === 'stdout maxBuffer exceeded') {
+            reject(
+              new Error(
+                `The output from the command could not fit into the allocated stdout buffer. Set options.maxBuffer to a larger value than ${
+                  execOptions.maxBuffer
+                } bytes`
+              )
+            )
           } else {
             reject(err)
           }
+        })
 
-          return
+        result.setPid(spawnedProcess.pid)
+
+        ignoreClosedInputStream(spawnedProcess)
+
+        if (options && options.stdin !== undefined) {
+          // See https://github.com/nodejs/node/blob/7b5ffa46fe4d2868c1662694da06eb55ec744bde/test/parallel/test-stdin-pipe-large.js
+          spawnedProcess.stdin.end(options.stdin, options.stdinEncoding)
         }
 
-        if (typeof code === 'number') {
-          resolve({ stdout, stderr, exitCode: code })
-          return
-        }
-
-        // Git has returned an output that couldn't fit in the specified buffer
-        // as we don't know how many bytes it requires, rethrow the error with
-        // details about what it was previously set to...
-        if (err.message === 'stdout maxBuffer exceeded') {
-          reject(
-            new Error(
-              `The output from the command could not fit into the allocated stdout buffer. Set options.maxBuffer to a larger value than ${
-                execOptions.maxBuffer
-              } bytes`
-            )
-          )
-        } else {
-          reject(err)
+        if (options && options.processCallback) {
+          options.processCallback(spawnedProcess)
         }
       })
+    )
 
-      result.setPid(spawnedProcess.pid)
-
-      ignoreClosedInputStream(spawnedProcess)
-
-      if (options && options.stdin !== undefined) {
-        // See https://github.com/nodejs/node/blob/7b5ffa46fe4d2868c1662694da06eb55ec744bde/test/parallel/test-stdin-pipe-large.js
-        spawnedProcess.stdin.end(options.stdin, options.stdinEncoding)
-      }
-
-      if (options && options.processCallback) {
-        options.processCallback(spawnedProcess)
-      }
-    })
-
-    return result
+    return result as IGitTask
   }
 
   /** Try to parse an error type from stderr. */
@@ -342,11 +333,22 @@ function ignoreClosedInputStream(process: ChildProcess) {
   })
 }
 
-export class GitTask{
-  private pid?: number
-  public result: Promise<IGitResult>
-  public setPid(pid: number){
-    this.pid=pid
+interface IGitTask {
+  pid?: number
+  readonly result: Promise<IGitResult>
+  setPid(pid: number): void
+  readonly cancel: () => boolean
+}
+
+export class GitTask implements IGitTask {
+  constructor(result: Promise<IGitResult>) {
+    this.result = result
+  }
+
+  pid?: number
+  result: Promise<IGitResult>
+  public setPid(pid: number) {
+    this.pid = pid
   }
   public cancel(): boolean {
     if (this.pid !== undefined) {
