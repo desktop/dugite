@@ -333,14 +333,14 @@ function ignoreClosedInputStream(process: ChildProcess) {
   })
 }
 
-interface IGitTask {
+export interface IGitTask {
   pid?: number
   readonly result: Promise<IGitResult>
   setPid(pid: number): void
   readonly cancel: () => boolean
 }
 
-export class GitTask implements IGitTask {
+class GitTask implements IGitTask {
   constructor(result: Promise<IGitResult>) {
     this.result = result
   }
