@@ -333,10 +333,12 @@ function ignoreClosedInputStream(process: ChildProcess) {
   })
 }
 
+/** This interface represents a git task (process). */
 export interface IGitTask {
-  pid?: number
+  /** Result of the git process. */
   readonly result: Promise<IGitResult>
-  setPid(pid: number): void
+  
+  /** Allows to cancel the process if it's running. Returns true if the process was killed. */
   readonly cancel: () => boolean
 }
 
