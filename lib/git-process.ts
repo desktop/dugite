@@ -139,7 +139,7 @@ export class GitProcess {
    * See the result's `stderr` and `exitCode` for any potential git error
    * information.
    */
-  public static exec(args: string[], path: string, options?: IGitExecutionOptions) {
+  public static exec(args: string[], path: string, options?: IGitExecutionOptions): Promise<IGitResult> {
     return this.execTask(args, path, options).result
   }
 
