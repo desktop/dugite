@@ -139,7 +139,11 @@ export class GitProcess {
    * See the result's `stderr` and `exitCode` for any potential git error
    * information.
    */
-  public static exec(args: string[], path: string, options?: IGitExecutionOptions): Promise<IGitResult> {
+  public static exec(
+    args: string[],
+    path: string,
+    options?: IGitExecutionOptions
+  ): Promise<IGitResult> {
     return this.execTask(args, path, options).result
   }
 
@@ -337,7 +341,7 @@ function ignoreClosedInputStream(process: ChildProcess) {
 export interface IGitTask {
   /** Result of the git process. */
   readonly result: Promise<IGitResult>
-  
+
   /** Allows to cancel the process if it's running. Returns true if the process was killed. */
   readonly cancel: () => boolean
 }
