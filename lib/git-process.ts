@@ -1,4 +1,5 @@
 import * as fs from 'fs'
+import { kill } from 'process'
 
 import { execFile, spawn, ExecOptionsWithStringEncoding } from 'child_process'
 import {
@@ -359,7 +360,7 @@ class GitTask implements IGitTask {
   public cancel(): boolean {
     if (this.pid !== undefined) {
       try {
-        fs.process.kill(this.pid)
+        kill(this.pid)
         return true
       } catch (e) {
         return false
