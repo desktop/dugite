@@ -371,6 +371,7 @@ class GitTask implements IGitTask {
     this.pid = pid
     this.processEnded = false
   }
+
   private pid: Promise<number | undefined>
   /** Process may end because process completed or process errored. Either way, we can no longer cancel it. */
   private processEnded: boolean
