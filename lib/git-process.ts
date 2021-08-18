@@ -164,6 +164,14 @@ export class GitProcess {
    * And `cancel()` will try to cancel the git process
    */
   public static execTask(args: string[], path: string, options?: IGitExecutionOptions): IGitTask {
+    let pidResolve: {
+      (arg0: any): void
+      (value: number | PromiseLike<number | undefined> | undefined): void
+    }
+    const pidPromise = new Promise<undefined | number>(function(resolve) {
+      pidResolve = resolve
+    })
+
     let result = new GitTask(
       new Promise<IGitResult>(function(resolve, reject) {
         let customEnv = {}
@@ -190,6 +198,8 @@ export class GitProcess {
           stdout,
           stderr
         ) {
+          result.updateProcessEnded()
+
           if (!err) {
             resolve({ stdout, stderr, exitCode: 0 })
             return
@@ -245,7 +255,7 @@ export class GitProcess {
           }
         })
 
-        result.setPid(spawnedProcess.pid)
+        pidResolve(spawnedProcess.pid)
 
         ignoreClosedInputStream(spawnedProcess)
 
@@ -257,7 +267,8 @@ export class GitProcess {
         if (options && options.processCallback) {
           options.processCallback(spawnedProcess)
         }
-      })
+      }),
+      pidPromise
     )
 
     return result as IGitTask
@@ -338,34 +349,55 @@ function ignoreClosedInputStream(process: ChildProcess) {
   })
 }
 
+export enum GitTaskCancelResult {
+  successfulCancel,
+  processAlreadyEnded,
+  noProcessIdDefined,
+  failedToCancel
+}
+
 /** This interface represents a git task (process). */
 export interface IGitTask {
   /** Result of the git process. */
   readonly result: Promise<IGitResult>
-
   /** Allows to cancel the process if it's running. Returns true if the process was killed. */
-  readonly cancel: () => boolean
+  readonly cancel: () => Promise<GitTaskCancelResult>
+  readonly updateProcessEnded: () => void
 }
 
 class GitTask implements IGitTask {
-  constructor(result: Promise<IGitResult>) {
+  constructor(result: Promise<IGitResult>, pid: Promise<number | undefined>) {
     this.result = result
+    this.pid = pid
+    this.processEnded = false
   }
 
-  pid?: number
+  private pid: Promise<number | undefined>
+  /** Process may end because process completed or process errored. Either way, we can no longer cancel it. */
+  private processEnded: boolean
+
   result: Promise<IGitResult>
-  public setPid(pid: number) {
-    this.pid = pid
+
+  public updateProcessEnded(): void {
+    this.processEnded = true
   }
-  public cancel(): boolean {
-    if (this.pid !== undefined) {
-      try {
-        kill(this.pid)
-        return true
-      } catch (e) {
-        return false
-      }
+
+  public async cancel(): Promise<GitTaskCancelResult> {
+    if (this.processEnded) {
+      return GitTaskCancelResult.processAlreadyEnded
     }
-    return false
+
+    const pid = await this.pid
+
+    if (pid === undefined) {
+      return GitTaskCancelResult.noProcessIdDefined
+    }
+
+    try {
+      kill(pid)
+      return GitTaskCancelResult.successfulCancel
+    } catch (e) {}
+
+    return GitTaskCancelResult.failedToCancel
   }
 }
