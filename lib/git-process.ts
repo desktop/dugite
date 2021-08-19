@@ -271,7 +271,7 @@ export class GitProcess {
       pidPromise
     )
 
-    return result as IGitTask
+    return result
   }
 
   /** Try to parse an error type from stderr. */
