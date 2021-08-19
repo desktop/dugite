@@ -362,7 +362,6 @@ export interface IGitTask {
   readonly result: Promise<IGitResult>
   /** Allows to cancel the process if it's running. Returns true if the process was killed. */
   readonly cancel: () => Promise<GitTaskCancelResult>
-  readonly updateProcessEnded: () => void
 }
 
 class GitTask implements IGitTask {
