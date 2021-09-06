@@ -13,16 +13,17 @@ const temp = require('temp').track()
 
 describe('git-process', () => {
   it('clone-and-cancel', async () => {
-    const testCancelRepoPath = temp.mkdirSync('desktop-git-clone-and-cancel')
-    const options = {
-      env: setupNoAuth()
-    }
-    const result = GitProcess.execTask(
-      ['clone', '--', 'https://github.com/maifeeulasad/maifeeulasad.github.io', '.'],
-      testCancelRepoPath,
-      options
-    )
-    expect(await result.cancel()).toBe(GitTaskCancelResult.successfulCancel)
+    fs.mkdtemp('desktop-git-clone-and-cancel',async (err,folder)=>{
+      const options = {
+        env: setupNoAuth()
+      }
+      const result = GitProcess.execTask(
+        ['clone', '--', 'https://github.com/maifeeulasad/maifeeulasad.github.io', '.'],
+        folder,
+        options
+      )
+      expect(await result.cancel()).toBe(GitTaskCancelResult.successfulCancel)
+    })
   })
 
   it('can launch git', async () => {
