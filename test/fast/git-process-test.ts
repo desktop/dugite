@@ -2,7 +2,12 @@ import * as path from 'path'
 import * as fs from 'fs'
 import * as crypto from 'crypto'
 
-import { GitProcess, GitError, RepositoryDoesNotExistErrorCode, GitTaskCancelResult } from '../../lib'
+import {
+  GitProcess,
+  GitError,
+  RepositoryDoesNotExistErrorCode,
+  GitTaskCancelResult
+} from '../../lib'
 import { GitErrorRegexes } from '../../lib/errors'
 import { initialize, verify, initializeWithRemote, gitForWindowsVersion } from '../helpers'
 
@@ -13,7 +18,7 @@ const temp = require('temp').track()
 
 describe('git-process', () => {
   it('clone-and-cancel', async () => {
-    fs.mkdtemp('desktop-git-clone-and-cancel',async (err,folder)=>{
+    fs.mkdtemp('desktop-git-clone-and-cancel', async (err, folder) => {
       const options = {
         env: setupNoAuth()
       }
