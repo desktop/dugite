@@ -2,15 +2,29 @@ import * as path from 'path'
 import * as fs from 'fs'
 import * as crypto from 'crypto'
 
-import { GitProcess, GitError, RepositoryDoesNotExistErrorCode } from '../../lib'
+import { GitProcess, GitError, RepositoryDoesNotExistErrorCode, GitTaskCancelResult } from '../../lib'
 import { GitErrorRegexes } from '../../lib/errors'
 import { initialize, verify, initializeWithRemote, gitForWindowsVersion } from '../helpers'
 
 import { gitVersion } from '../helpers'
+import { setupNoAuth } from '../slow/auth'
 
 const temp = require('temp').track()
 
 describe('git-process', () => {
+  it('clone-and-cancel', async () => {
+    const testCancelRepoPath = temp.mkdirSync('desktop-git-clone-and-cancel')
+    const options = {
+      env: setupNoAuth()
+    }
+    const result = GitProcess.execTask(
+      ['clone', '--', 'https://github.com/maifeeulasad/maifeeulasad.github.io', '.'],
+      testCancelRepoPath,
+      options
+    )
+    expect(await result.cancel()).toBe(GitTaskCancelResult.successfulCancel)
+  })
+
   it('can launch git', async () => {
     const result = await GitProcess.exec(['--version'], __dirname)
     expect(result.stderr).toBe('')
