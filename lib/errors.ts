@@ -139,7 +139,7 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
     GitError.ProtectedBranchRequiredStatus,
   'error: GH007: Your push would publish a private email address.': GitError.PushWithPrivateEmail,
   'error: could not lock config file (.+): File exists': GitError.ConfigLockFileAlreadyExists,
-  'fatal: remote (.+) already exists.': GitError.RemoteAlreadyExists,
+  'error: remote (.+) already exists.': GitError.RemoteAlreadyExists,
   "fatal: tag '(.+)' already exists": GitError.TagAlreadyExists,
   'error: Your local changes to the following files would be overwritten by merge:\n':
     GitError.MergeWithLocalChanges,
