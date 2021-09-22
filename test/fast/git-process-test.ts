@@ -23,7 +23,7 @@ describe('git-process', () => {
         env: setupNoAuth()
       }
       const result = GitProcess.execTask(
-        ['clone', '--', 'https://github.com/maifeeulasad/maifeeulasad.github.io', '.'],
+        ['clone', 'https://github.com/maifeeulasad/maifeeulasad.github.io', folder],
         folder,
         options
       )
