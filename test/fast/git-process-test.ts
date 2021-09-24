@@ -1,6 +1,7 @@
 import * as path from 'path'
 import * as fs from 'fs'
 import * as crypto from 'crypto'
+import * as os from 'os'
 
 import {
   GitProcess,
@@ -18,17 +19,20 @@ const temp = require('temp').track()
 
 describe('git-process', () => {
   it('clone-and-cancel', async () => {
-    fs.mkdtemp('desktop-git-clone-and-cancel', async (err, folder) => {
-      const options = {
-        env: setupNoAuth()
-      }
-      const result = GitProcess.execTask(
-        ['clone', 'https://github.com/maifeeulasad/maifeeulasad.github.io', folder],
-        folder,
-        options
-      )
-      expect(await result.cancel()).toBe(GitTaskCancelResult.successfulCancel)
-    })
+    const tempDir = path.join(os.tmpdir(), 'desktop-git-clone-and-cancel-')
+
+    const folder = fs.mkdtempSync(tempDir)
+    const options = {
+      env: setupNoAuth()
+    }
+    const task = GitProcess.execTask(
+      ['clone', '--', 'https://github.com/maifeeulasad/maifeeulasad.github.io', folder],
+      folder,
+      options
+    )
+    const cancelResult = await task.cancel()
+    await task.result
+    expect(cancelResult).toBe(GitTaskCancelResult.successfulCancel)
   })
 
   it('can launch git', async () => {
