@@ -1,4 +1,4 @@
-import { GitProcess, GitError, IGitExecutionOptions } from '../lib/'
+import { GitProcess, parseError } from '../lib/'
 
 // for readability, let's alias this
 const git = GitProcess.exec
@@ -29,7 +29,7 @@ export async function createCommit(path: string, message: string) {
 
   const result = await git(['commit', '-F', '-'], path, { stdin: message })
   if (result.exitCode !== 0) {
-    const error = GitProcess.parseError(result.stderr)
+    const error = parseError(result.stderr)
     if (error) {
       console.log(`Got error code: ${error}`)
     } else {
