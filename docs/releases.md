@@ -41,13 +41,17 @@ Releases are done to NPM, and are currently limited to the core team.
 ```sh
 # to ensure everything is up-to-date and tests pass
 npm ci
-npm test
+
+# if you have not run `npm run build` before, a couple of you cloning auth test will fail.
+npm test 
+
 
 # you might need to do a different sort of version bump here
 npm version minor
 
 # this will also run the test suite and fail if any errors found
 # this will also run `git push --follow-tags` at the end
+# remember to `npm login`
 npm publish
 ```
 
