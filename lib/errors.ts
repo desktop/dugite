@@ -68,7 +68,7 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
   'fatal: Authentication failed': GitError.SSHAuthenticationFailed,
   'fatal: Could not read from remote repository.': GitError.SSHPermissionDenied,
   'The requested URL returned error: 403': GitError.HTTPSAuthenticationFailed,
-  'fatal: The remote end hung up unexpectedly': GitError.RemoteDisconnection,
+  'fatal: [Tt]he remote end hung up unexpectedly': GitError.RemoteDisconnection,
   "fatal: unable to access '(.+)': Failed to connect to (.+): Host is down": GitError.HostDown,
   "Cloning into '(.+)'...\nfatal: unable to access '(.+)': Could not resolve host: (.+)":
     GitError.HostDown,
@@ -91,7 +91,7 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
   "Your configuration specifies to merge with the ref '(.+)'\nfrom the remote, but no such ref was fetched.":
     GitError.NoExistingRemoteBranch,
   'nothing to commit': GitError.NothingToCommit,
-  "No submodule mapping found in .gitmodules for path '(.+)'": GitError.NoSubmoduleMapping,
+  "[Nn]o submodule mapping found in .gitmodules for path '(.+)'": GitError.NoSubmoduleMapping,
   "fatal: repository '(.+)' does not exist\nfatal: clone of '.+' into submodule path '(.+)' failed":
     GitError.SubmoduleRepositoryDoesNotExist,
   "Fetched in submodule path '(.+)', but it did not contain (.+). Direct fetching of that commit failed.":
