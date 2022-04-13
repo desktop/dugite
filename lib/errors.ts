@@ -147,7 +147,7 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
   'error: cannot (pull with rebase|rebase): You have unstaged changes\\.\n\\s*error: [Pp]lease commit or stash them\\.':
     GitError.RebaseWithLocalChanges,
   'error: commit (.+) is a merge but no -m option was given': GitError.MergeCommitNoMainlineOption,
-  "fatal: unsafe repository ('(.+)' is owned by someone else)": GitError.UnsafeDirectory
+  "fatal: unsafe repository \\('(.+)' is owned by someone else\\)": GitError.UnsafeDirectory
 }
 
 /**
