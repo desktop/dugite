@@ -31,4 +31,12 @@ describe('detects errors', () => {
 
     expect(result).toHaveGitError(GitError.TagAlreadyExists)
   })
+  it('BranchAlreadyExists', async () => {
+    const path = await initialize('branch-already-exists', 'foo')
+    await GitProcess.exec(['commit', '-m', 'initial', '--allow-empty'], path)
+
+    const result = await GitProcess.exec(['branch', 'foo'], path)
+
+    expect(result).toHaveGitError(GitError.BranchAlreadyExists)
+  })
 })

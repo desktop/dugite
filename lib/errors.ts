@@ -104,7 +104,7 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
     GitError.NonFastForwardMergeIntoEmptyHead,
   'error: (.+): (patch does not apply|already exists in working directory)':
     GitError.PatchDoesNotApply,
-  "fatal: A branch named '(.+)' already exists.": GitError.BranchAlreadyExists,
+  "fatal: [Aa] branch named '(.+)' already exists.?": GitError.BranchAlreadyExists,
   "fatal: bad revision '(.*)'": GitError.BadRevision,
   'fatal: [Nn]ot a git repository \\(or any of the parent directories\\): (.*)':
     GitError.NotAGitRepository,
