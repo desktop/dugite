@@ -2,6 +2,7 @@ import { GitProcess, GitError } from '../../lib'
 import { initialize } from '../helpers'
 import { writeFileSync } from 'fs'
 import { join } from 'path'
+import { GitErrorRegexes } from '../../lib/errors'
 
 describe('detects errors', () => {
   it('RemoteAlreadyExists', async () => {
@@ -38,5 +39,28 @@ describe('detects errors', () => {
     const result = await GitProcess.exec(['branch', 'foo'], path)
 
     expect(result).toHaveGitError(GitError.BranchAlreadyExists)
+  })
+  it('UnsafeDirectory', async () => {
+    const path = await initialize('branch-already-exists')
+
+    const result = await GitProcess.exec(['status'], path, {
+      env: {
+        GIT_TEST_ASSUME_DIFFERENT_OWNER: 1
+      }
+    })
+
+    expect(result).toHaveGitError(GitError.UnsafeDirectory)
+
+    const errorEntry = Object.entries(GitErrorRegexes).find(
+      ([_, v]) => v === GitError.UnsafeDirectory
+    )
+
+    expect(errorEntry).not.toBe(null)
+
+    const m = result.stderr.match(errorEntry![0])
+    const comparePath = process.platform === 'win32' ? path.replace(/\\/g, '/') : path
+
+    // toContain because of realpath and we don't care about /private/ on macOS
+    expect(m![1]).toContain(comparePath)
   })
 })
