@@ -1,11 +1,8 @@
 import { GitProcess, GitError } from '../../lib'
 import { initialize } from '../helpers'
-import { realpath, writeFileSync } from 'fs'
+import { realpathSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { GitErrorRegexes } from '../../lib/errors'
-import { promisify } from 'util'
-
-const pRealPath = promisify(realpath)
 
 describe('detects errors', () => {
   it('RemoteAlreadyExists', async () => {
@@ -62,9 +59,9 @@ describe('detects errors', () => {
 
     const m = result.stderr.match(errorEntry![0])
     const comparePath =
-      process.platform === 'win32' ? (await pRealPath(path)).replace(/\\/g, '/') : path
+      process.platform === 'win32' ? realpathSync(path).replace(/\\/g, '/') : realpathSync(path)
 
     // toContain because of realpath and we don't care about /private/ on macOS
-    expect(m![1]).toContain(comparePath)
+    expect(m![1]).toBe(comparePath)
   })
 })
