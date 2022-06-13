@@ -44,6 +44,10 @@ describe('detects errors', () => {
     const repoName = 'branch-already-exists'
     const path = await initialize(repoName)
 
+    const { stdout: version } = await GitProcess.exec(['--version'], path)
+
+    expect(version).toBe('x')
+
     const result = await GitProcess.exec(['status'], path, {
       env: {
         GIT_TEST_ASSUME_DIFFERENT_OWNER: 1
