@@ -44,9 +44,9 @@ describe('detects errors', () => {
     const repoName = 'branch-already-exists'
     const path = await initialize(repoName)
 
-    const { stdout: version } = await GitProcess.exec(['--version'], path)
+    const { stdout } = await GitProcess.exec(['--exec-path'], path)
 
-    expect(version).toBe('x')
+    expect(stdout).toBe('x')
 
     const result = await GitProcess.exec(['status'], path, {
       env: {
