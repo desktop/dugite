@@ -40,26 +40,13 @@ describe('detects errors', () => {
 
     expect(result).toHaveGitError(GitError.BranchAlreadyExists)
   })
-  it('UnsafeDirectory', async () => {
-    const repoName = 'branch-already-exists'
-    const path = await initialize(repoName)
-
-    const result = await GitProcess.exec(['status'], path, {
-      env: {
-        GIT_TEST_ASSUME_DIFFERENT_OWNER: 1
-      }
-    })
-
-    expect(result).toHaveGitError(GitError.NothingToCommit)
-  })
-
   it('UnsafeDirectory2', async () => {
     const repoName = 'branch-already-exists'
     const path = await initialize(repoName)
 
     const result = await GitProcess.exec(['status'], path, {
       env: {
-        GIT_TEST_ASSUME_DIFFERENT_OWNER: 1
+        GIT_TEST_ASSUME_DIFFERENT_OWNER: true
       }
     })
 
