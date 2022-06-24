@@ -50,6 +50,19 @@ describe('detects errors', () => {
       }
     })
 
+    expect(result).toHaveGitError(GitError.NothingToCommit)
+  })
+
+  it('UnsafeDirectory', async () => {
+    const repoName = 'branch-already-exists'
+    const path = await initialize(repoName)
+
+    const result = await GitProcess.exec(['status'], path, {
+      env: {
+        GIT_TEST_ASSUME_DIFFERENT_OWNER: 1
+      }
+    })
+
     expect(result).toHaveGitError(GitError.UnsafeDirectory)
 
     const errorEntry = Object.entries(GitErrorRegexes).find(
