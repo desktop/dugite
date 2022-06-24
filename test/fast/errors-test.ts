@@ -53,7 +53,7 @@ describe('detects errors', () => {
     expect(result).toHaveGitError(GitError.NothingToCommit)
   })
 
-  it('UnsafeDirectory', async () => {
+  it('UnsafeDirectory2', async () => {
     const repoName = 'branch-already-exists'
     const path = await initialize(repoName)
 
