@@ -51,7 +51,7 @@ describe('detects errors', () => {
     })
 
     if (1 === 1) {
-      throw new Error(result.stderr)
+      throw new Error(result.stderr + result.stdout)
     }
 
     expect(result).toHaveGitError(GitError.UnsafeDirectory)
