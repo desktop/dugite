@@ -44,15 +44,11 @@ describe('detects errors', () => {
     const repoName = 'branch-already-exists'
     const path = await initialize(repoName)
 
-    const result = await GitProcess.exec(['status'], path, {
+    const result = await GitProcess.exec(['commit', '-m', 'initial', '--allow-empty'], path, {
       env: {
         GIT_TEST_ASSUME_DIFFERENT_OWNER: 1
       }
     })
-
-    if (1 === 1) {
-      throw new Error(result.stderr + result.stdout)
-    }
 
     expect(result).toHaveGitError(GitError.UnsafeDirectory)
 
