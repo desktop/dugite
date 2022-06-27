@@ -43,6 +43,9 @@ describe('detects errors', () => {
   it('UnsafeDirectory', async () => {
     const repoName = 'branch-already-exists'
     const path = await initialize(repoName)
+    if (1 === 1) {
+      throw new Error(path)
+    }
 
     const result = await GitProcess.exec(['status'], path, {
       env: {
