@@ -24,7 +24,7 @@ const defaultEnv = {
   HOME: ''
 }
 
-export function setupAskPass(username?: string, password?: string): Object {
+export function setupAskPass(username?: string, password?: string): object {
   const auth = {
     TEST_USERNAME: username,
     TEST_PASSWORD: password,
@@ -34,6 +34,6 @@ export function setupAskPass(username?: string, password?: string): Object {
   return Object.assign(auth, defaultEnv)
 }
 
-export function setupNoAuth(): Object {
+export function setupNoAuth(): object {
   return defaultEnv
 }

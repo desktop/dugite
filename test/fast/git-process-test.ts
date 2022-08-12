@@ -195,7 +195,7 @@ describe('git-process', () => {
       try {
         await GitProcess.exec(['show', 'HEAD'], testRepoPath)
       } catch (e) {
-        error = e
+        error = e as Error
       }
 
       expect(error!.message).toBe('Unable to find path to repository on disk.')
