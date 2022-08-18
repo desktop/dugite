@@ -6,7 +6,6 @@ const mkdirp = require('mkdirp')
 const checksum = require('checksum')
 const rimraf = require('rimraf')
 const tar = require('tar')
-const zlib = require('zlib')
 
 const config = require('./config')()
 
@@ -41,11 +40,9 @@ const verifyFile = function(file, callback) {
 }
 
 const unpackFile = function(file) {
-  extract(file, function(error) {
-    if (error) {
-      console.log('Unable to extract archive, aborting...', error)
-      process.exit(1)
-    }
+  tar.x({ cwd: config.outputPath, file }).catch(e => {
+    console.log('Unable to extract archive, aborting...', error)
+    process.exit(1)
   })
 }
 

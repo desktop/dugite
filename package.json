@@ -13,6 +13,7 @@
     "test:fast": "cross-env LOCAL_GIT_DIRECTORY=./git/ jest --runInBand --silent --config ./jest.fast.config.js",
     "test:slow": "cross-env LOCAL_GIT_DIRECTORY=./git/ jest --runInBand --silent --config ./jest.slow.config.js",
     "test:external": "jest --runInBand --silent --config ./jest.external.config.js",
+    "download-git": "node ./script/download-git.js",
     "postinstall": "node ./script/download-git.js",
     "prettify": "prettier \"{examples,lib,script,test}/**/*.ts\" --write",
     "is-it-pretty": "prettier --check \"{examples,lib,script,test}/**/*.ts\"",
@@ -37,7 +38,7 @@
     "mkdirp": "^0.5.1",
     "progress": "^2.0.3",
     "rimraf": "^2.5.4",
-    "tar": "^4.4.7"
+    "tar": "^6.1.11"
   },
   "devDependencies": {
     "@types/checksum": "^0.1.30",
@@ -47,6 +48,7 @@
     "@types/node": "^11.9.0",
     "@types/progress": "^2.0.1",
     "@types/rimraf": "2.0.2",
+    "@types/tar": "^6.1.2",
     "byline": "^5.0.0",
     "cross-env": "^5.2.0",
     "find-git-exec": "0.0.1-alpha.2",
