@@ -14,7 +14,6 @@ jobs:
       fail-fast: false
       matrix:
         nodeVersion: [12, 14, 16, 18]
-        arch: [x64]
         os: [macos-11, windows-2019, ubuntu-22.04]
         include:
           - os: macos-11
@@ -32,10 +31,10 @@ jobs:
         with:
           submodules: recursive
       - name: Install Node.js ${{ matrix.nodeVersion }} (${{ matrix.arch }})
-        uses: niik/setup-node@f9547c97f4c519f71dc42e652d6d2c53f9527c1d
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.nodeVersion }}
-          node-arch: ${{ matrix.arch }}
+          architecture: ${{ matrix.arch }}
       - name: Install and build dependencies
         run: yarn
         env:
