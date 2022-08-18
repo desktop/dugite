@@ -46,7 +46,7 @@ yarn
 
 yarn build
 
-# if you have not run `npm run build` before, a couple of you cloning auth test will fail.
+# if you have not run `yarn build` before, a couple of you cloning auth test will fail.
 yarn test
 
 # you might need to do a different sort of version bump here
