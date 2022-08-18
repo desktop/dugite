@@ -18,7 +18,7 @@ const verifyFile = function(file, callback) {
     callback(match)
   })
 
-  fs.createReadStream(file, { autoClose: true }).pipe(h)
+  fs.createReadStream(file).pipe(h)
 }
 
 const unpackFile = function(file) {
