@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.friendlyName }} ${{ matrix.arch }}
+    name: ${{ matrix.friendlyName }} Node ${{matrix.nodeVersion}} ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -18,14 +18,14 @@ jobs:
         os: [macos-11, windows-2019, ubuntu-22.04]
         include:
           - os: macos-11
-            friendlyName: macOS Node ${{ matrix.nodeVersion }}
+            friendlyName: macOS
           - os: windows-2019
-            friendlyName: Windows Node ${{ matrix.nodeVersion }}
+            friendlyName: Windows
           - os: windows-2019
-            friendlyName: Windows Node ${{ matrix.nodeVersion }}
+            friendlyName: Windows
             arch: x86
           - os: ubuntu-22.04
-            friendlyName: Linux Node ${{ matrix.nodeVersion }}
+            friendlyName: Linux
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v2
