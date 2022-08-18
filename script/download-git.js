@@ -9,24 +9,6 @@ const tar = require('tar')
 
 const config = require('./config')()
 
-function extract(source, callback) {
-  const extractor = tar
-    .extract({ cwd: config.outputPath })
-    .on('error', function(error) {
-      callback(error)
-    })
-    .on('end', function() {
-      callback()
-    })
-
-  fs.createReadStream(source)
-    .on('error', function(error) {
-      callback(error)
-    })
-    .pipe(zlib.Gunzip())
-    .pipe(extractor)
-}
-
 const verifyFile = function(file, callback) {
   checksum.file(file, { algorithm: 'sha256' }, (_, hash) => {
     const match = hash === config.checksum
