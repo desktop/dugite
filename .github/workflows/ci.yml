@@ -18,23 +18,23 @@ jobs:
         os: [macos-11, windows-2019, ubuntu-22.04]
         include:
           - os: macos-11
-            friendlyName: macOS
+            friendlyName: macOS Node ${{ matrix.nodeVersion }}
           - os: windows-2019
-            friendlyName: Windows
+            friendlyName: Windows Node ${{ matrix.nodeVersion }}
           - os: windows-2019
-            friendlyName: Windows
+            friendlyName: Windows Node ${{ matrix.nodeVersion }}
             arch: x86
           - os: ubuntu-22.04
-            friendlyName: Linux
+            friendlyName: Linux Node ${{ matrix.nodeVersion }}
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-      - name: Install Node.js ${{ matrix.arch }}
+      - name: Install Node.js ${{ matrix.nodeVersion }} (${{ matrix.arch }})
         uses: niik/setup-node@f9547c97f4c519f71dc42e652d6d2c53f9527c1d
         with:
-          node-version: 12
+          node-version: ${{ matrix.nodeVersion }}
           node-arch: ${{ matrix.arch }}
       - name: Install and build dependencies
         run: yarn
