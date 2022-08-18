@@ -1,10 +1,10 @@
 const fs = require('fs')
 
 const ProgressBar = require('progress')
-const rimraf = require('rimraf')
 const tar = require('tar')
 const https = require('https')
 const { createHash } = require('crypto')
+const { rmSync } = require('fs')
 
 const config = require('./config')()
 
@@ -104,14 +104,7 @@ if (config.source === '') {
   process.exit(0)
 }
 
-if (fs.existsSync(config.outputPath)) {
-  try {
-    rimraf.sync(config.outputPath)
-  } catch (err) {
-    console.error(err)
-    return
-  }
-}
+rmSync(config.outputPath, { recursive: true, force: true })
 
 fs.mkdir(config.outputPath, { recursive: true }, function(error) {
   if (error) {
@@ -126,7 +119,7 @@ fs.mkdir(config.outputPath, { recursive: true }, function(error) {
       if (valid) {
         unpackFile(tempFile)
       } else {
-        rimraf.sync(tempFile)
+        rmSync(tempFile)
         downloadAndUnpack(config.source)
       }
     })

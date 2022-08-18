@@ -34,7 +34,6 @@
   "homepage": "https://github.com/desktop/dugite#readme",
   "dependencies": {
     "progress": "^2.0.3",
-    "rimraf": "^2.5.4",
     "tar": "^6.1.11"
   },
   "devDependencies": {
@@ -49,6 +48,7 @@
     "find-git-exec": "0.0.1-alpha.2",
     "jest": "^28.1.3",
     "prettier": "1.16.4",
+    "rimraf": "^2.5.4",
     "temp": "^0.9.0",
     "ts-jest": "^28.0.8",
     "typescript": "^4.7.4"
