@@ -81,8 +81,6 @@ const downloadAndUnpack = (url, isFollowingRedirect) => {
 
     res.on('data', c => bar.tick(c.length))
     res.on('end', function() {
-      console.log('\n')
-
       verifyFile(config.tempFile, valid => {
         if (valid) {
           unpackFile(config.tempFile)
