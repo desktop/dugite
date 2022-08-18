@@ -1,20 +1,33 @@
-const got = require('got')
 const fs = require('fs')
 const path = require('path')
+const https = require('https')
 
-const url = `https://api.github.com/repos/desktop/dugite-native/releases/latest`
+const get = url => {
+  const options = {
+    headers: { 'User-Agent': 'dugite' },
+    secureProtocol: 'TLSv1_2_method'
+  }
 
-const options = {
-  headers: {
-    'User-Agent': 'dugite'
-  },
-  secureProtocol: 'TLSv1_2_method',
-  json: true
+  return new Promise((resolve, reject) => {
+    https.get(url, options).on('response', res => {
+      if ([301, 302].includes(res.statusCode)) {
+        get(res.headers.location).then(resolve, reject)
+      } else if (res.statusCode !== 200) {
+        reject(new Error(`Got ${res.statusCode} from ${url}`))
+      } else {
+        const chunks = []
+        res.on('data', chunk => chunks.push(chunk))
+        res.on('end', () => {
+          resolve(Buffer.concat(chunks).toString('utf8'))
+        })
+      }
+    })
+  })
 }
 
-got(url, options).then(
+get(`https://api.github.com/repos/desktop/dugite-native/releases/latest`).then(
   async response => {
-    const { tag_name, assets } = response.body
+    const { tag_name, assets } = JSON.parse(response)
 
     console.log(`Updating embedded git config to use version ${tag_name}`)
 
@@ -84,25 +97,11 @@ function findLinux64BitRelease(assets) {
   return getDetailsForAsset(assets, asset)
 }
 
-function downloadChecksum(csUrl) {
-  const options = {
-    headers: {
-      Accept: 'application/octet-stream',
-      'User-Agent': 'dugite-native'
-    },
-    secureProtocol: 'TLSv1_2_method'
-  }
-
-  return got(csUrl, options).then(response => {
-    return response.body
-  })
-}
-
 async function getDetailsForAsset(assets, currentAsset) {
   const { name } = currentAsset
   const url = currentAsset.browser_download_url
   const checksumFile = assets.find(a => a.name === `${name}.sha256`)
-  const checksumRaw = await downloadChecksum(checksumFile.browser_download_url)
+  const checksumRaw = await get(checksumFile.browser_download_url)
   const checksum = checksumRaw.trim()
   return { name, url, checksum }
 }
