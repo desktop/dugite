@@ -73,7 +73,10 @@ function resolveGitExecPath(): string {
  */
 export function setupEnvironment(
   environmentVariables: NodeJS.ProcessEnv
-): { env: NodeJS.ProcessEnv; gitLocation: string } {
+): {
+  env: NodeJS.ProcessEnv
+  gitLocation: string
+} {
   const gitLocation = resolveGitBinary()
 
   let envPath: string = process.env.PATH || ''
