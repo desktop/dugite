@@ -26,6 +26,7 @@ jobs:
           - os: windows-2019
             friendlyName: Windows
           - os: windows-2019
+            friendlyName: Windows
             arch: x86
           - os: ubuntu-22.04
             friendlyName: Linux
