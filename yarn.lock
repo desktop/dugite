@@ -1971,10 +1971,10 @@ pkg-dir@^4.2.0:
   dependencies:
     find-up "^4.0.0"
 
-prettier@1.15.2:
-  version "1.15.2"
-  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.15.2.tgz#d31abe22afa4351efa14c7f8b94b58bb7452205e"
-  integrity sha512-YgPLFFA0CdKL4Eg2IHtUSjzj/BWgszDHiNQAe0VAIBse34148whfdzLagRL+QiKS+YfK5ftB6X4v/MBw8yCoug==
+prettier@1.16.4:
+  version "1.16.4"
+  resolved "https://registry.yarnpkg.com/prettier/-/prettier-1.16.4.tgz#73e37e73e018ad2db9c76742e2647e21790c9717"
+  integrity sha512-ZzWuos7TI5CKUeQAtFd6Zhm2s6EpAD/ZLApIhsF9pRvRtM1RFo61dM/4MSRUA0SuLugA/zgrZD8m0BaY46Og7g==
 
 pretty-format@^28.0.0, pretty-format@^28.1.3:
   version "28.1.3"
