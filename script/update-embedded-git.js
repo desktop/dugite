@@ -1,29 +1,6 @@
 const fs = require('fs')
 const path = require('path')
-const https = require('https')
-
-const get = url => {
-  const options = {
-    headers: { 'User-Agent': 'dugite' },
-    secureProtocol: 'TLSv1_2_method'
-  }
-
-  return new Promise((resolve, reject) => {
-    https.get(url, options).on('response', res => {
-      if ([301, 302].includes(res.statusCode)) {
-        get(res.headers.location).then(resolve, reject)
-      } else if (res.statusCode !== 200) {
-        reject(new Error(`Got ${res.statusCode} from ${url}`))
-      } else {
-        const chunks = []
-        res.on('data', chunk => chunks.push(chunk))
-        res.on('end', () => {
-          resolve(Buffer.concat(chunks).toString('utf8'))
-        })
-      }
-    })
-  })
-}
+const { get } = require('./utils')
 
 get(`https://api.github.com/repos/desktop/dugite-native/releases/latest`).then(
   async response => {
