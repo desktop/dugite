@@ -4,7 +4,7 @@ const ProgressBar = require('progress')
 const tar = require('tar')
 const https = require('https')
 const { createHash } = require('crypto')
-const { rmSync } = require('fs')
+const { rm, mkdir, createReadStream, createWriteStream, existsSync } = require('fs')
 
 const config = require('./config')()
 
@@ -18,7 +18,7 @@ const verifyFile = function(file, callback) {
     callback(match)
   })
 
-  fs.createReadStream(file).pipe(h)
+  createReadStream(file).pipe(h)
 }
 
 const unpackFile = function(file) {
@@ -77,7 +77,7 @@ const downloadAndUnpack = (url, isFollowingRedirect) => {
       total: len
     })
 
-    res.pipe(fs.createWriteStream(config.tempFile))
+    res.pipe(createWriteStream(config.tempFile))
 
     res.on('data', c => bar.tick(c.length))
     res.on('end', function() {
@@ -101,27 +101,32 @@ if (config.source === '') {
   process.exit(0)
 }
 
-rmSync(config.outputPath, { recursive: true, force: true })
-
-fs.mkdir(config.outputPath, { recursive: true }, function(error) {
+rm(config.outputPath, { recursive: true, force: true }, error => {
   if (error) {
-    console.log(`Unable to create directory at ${config.outputPath}`, error)
+    console.log(`Unable to clean directory at ${config.outputPath}`, error)
     process.exit(1)
   }
 
-  const tempFile = config.tempFile
+  mkdir(config.outputPath, { recursive: true }, function(error) {
+    if (error) {
+      console.log(`Unable to create directory at ${config.outputPath}`, error)
+      process.exit(1)
+    }
 
-  if (fs.existsSync(tempFile)) {
-    verifyFile(tempFile, valid => {
-      if (valid) {
-        unpackFile(tempFile)
-      } else {
-        rmSync(tempFile)
-        downloadAndUnpack(config.source)
-      }
-    })
-    return
-  }
+    const tempFile = config.tempFile
 
-  downloadAndUnpack(config.source)
+    if (existsSync(tempFile)) {
+      verifyFile(tempFile, valid => {
+        if (valid) {
+          unpackFile(tempFile)
+        } else {
+          rmSync(tempFile)
+          downloadAndUnpack(config.source)
+        }
+      })
+      return
+    }
+
+    downloadAndUnpack(config.source)
+  })
 })
