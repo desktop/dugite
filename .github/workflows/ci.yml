@@ -27,6 +27,7 @@ jobs:
             friendlyName: Windows
           - os: windows-2019
             friendlyName: Windows
+            nodeVersion: 16
             arch: x86
           - os: ubuntu-22.04
             friendlyName: Linux
