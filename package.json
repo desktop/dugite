@@ -34,7 +34,6 @@
   "homepage": "https://github.com/desktop/dugite#readme",
   "dependencies": {
     "checksum": "^0.1.1",
-    "got": "^9.6.0",
     "mkdirp": "^0.5.1",
     "progress": "^2.0.3",
     "rimraf": "^2.5.4",
@@ -42,7 +41,6 @@
   },
   "devDependencies": {
     "@types/checksum": "^0.1.30",
-    "@types/got": "^9.6.0",
     "@types/jest": "^28.1.7",
     "@types/mkdirp": "^0.5.2",
     "@types/node": "^11.9.0",

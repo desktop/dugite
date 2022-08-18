@@ -1,11 +1,12 @@
 const fs = require('fs')
 
-const got = require('got')
 const ProgressBar = require('progress')
 const mkdirp = require('mkdirp')
 const checksum = require('checksum')
 const rimraf = require('rimraf')
 const tar = require('tar')
+const http = require('https')
+const https = require('https')
 
 const config = require('./config')()
 
@@ -28,8 +29,10 @@ const unpackFile = function(file) {
   })
 }
 
-const downloadAndUnpack = () => {
-  console.log(`Downloading Git from: ${config.source}`)
+const downloadAndUnpack = (url, redirect) => {
+  if (!redirect) {
+    console.log(`Downloading Git from: ${config.source}`)
+  }
 
   const options = {
     headers: {
@@ -39,11 +42,15 @@ const downloadAndUnpack = () => {
     secureProtocol: 'TLSv1_2_method'
   }
 
-  const client = got.stream(config.source, options)
+  const client = url.startsWith('https:') ? https : config.startsWith('http:') ? http : null
 
-  client.pipe(fs.createWriteStream(config.tempFile))
+  if (!client) {
+    throw new Error(`Invalid protocol for ${config.source}`)
+  }
 
-  client.on('error', function(error) {
+  const req = client.get(url, options)
+
+  req.on('error', function(error) {
     if (error.code === 'ETIMEDOUT') {
       console.log(
         `A timeout has occurred while downloading '${config.source}' - check ` +
@@ -57,7 +64,12 @@ const downloadAndUnpack = () => {
     process.exit(1)
   })
 
-  client.on('response', function(res) {
+  req.on('response', function(res) {
+    if ([301, 302].includes(res.statusCode) && res.headers['location']) {
+      downloadAndUnpack(res.headers.location, true)
+      return
+    }
+
     if (res.statusCode !== 200) {
       console.log(`Non-200 response returned from ${config.source} - (${res.statusCode})`)
       process.exit(1)
@@ -72,6 +84,8 @@ const downloadAndUnpack = () => {
       width: 50,
       total: len
     })
+
+    res.pipe(fs.createWriteStream(config.tempFile))
 
     res.on('data', function(chunk) {
       bar.tick(chunk.length)
@@ -123,11 +137,11 @@ mkdirp(config.outputPath, function(error) {
         unpackFile(tempFile)
       } else {
         rimraf.sync(tempFile)
-        downloadAndUnpack()
+        downloadAndUnpack(config.source)
       }
     })
     return
   }
 
-  downloadAndUnpack()
+  downloadAndUnpack(config.source)
 })
