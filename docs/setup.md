@@ -2,7 +2,7 @@
 
 This is what you need to install:
 
- - [NodeJS](https://nodejs.org) v6 or higher
+- [NodeJS](https://nodejs.org) v12 or higher
 
 Then open a shell and clone the repository to your local machine.
 
