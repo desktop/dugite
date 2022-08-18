@@ -2,24 +2,25 @@ const fs = require('fs')
 
 const ProgressBar = require('progress')
 const mkdirp = require('mkdirp')
-const checksum = require('checksum')
 const rimraf = require('rimraf')
 const tar = require('tar')
 const http = require('https')
 const https = require('https')
+const { createHash } = require('crypto')
 
 const config = require('./config')()
 
 const verifyFile = function(file, callback) {
-  checksum.file(file, { algorithm: 'sha256' }, (_, hash) => {
+  const h = createHash('sha256').on('finish', () => {
+    const hash = h.digest('hex')
     const match = hash === config.checksum
-
     if (!match) {
       console.log(`Validation failed. Expected '${config.checksum}' but got '${hash}'`)
     }
-
     callback(match)
   })
+
+  fs.createReadStream(file, { autoClose: true }).pipe(h)
 }
 
 const unpackFile = function(file) {
