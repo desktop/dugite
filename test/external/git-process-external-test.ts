@@ -27,11 +27,10 @@ async function setupGitEnvironment(): Promise<Git | null> {
 
 describe('git-process [with external Git executable]', () => {
   describe('clone', () => {
-    it('returns exit code when successful', async fn => {
+    it('returns exit code when successful', async () => {
       const git = await setupGitEnvironment()
       if (git == null) {
-        fn('External Git was not found on the host system.')
-        return
+        throw new Error('External Git was not found on the host system.')
       }
 
       const testRepoPath = temp.mkdirSync('desktop-git-clone-valid-external')
@@ -42,7 +41,6 @@ describe('git-process [with external Git executable]', () => {
       verify(result, r => {
         expect(r.exitCode).toEqual(0)
       })
-      fn()
     })
   })
 })
