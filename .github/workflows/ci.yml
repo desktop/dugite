@@ -37,17 +37,17 @@ jobs:
           node-version: 12
           node-arch: ${{ matrix.arch }}
       - name: Install and build dependencies
-        run: npm ci
+        run: yarn
         env:
           npm_config_arch: ${{ matrix.arch }}
       - name: Build
-        run: npm run build
+        run: yarn build
       - name: Lint
-        run: npm run is-it-pretty
+        run: yarn is-it-pretty
       - name: Reset safe.directory
         run: git config --global --add safe.directory ""
         shell: bash
       - name: Test
-        run: npm run test
+        run: yarn test
         env:
           TEST: 1

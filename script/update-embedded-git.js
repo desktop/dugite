@@ -36,8 +36,8 @@ got(url, options).then(
     console.log()
     console.log('Next you should prepare a new release:')
     console.log(`- commit any changes`)
-    console.log(`- update the installed package with \`npm i\``)
-    console.log(`- run the test suite with \`npm test\``)
+    console.log(`- update the installed package with \`yarn\``)
+    console.log(`- run the test suite with \`yarn test\``)
   },
   err => {
     console.error('Unable to get latest release', err)

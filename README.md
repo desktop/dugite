@@ -12,6 +12,12 @@ Add it to your project:
 > npm install dugite
 ```
 
+or
+
+```
+> yarn add dugite
+```
+
 Then reference it in your application:
 
 ```js
@@ -19,7 +25,7 @@ import { GitProcess, GitError, IGitResult } from 'dugite'
 
 const pathToRepository = 'C:/path/to/git/repository/'
 
-const result = await GitProcess.exec([ 'status' ], pathToRepository)
+const result = await GitProcess.exec(['status'], pathToRepository)
 if (result.exitCode === 0) {
   const output = result.stdout
   // do some things with the output
@@ -31,16 +37,16 @@ if (result.exitCode === 0) {
 
 ### Features
 
- - make it easy to work with Git repositories
- - use the same commands as you would in a shell
- - access to the full set of commands, options and formatting that Git core uses
- - access to the latest features of Git
+- make it easy to work with Git repositories
+- use the same commands as you would in a shell
+- access to the full set of commands, options and formatting that Git core uses
+- access to the latest features of Git
 
 ### Supported Platforms
 
- - Windows 7 and later
- - macOS 10.9 and up
- - Linux (tested on Ubuntu Precise/Trusty and Fedora 24)
+- Windows 7 and later
+- macOS 10.9 and up
+- Linux (tested on Ubuntu Precise/Trusty and Fedora 24)
 
 ### Status
 
@@ -52,7 +58,7 @@ If you are interested in getting involved with this project, refer to the [CONTR
 
 As this is under active development, the roadmap is also subject to change. Some ideas:
 
- - authentication support in-the-box
- - make environment setup easier to override
- - API additions for common tasks such as parsing output
- - error handling improvements
+- authentication support in-the-box
+- make environment setup easier to override
+- API additions for common tasks such as parsing output
+- error handling improvements
