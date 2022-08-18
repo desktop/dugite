@@ -70,7 +70,6 @@ const downloadAndUnpack = (url, isFollowingRedirect) => {
 
     const len = parseInt(res.headers['content-length'], 10)
 
-    console.log()
     const bar = new ProgressBar('Downloading Git [:bar] :percent :etas', {
       complete: '=',
       incomplete: ' ',
