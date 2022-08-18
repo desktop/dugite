@@ -4,7 +4,6 @@ const ProgressBar = require('progress')
 const mkdirp = require('mkdirp')
 const rimraf = require('rimraf')
 const tar = require('tar')
-const http = require('https')
 const https = require('https')
 const { createHash } = require('crypto')
 
@@ -30,9 +29,9 @@ const unpackFile = function(file) {
   })
 }
 
-const downloadAndUnpack = (url, redirect) => {
-  if (!redirect) {
-    console.log(`Downloading Git from: ${config.source}`)
+const downloadAndUnpack = (url, isFollowingRedirect) => {
+  if (!isFollowingRedirect) {
+    console.log(`Downloading Git from: ${url}`)
   }
 
   const options = {
@@ -43,24 +42,18 @@ const downloadAndUnpack = (url, redirect) => {
     secureProtocol: 'TLSv1_2_method'
   }
 
-  const client = url.startsWith('https:') ? https : config.startsWith('http:') ? http : null
-
-  if (!client) {
-    throw new Error(`Invalid protocol for ${config.source}`)
-  }
-
-  const req = client.get(url, options)
+  const req = https.get(url, options)
 
   req.on('error', function(error) {
     if (error.code === 'ETIMEDOUT') {
       console.log(
-        `A timeout has occurred while downloading '${config.source}' - check ` +
+        `A timeout has occurred while downloading '${url}' - check ` +
           `your internet connection and try again. If you are using a proxy, ` +
           `make sure that the HTTP_PROXY and HTTPS_PROXY environment variables are set.`,
         error
       )
     } else {
-      console.log(`Error raised while downloading ${config.source}`, error)
+      console.log(`Error raised while downloading ${url}`, error)
     }
     process.exit(1)
   })
@@ -72,7 +65,7 @@ const downloadAndUnpack = (url, redirect) => {
     }
 
     if (res.statusCode !== 200) {
-      console.log(`Non-200 response returned from ${config.source} - (${res.statusCode})`)
+      console.log(`Non-200 response returned from ${url} - (${res.statusCode})`)
       process.exit(1)
     }
 
@@ -88,10 +81,7 @@ const downloadAndUnpack = (url, redirect) => {
 
     res.pipe(fs.createWriteStream(config.tempFile))
 
-    res.on('data', function(chunk) {
-      bar.tick(chunk.length)
-    })
-
+    res.on('data', c => bar.tick(c.length))
     res.on('end', function() {
       console.log('\n')
 
