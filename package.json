@@ -33,7 +33,6 @@
   },
   "homepage": "https://github.com/desktop/dugite#readme",
   "dependencies": {
-    "mkdirp": "^0.5.1",
     "progress": "^2.0.3",
     "rimraf": "^2.5.4",
     "tar": "^6.1.11"

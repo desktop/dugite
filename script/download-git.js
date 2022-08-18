@@ -1,7 +1,6 @@
 const fs = require('fs')
 
 const ProgressBar = require('progress')
-const mkdirp = require('mkdirp')
 const rimraf = require('rimraf')
 const tar = require('tar')
 const https = require('https')
@@ -114,7 +113,7 @@ if (fs.existsSync(config.outputPath)) {
   }
 }
 
-mkdirp(config.outputPath, function(error) {
+fs.mkdir(config.outputPath, { recursive: true }, function(error) {
   if (error) {
     console.log(`Unable to create directory at ${config.outputPath}`, error)
     process.exit(1)
