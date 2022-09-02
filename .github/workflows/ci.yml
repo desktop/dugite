@@ -6,13 +6,18 @@ on:
       - main
   pull_request:
 
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
-    name: ${{ matrix.friendlyName }} ${{ matrix.arch }}
+    name: ${{ matrix.friendlyName }} Node ${{matrix.nodeVersion}} ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
+        nodeVersion: [12, 14, 16, 18]
         arch: [x64]
         os: [macos-11, windows-2019, ubuntu-22.04]
         include:
@@ -22,6 +27,7 @@ jobs:
             friendlyName: Windows
           - os: windows-2019
             friendlyName: Windows
+            nodeVersion: 16
             arch: x86
           - os: ubuntu-22.04
             friendlyName: Linux
@@ -30,23 +36,23 @@ jobs:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
-      - name: Install Node.js ${{ matrix.arch }}
-        uses: niik/setup-node@f9547c97f4c519f71dc42e652d6d2c53f9527c1d
+      - name: Install Node.js ${{ matrix.nodeVersion }} (${{ matrix.arch }})
+        uses: actions/setup-node@v3
         with:
-          node-version: 12
-          node-arch: ${{ matrix.arch }}
+          node-version: ${{ matrix.nodeVersion }}
+          architecture: ${{ matrix.arch }}
       - name: Install and build dependencies
-        run: npm ci
+        run: yarn
         env:
           npm_config_arch: ${{ matrix.arch }}
       - name: Build
-        run: npm run build
+        run: yarn build
       - name: Lint
-        run: npm run is-it-pretty
+        run: yarn is-it-pretty
       - name: Reset safe.directory
         run: git config --global --add safe.directory ""
         shell: bash
       - name: Test
-        run: npm run test
+        run: yarn test
         env:
           TEST: 1

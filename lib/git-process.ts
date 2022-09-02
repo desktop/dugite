@@ -259,9 +259,13 @@ export class GitProcess {
 
         ignoreClosedInputStream(spawnedProcess)
 
-        if (options && options.stdin !== undefined) {
+        if (options && options.stdin !== undefined && spawnedProcess.stdin) {
           // See https://github.com/nodejs/node/blob/7b5ffa46fe4d2868c1662694da06eb55ec744bde/test/parallel/test-stdin-pipe-large.js
-          spawnedProcess.stdin.end(options.stdin, options.stdinEncoding)
+          if (options.stdinEncoding) {
+            spawnedProcess.stdin.end(options.stdin, options.stdinEncoding)
+          } else {
+            spawnedProcess.stdin.end(options.stdin)
+          }
         }
 
         if (options && options.processCallback) {
@@ -313,7 +317,7 @@ export class GitProcess {
  *
  * See https://github.com/desktop/desktop/pull/4027#issuecomment-366213276
  */
-function ignoreClosedInputStream(process: ChildProcess) {
+function ignoreClosedInputStream({ stdin }: ChildProcess) {
   // If Node fails to spawn due to a runtime error (EACCESS, EAGAIN, etc)
   // it will not setup the stdio streams, see
   // https://github.com/nodejs/node/blob/v10.16.0/lib/internal/child_process.js#L342-L354
@@ -321,10 +325,11 @@ function ignoreClosedInputStream(process: ChildProcess) {
   // the synchronous path so if we attempts to call `.on` on `.stdin`
   // (which is undefined) that error would be thrown before the underlying
   // error.
-  if (!process.stdin) {
+  if (!stdin) {
     return
   }
-  process.stdin.on('error', err => {
+
+  stdin.on('error', err => {
     const code = (err as ErrorWithCode).code
 
     // Is the error one that we'd expect from the input stream being
@@ -343,7 +348,7 @@ function ignoreClosedInputStream(process: ChildProcess) {
     //
     // "For all EventEmitter objects, if an 'error' event handler is not
     //  provided, the error will be thrown"
-    if (process.stdin.listeners('error').length <= 1) {
+    if (stdin.listeners('error').length <= 1) {
       throw err
     }
   })

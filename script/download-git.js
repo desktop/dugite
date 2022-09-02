@@ -1,56 +1,37 @@
 const fs = require('fs')
 
-const got = require('got')
 const ProgressBar = require('progress')
-const mkdirp = require('mkdirp')
-const checksum = require('checksum')
-const rimraf = require('rimraf')
 const tar = require('tar')
-const zlib = require('zlib')
+const https = require('https')
+const { createHash } = require('crypto')
+const { rm, rmdir, mkdir, createReadStream, createWriteStream, existsSync } = require('fs')
 
 const config = require('./config')()
 
-function extract(source, callback) {
-  const extractor = tar
-    .extract({ cwd: config.outputPath })
-    .on('error', function(error) {
-      callback(error)
-    })
-    .on('end', function() {
-      callback()
-    })
-
-  fs.createReadStream(source)
-    .on('error', function(error) {
-      callback(error)
-    })
-    .pipe(zlib.Gunzip())
-    .pipe(extractor)
-}
-
 const verifyFile = function(file, callback) {
-  checksum.file(file, { algorithm: 'sha256' }, (_, hash) => {
+  const h = createHash('sha256').on('finish', () => {
+    const hash = h.digest('hex')
     const match = hash === config.checksum
-
     if (!match) {
       console.log(`Validation failed. Expected '${config.checksum}' but got '${hash}'`)
     }
-
     callback(match)
   })
+
+  createReadStream(file).pipe(h)
 }
 
 const unpackFile = function(file) {
-  extract(file, function(error) {
-    if (error) {
-      console.log('Unable to extract archive, aborting...', error)
-      process.exit(1)
-    }
+  tar.x({ cwd: config.outputPath, file }).catch(e => {
+    console.log('Unable to extract archive, aborting...', error)
+    process.exit(1)
   })
 }
 
-const downloadAndUnpack = () => {
-  console.log(`Downloading Git from: ${config.source}`)
+const downloadAndUnpack = (url, isFollowingRedirect) => {
+  if (!isFollowingRedirect) {
+    console.log(`Downloading Git from: ${url}`)
+  }
 
   const options = {
     headers: {
@@ -60,33 +41,35 @@ const downloadAndUnpack = () => {
     secureProtocol: 'TLSv1_2_method'
   }
 
-  const client = got.stream(config.source, options)
+  const req = https.get(url, options)
 
-  client.pipe(fs.createWriteStream(config.tempFile))
-
-  client.on('error', function(error) {
+  req.on('error', function(error) {
     if (error.code === 'ETIMEDOUT') {
       console.log(
-        `A timeout has occurred while downloading '${config.source}' - check ` +
+        `A timeout has occurred while downloading '${url}' - check ` +
           `your internet connection and try again. If you are using a proxy, ` +
           `make sure that the HTTP_PROXY and HTTPS_PROXY environment variables are set.`,
         error
       )
     } else {
-      console.log(`Error raised while downloading ${config.source}`, error)
+      console.log(`Error raised while downloading ${url}`, error)
     }
     process.exit(1)
   })
 
-  client.on('response', function(res) {
+  req.on('response', function(res) {
+    if ([301, 302].includes(res.statusCode) && res.headers['location']) {
+      downloadAndUnpack(res.headers.location, true)
+      return
+    }
+
     if (res.statusCode !== 200) {
-      console.log(`Non-200 response returned from ${config.source} - (${res.statusCode})`)
+      console.log(`Non-200 response returned from ${url} - (${res.statusCode})`)
       process.exit(1)
     }
 
     const len = parseInt(res.headers['content-length'], 10)
 
-    console.log()
     const bar = new ProgressBar('Downloading Git [:bar] :percent :etas', {
       complete: '=',
       incomplete: ' ',
@@ -94,13 +77,10 @@ const downloadAndUnpack = () => {
       total: len
     })
 
-    res.on('data', function(chunk) {
-      bar.tick(chunk.length)
-    })
+    res.pipe(createWriteStream(config.tempFile))
 
+    res.on('data', c => bar.tick(c.length))
     res.on('end', function() {
-      console.log('\n')
-
       verifyFile(config.tempFile, valid => {
         if (valid) {
           unpackFile(config.tempFile)
@@ -121,34 +101,33 @@ if (config.source === '') {
   process.exit(0)
 }
 
-if (fs.existsSync(config.outputPath)) {
-  try {
-    rimraf.sync(config.outputPath)
-  } catch (err) {
-    console.error(err)
-    return
-  }
-}
-
-mkdirp(config.outputPath, function(error) {
+// Node 12 didn't have rm, only rmdir
+;(rm || rmdir)(config.outputPath, { recursive: true, force: true }, error => {
   if (error) {
-    console.log(`Unable to create directory at ${config.outputPath}`, error)
+    console.log(`Unable to clean directory at ${config.outputPath}`, error)
     process.exit(1)
   }
 
-  const tempFile = config.tempFile
+  mkdir(config.outputPath, { recursive: true }, function(error) {
+    if (error) {
+      console.log(`Unable to create directory at ${config.outputPath}`, error)
+      process.exit(1)
+    }
 
-  if (fs.existsSync(tempFile)) {
-    verifyFile(tempFile, valid => {
-      if (valid) {
-        unpackFile(tempFile)
-      } else {
-        rimraf.sync(tempFile)
-        downloadAndUnpack()
-      }
-    })
-    return
-  }
+    const tempFile = config.tempFile
 
-  downloadAndUnpack()
+    if (existsSync(tempFile)) {
+      verifyFile(tempFile, valid => {
+        if (valid) {
+          unpackFile(tempFile)
+        } else {
+          rmSync(tempFile)
+          downloadAndUnpack(config.source)
+        }
+      })
+      return
+    }
+
+    downloadAndUnpack(config.source)
+  })
 })

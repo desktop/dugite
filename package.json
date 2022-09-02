@@ -6,21 +6,21 @@
   "typings": "./build/lib/index.d.ts",
   "scripts": {
     "clean": "rimraf build",
-    "build": "npm run clean && tsc -p ./tsconfig.json && tsc -p ./examples/tsconfig.json",
-    "prepack": "npm run build && npm run test",
+    "build": "yarn clean && tsc -p ./tsconfig.json && tsc -p ./examples/tsconfig.json",
+    "prepack": "yarn build && yarn test",
     "postpublish": "git push --follow-tags",
-    "test": "npm run test:fast && npm run test:slow && npm run test:external",
+    "test": "yarn test:fast && yarn test:slow && yarn test:external",
     "test:fast": "cross-env LOCAL_GIT_DIRECTORY=./git/ jest --runInBand --silent --config ./jest.fast.config.js",
     "test:slow": "cross-env LOCAL_GIT_DIRECTORY=./git/ jest --runInBand --silent --config ./jest.slow.config.js",
     "test:external": "jest --runInBand --silent --config ./jest.external.config.js",
+    "download-git": "node ./script/download-git.js",
     "postinstall": "node ./script/download-git.js",
     "prettify": "prettier \"{examples,lib,script,test}/**/*.ts\" --write",
     "is-it-pretty": "prettier --check \"{examples,lib,script,test}/**/*.ts\"",
     "update-embedded-git": "node ./script/update-embedded-git.js"
   },
   "engines": {
-    "node": ">= 6",
-    "npm": ">= 3"
+    "node": ">= 12"
   },
   "repository": {
     "type": "git",
@@ -33,28 +33,24 @@
   },
   "homepage": "https://github.com/desktop/dugite#readme",
   "dependencies": {
-    "checksum": "^0.1.1",
-    "got": "^9.6.0",
-    "mkdirp": "^0.5.1",
     "progress": "^2.0.3",
-    "rimraf": "^2.5.4",
-    "tar": "^4.4.7"
+    "tar": "^6.1.11"
   },
   "devDependencies": {
-    "@types/checksum": "^0.1.30",
-    "@types/got": "^9.6.0",
-    "@types/jest": "^24.0.0",
+    "@types/jest": "^28.1.7",
     "@types/mkdirp": "^0.5.2",
     "@types/node": "^11.9.0",
     "@types/progress": "^2.0.1",
     "@types/rimraf": "2.0.2",
+    "@types/tar": "^6.1.2",
     "byline": "^5.0.0",
     "cross-env": "^5.2.0",
     "find-git-exec": "0.0.1-alpha.2",
-    "jest": "^24.1.0",
-    "prettier": "^1.15.2",
+    "jest": "^28.1.3",
+    "prettier": "1.16.4",
+    "rimraf": "^2.5.4",
     "temp": "^0.9.0",
-    "ts-jest": "^24.0.0",
-    "typescript": "^3.1.6"
+    "ts-jest": "^28.0.8",
+    "typescript": "^4.7.4"
   }
 }

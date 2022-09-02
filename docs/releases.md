@@ -5,7 +5,7 @@
 The most important part of the release process is updating the embedded Git package. This can be done using this one-liner:
 
 ```sh
-npm run update-embedded-git
+yarn update-embedded-git
 ```
 
 This script:
@@ -23,12 +23,14 @@ const url = `https://api.github.com/repos/desktop/dugite-native/releases/2354453
 ```
 
 ## Release/Publishing
+
 Before running the commands in 'Publishing to NPM',
 create a new release branch of the form `releases/x.x.x`
 
 After running commands in 'Publishing to NPM', the release branch should be pushed. Now, you need to get it reviewed and merged.
 
 After that, don't forget publish the release on the repo.
+
 - Go to https://github.com/desktop/dugite/releases
 - Click click `Draft a New Release`
 - Fill in form
@@ -39,12 +41,13 @@ After that, don't forget publish the release on the repo.
 Releases are done to NPM, and are currently limited to the core team.
 
 ```sh
-# to ensure everything is up-to-date and tests pass
-npm ci
+# to ensure everything is up-to-date
+yarn
 
-# if you have not run `npm run build` before, a couple of you cloning auth test will fail.
-npm test 
+yarn build
 
+# if you have not run `yarn build` before, a couple of you cloning auth test will fail.
+yarn test
 
 # you might need to do a different sort of version bump here
 npm version minor
@@ -54,4 +57,3 @@ npm version minor
 # remember to `npm login`
 npm publish
 ```
-

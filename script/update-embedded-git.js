@@ -1,20 +1,10 @@
-const got = require('got')
 const fs = require('fs')
 const path = require('path')
+const { get } = require('./utils')
 
-const url = `https://api.github.com/repos/desktop/dugite-native/releases/latest`
-
-const options = {
-  headers: {
-    'User-Agent': 'dugite'
-  },
-  secureProtocol: 'TLSv1_2_method',
-  json: true
-}
-
-got(url, options).then(
+get(`https://api.github.com/repos/desktop/dugite-native/releases/latest`).then(
   async response => {
-    const { tag_name, assets } = response.body
+    const { tag_name, assets } = JSON.parse(response)
 
     console.log(`Updating embedded git config to use version ${tag_name}`)
 
@@ -36,8 +26,8 @@ got(url, options).then(
     console.log()
     console.log('Next you should prepare a new release:')
     console.log(`- commit any changes`)
-    console.log(`- update the installed package with \`npm i\``)
-    console.log(`- run the test suite with \`npm test\``)
+    console.log(`- update the installed package with \`yarn\``)
+    console.log(`- run the test suite with \`yarn test\``)
   },
   err => {
     console.error('Unable to get latest release', err)
@@ -84,25 +74,11 @@ function findLinux64BitRelease(assets) {
   return getDetailsForAsset(assets, asset)
 }
 
-function downloadChecksum(csUrl) {
-  const options = {
-    headers: {
-      Accept: 'application/octet-stream',
-      'User-Agent': 'dugite-native'
-    },
-    secureProtocol: 'TLSv1_2_method'
-  }
-
-  return got(csUrl, options).then(response => {
-    return response.body
-  })
-}
-
 async function getDetailsForAsset(assets, currentAsset) {
   const { name } = currentAsset
   const url = currentAsset.browser_download_url
   const checksumFile = assets.find(a => a.name === `${name}.sha256`)
-  const checksumRaw = await downloadChecksum(checksumFile.browser_download_url)
+  const checksumRaw = await get(checksumFile.browser_download_url)
   const checksum = checksumRaw.trim()
   return { name, url, checksum }
 }
