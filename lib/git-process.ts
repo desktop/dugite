@@ -163,7 +163,11 @@ export class GitProcess {
    *
    * And `cancel()` will try to cancel the git process
    */
-  public static execTask(args: string[], path: string, options?: IGitExecutionOptions): IGitTask {
+  public static execTask(
+    args: string[],
+    path: string,
+    options?: IGitExecutionOptions
+  ): IGitTask {
     let pidResolve: {
       (arg0: any): void
       (value: number | PromiseLike<number | undefined> | undefined): void
@@ -328,7 +332,7 @@ function ignoreClosedInputStream({ stdin }: ChildProcess) {
     return
   }
 
-  stdin.on('error', (err) => {
+  stdin.on('error', err => {
     const code = (err as ErrorWithCode).code
 
     // Is the error one that we'd expect from the input stream being

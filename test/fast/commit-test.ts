@@ -13,8 +13,14 @@ describe('commit', () => {
     await GitProcess.exec(['init'], testRepoPath)
 
     // for CI environments, no user info set - so let's stub something in the repo
-    await GitProcess.exec(['config', 'user.email', '"test@example.com"'], testRepoPath)
-    await GitProcess.exec(['config', 'user.name', '"Some Test User"'], testRepoPath)
+    await GitProcess.exec(
+      ['config', 'user.email', '"test@example.com"'],
+      testRepoPath
+    )
+    await GitProcess.exec(
+      ['config', 'user.name', '"Some Test User"'],
+      testRepoPath
+    )
 
     const readme = Path.join(testRepoPath, 'README.md')
     Fs.writeFileSync(readme, 'HELLO WORLD!')
@@ -22,9 +28,11 @@ describe('commit', () => {
     await GitProcess.exec(['add', 'README.md'], testRepoPath)
 
     const message = 'committed the README'
-    const result = await GitProcess.exec(['commit', '-F', '-'], testRepoPath, { stdin: message })
+    const result = await GitProcess.exec(['commit', '-F', '-'], testRepoPath, {
+      stdin: message,
+    })
 
-    verify(result, (r) => {
+    verify(result, r => {
       expect(r.exitCode).toBe(0)
       expect(r.stdout).toContain(message)
     })

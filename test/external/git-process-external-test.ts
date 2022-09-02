@@ -38,7 +38,7 @@ describe('git-process [with external Git executable]', () => {
         ['clone', '--', 'https://github.com/TypeFox/find-git-exec.git', '.'],
         testRepoPath
       )
-      verify(result, (r) => {
+      verify(result, r => {
         expect(r.exitCode).toEqual(0)
       })
     })

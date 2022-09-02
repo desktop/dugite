@@ -9,10 +9,13 @@ const temp = require('temp').track()
 
 const maximumStringSize = 268435441
 
-function bufferOutput(process: ChildProcess, failPromiseWhenLengthExceeded: boolean = true) {
+function bufferOutput(
+  process: ChildProcess,
+  failPromiseWhenLengthExceeded: boolean = true
+) {
   return new Promise<string>((resolve, reject) => {
     const stdout: Array<Buffer> = []
-    process.stdout?.on('data', (chunk) => {
+    process.stdout?.on('data', chunk => {
       if (chunk instanceof Buffer) {
         stdout.push(chunk)
       } else {
@@ -45,7 +48,7 @@ describe('GitProcess.spawn', () => {
     }
   })
 
-  it('returns expected exit codes', (done) => {
+  it('returns expected exit codes', done => {
     const directory = temp.mkdirSync('desktop-not-a-repo')
     const process = GitProcess.spawn(['status'], directory)
     process.on('exit', (code, signal) => {
@@ -57,7 +60,7 @@ describe('GitProcess.spawn', () => {
     })
   })
 
-  it('can fail safely with a diff exceeding the string length', (done) => {
+  it('can fail safely with a diff exceeding the string length', done => {
     const testRepoPath = temp.mkdirSync('desktop-git-spwawn-empty')
 
     GitProcess.exec(['init'], testRepoPath)
@@ -77,15 +80,25 @@ describe('GitProcess.spawn', () => {
     Fs.appendFileSync(filePath, firstBuffer.toString('utf-8'))
     Fs.appendFileSync(filePath, secondBuffer.toString('utf-8'))
     const process = GitProcess.spawn(
-      ['diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'file.txt'],
+      [
+        'diff',
+        '--no-index',
+        '--patch-with-raw',
+        '-z',
+        '--',
+        '/dev/null',
+        'file.txt',
+      ],
       testRepoPath
     )
 
     bufferOutput(process)
-      .then((o) => {
-        done(new Error('The diff was returned as-is, which should never happen'))
+      .then(o => {
+        done(
+          new Error('The diff was returned as-is, which should never happen')
+        )
       })
-      .catch((err) => {
+      .catch(err => {
         done()
       })
   })

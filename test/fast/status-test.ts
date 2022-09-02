@@ -22,7 +22,7 @@ describe('status', () => {
       testRepoPath
     )
 
-    verify(result, (r) => {
+    verify(result, r => {
       expect(r.exitCode).toBe(0)
       expect(r.stdout).toContain('README.md')
     })

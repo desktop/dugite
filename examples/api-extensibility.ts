@@ -27,7 +27,10 @@ function tryParse(str: string): number | null {
 let receivingObjectsBar: any = null
 function setReceivingProgress(percent: number) {
   if (!receivingObjectsBar) {
-    receivingObjectsBar = new ProgressBar('Receiving objects [:bar] :percent', progressBarOptions)
+    receivingObjectsBar = new ProgressBar(
+      'Receiving objects [:bar] :percent',
+      progressBarOptions
+    )
   }
 
   receivingObjectsBar.update(percent / 100)
@@ -36,7 +39,10 @@ function setReceivingProgress(percent: number) {
 let resolvingDeltasBar: any = null
 function setResolvingProgress(percent: number) {
   if (!resolvingDeltasBar) {
-    resolvingDeltasBar = new ProgressBar('Resolving deltas [:bar] :percent', progressBarOptions)
+    resolvingDeltasBar = new ProgressBar(
+      'Resolving deltas [:bar] :percent',
+      progressBarOptions
+    )
   }
 
   resolvingDeltasBar.update(percent / 100)
