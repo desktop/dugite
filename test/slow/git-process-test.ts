@@ -12,7 +12,7 @@ describe('git-process', () => {
     it("returns exit code when repository doesn't exist", async () => {
       const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
       const options = {
-        env: setupNoAuth()
+        env: setupNoAuth(),
       }
 
       // GitHub will prompt for (and validate) credentials for non-public
@@ -28,7 +28,7 @@ describe('git-process', () => {
         options
       )
 
-      verify(result, r => {
+      verify(result, (r) => {
         expect(r.exitCode).toBe(128)
       })
     })
@@ -36,14 +36,14 @@ describe('git-process', () => {
     it('returns exit code and error when repository requires credentials', async () => {
       const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
       const options = {
-        env: setupAskPass('error', 'error')
+        env: setupAskPass('error', 'error'),
       }
       const result = await GitProcess.exec(
         ['clone', '--', 'https://github.com/shiftkey/repository-private.git', '.'],
         testRepoPath,
         options
       )
-      verify(result, r => {
+      verify(result, (r) => {
         expect(r.exitCode).toBe(128)
       })
       const error = GitProcess.parseError(result.stderr)
@@ -53,14 +53,14 @@ describe('git-process', () => {
     it('returns exit code when successful', async () => {
       const testRepoPath = temp.mkdirSync('desktop-git-clone-valid')
       const options = {
-        env: setupNoAuth()
+        env: setupNoAuth(),
       }
       const result = await GitProcess.exec(
         ['clone', '--', 'https://github.com/shiftkey/friendly-bassoon.git', '.'],
         testRepoPath,
         options
       )
-      verify(result, r => {
+      verify(result, (r) => {
         expect(r.exitCode).toBe(0)
       })
     })
@@ -81,15 +81,15 @@ describe('git-process', () => {
         ['remote', 'add', 'origin', 'https://bitbucket.org/shiftkey/testing-non-existent.git'],
         testRepoPath
       )
-      verify(addRemote, r => {
+      verify(addRemote, (r) => {
         expect(r.exitCode).toBe(0)
       })
 
       const options = {
-        env: setupNoAuth()
+        env: setupNoAuth(),
       }
       const result = await GitProcess.exec(['fetch', 'origin'], testRepoPath, options)
-      verify(result, r => {
+      verify(result, (r) => {
         expect(r.exitCode).toBe(128)
       })
     })
@@ -100,15 +100,15 @@ describe('git-process', () => {
         ['remote', 'add', 'origin', 'https://github.com/shiftkey/repository-private.git'],
         testRepoPath
       )
-      verify(addRemote, r => {
+      verify(addRemote, (r) => {
         expect(r.exitCode).toBe(0)
       })
 
       const options = {
-        env: setupAskPass('error', 'error')
+        env: setupAskPass('error', 'error'),
       }
       const result = await GitProcess.exec(['fetch', 'origin'], testRepoPath, options)
-      verify(result, r => {
+      verify(result, (r) => {
         expect(r.exitCode).toBe(128)
       })
       const error = GitProcess.parseError(result.stderr)
@@ -121,15 +121,15 @@ describe('git-process', () => {
         ['remote', 'add', 'origin', 'https://github.com/shiftkey/friendly-bassoon.git'],
         testRepoPath
       )
-      verify(addRemote, r => {
+      verify(addRemote, (r) => {
         expect(r.exitCode).toBe(0)
       })
 
       const options = {
-        env: setupNoAuth()
+        env: setupNoAuth(),
       }
       const result = await GitProcess.exec(['fetch', 'origin'], testRepoPath, options)
-      verify(result, r => {
+      verify(result, (r) => {
         expect(r.exitCode).toBe(0)
       })
     })
@@ -154,7 +154,7 @@ echo 'post-check out hook ran'`
       Fs.writeFileSync(postCheckoutFile, postCheckoutScript, { encoding: 'utf8', mode: '755' })
 
       const result = await GitProcess.exec(['checkout', 'main'], testRepoPath)
-      verify(result, r => {
+      verify(result, (r) => {
         expect(r.exitCode).toBe(0)
         expect(r.stderr).toContain('post-check out hook ran')
       })

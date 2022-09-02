@@ -24,7 +24,7 @@ describe('commit', () => {
     const message = 'committed the README'
     const result = await GitProcess.exec(['commit', '-F', '-'], testRepoPath, { stdin: message })
 
-    verify(result, r => {
+    verify(result, (r) => {
       expect(r.exitCode).toBe(0)
       expect(r.stdout).toContain(message)
     })

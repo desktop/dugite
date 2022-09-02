@@ -13,7 +13,7 @@ function bufferOutput(process: ChildProcess, failPromiseWhenLengthExceeded: bool
   return new Promise<string>((resolve, reject) => {
     const stdout: Array<Buffer> = []
     if (process.stdout) {
-      process.stdout.on('data', chunk => {
+      process.stdout.on('data', (chunk) => {
         if (chunk instanceof Buffer) {
           stdout.push(chunk)
         } else {
@@ -47,7 +47,7 @@ describe('GitProcess.spawn', () => {
     }
   })
 
-  it('returns expected exit codes', done => {
+  it('returns expected exit codes', (done) => {
     const directory = temp.mkdirSync('desktop-not-a-repo')
     const process = GitProcess.spawn(['status'], directory)
     process.on('exit', (code, signal) => {
@@ -59,7 +59,7 @@ describe('GitProcess.spawn', () => {
     })
   })
 
-  it('can fail safely with a diff exceeding the string length', done => {
+  it('can fail safely with a diff exceeding the string length', (done) => {
     const testRepoPath = temp.mkdirSync('desktop-git-spwawn-empty')
 
     GitProcess.exec(['init'], testRepoPath)
@@ -84,10 +84,10 @@ describe('GitProcess.spawn', () => {
     )
 
     bufferOutput(process)
-      .then(o => {
+      .then((o) => {
         done(new Error('The diff was returned as-is, which should never happen'))
       })
-      .catch(err => {
+      .catch((err) => {
         done()
       })
   })

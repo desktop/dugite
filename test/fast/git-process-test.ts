@@ -26,7 +26,7 @@ describe('git-process', () => {
     it('returns exit code when folder is empty', async () => {
       const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
       const result = await GitProcess.exec(['show', 'HEAD'], testRepoPath)
-      verify(result, r => {
+      verify(result, (r) => {
         expect(r.exitCode).toBe(128)
       })
     })
@@ -39,9 +39,9 @@ describe('git-process', () => {
       // workaround this will crash the process (timing related) with an
       // EPIPE/EOF error thrown from process.stdin
       const result = await GitProcess.exec(['--trololol'], testRepoPath, {
-        stdin: '\n'.repeat(1024 * 1024)
+        stdin: '\n'.repeat(1024 * 1024),
       })
-      verify(result, r => {
+      verify(result, (r) => {
         expect(r.exitCode).toBe(129)
       })
     })
@@ -57,7 +57,7 @@ describe('git-process', () => {
           testRepoPath
         )
 
-        verify(result, r => {
+        verify(result, (r) => {
           expect(r.exitCode).toBe(1)
           expect(r.stdout.length).toBeGreaterThan(0)
         })
@@ -70,7 +70,7 @@ describe('git-process', () => {
         await GitProcess.exec(['add', '.'], testRepoPath)
 
         const commit = await GitProcess.exec(['commit', '-F', '-'], testRepoPath, {
-          stdin: 'hello world!'
+          stdin: 'hello world!',
         })
         expect(commit.exitCode).toBe(0)
 
@@ -81,7 +81,7 @@ describe('git-process', () => {
           testRepoPath
         )
 
-        verify(result, r => {
+        verify(result, (r) => {
           expect(r.exitCode).toBe(1)
           expect(r.stdout.length).toBeGreaterThan(0)
         })
@@ -122,7 +122,7 @@ describe('git-process', () => {
         await GitProcess.exec(['commit', '-m', '"added a file"'], testRepoPath)
 
         const result = await GitProcess.exec(['show', ':file.txt'], testRepoPath)
-        verify(result, r => {
+        verify(result, (r) => {
           expect(r.exitCode).toBe(0)
           expect(r.stdout.trim()).toBe('some content')
         })
@@ -175,11 +175,11 @@ describe('git-process', () => {
   describe('errors', () => {
     it('each error code should have its corresponding regexp', () => {
       const difference = (left: number[], right: number[]) =>
-        left.filter(item => right.indexOf(item) === -1)
+        left.filter((item) => right.indexOf(item) === -1)
       const errorCodes = Object.keys(GitError)
-        .map(key => (GitError as any)[key])
-        .filter(ordinal => Number.isInteger(ordinal))
-      const regexes = Object.keys(GitErrorRegexes).map(key => (GitErrorRegexes as any)[key])
+        .map((key) => (GitError as any)[key])
+        .filter((ordinal) => Number.isInteger(ordinal))
+      const regexes = Object.keys(GitErrorRegexes).map((key) => (GitErrorRegexes as any)[key])
 
       const errorCodesWithoutRegex = difference(errorCodes, regexes)
       const regexWithoutErrorCodes = difference(regexes, errorCodes)

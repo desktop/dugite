@@ -59,7 +59,7 @@ export enum GitError {
   RebaseWithLocalChanges,
   MergeCommitNoMainlineOption,
   UnsafeDirectory,
-  PathExistsButNotInRef
+  PathExistsButNotInRef,
 }
 
 /** A mapping from regexes to the git error they identify. */
@@ -149,7 +149,7 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
     GitError.RebaseWithLocalChanges,
   'error: commit (.+) is a merge but no -m option was given': GitError.MergeCommitNoMainlineOption,
   'fatal: detected dubious ownership in repository at (.+)': GitError.UnsafeDirectory,
-  "fatal: path '(.+)' exists on disk, but not in '(.+)'": GitError.PathExistsButNotInRef
+  "fatal: path '(.+)' exists on disk, but not in '(.+)'": GitError.PathExistsButNotInRef,
 }
 
 /**

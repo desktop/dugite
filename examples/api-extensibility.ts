@@ -8,7 +8,7 @@ const progressBarOptions = {
   complete: '=',
   incomplete: ' ',
   width: 50,
-  total: 100
+  total: 100,
 }
 
 function tryParse(str: string): number | null {
@@ -48,7 +48,7 @@ async function performClone(): Promise<void> {
   const options: IGitExecutionOptions = {
     // enable diagnostics
     env: {
-      GIT_HTTP_USER_AGENT: 'dugite/2.12.0'
+      GIT_HTTP_USER_AGENT: 'dugite/2.12.0',
     },
     processCallback: (process: ChildProcess) => {
       byline(process.stderr).on('data', (chunk: string) => {
@@ -68,7 +68,7 @@ async function performClone(): Promise<void> {
           return
         }
       })
-    }
+    },
   }
 
   const result = await GitProcess.exec(

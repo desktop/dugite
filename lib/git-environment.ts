@@ -71,9 +71,7 @@ function resolveGitExecPath(): string {
  *
  * @param additional options to include with the process
  */
-export function setupEnvironment(
-  environmentVariables: NodeJS.ProcessEnv
-): {
+export function setupEnvironment(environmentVariables: NodeJS.ProcessEnv): {
   env: NodeJS.ProcessEnv
   gitLocation: string
 } {
@@ -95,7 +93,7 @@ export function setupEnvironment(
     process.env,
     {
       GIT_EXEC_PATH: resolveGitExecPath(),
-      PATH: envPath
+      PATH: envPath,
     },
     environmentVariables
   )

@@ -10,8 +10,8 @@ describe('environment variables', () => {
       env: {
         GIT_AUTHOR_NAME: 'Foo Bar',
         GIT_AUTHOR_EMAIL: 'foo@bar.com',
-        GIT_AUTHOR_DATE: 'Wed, 05 Oct 2016 23:33:27 +0200'
-      }
+        GIT_AUTHOR_DATE: 'Wed, 05 Oct 2016 23:33:27 +0200',
+      },
     })
     expect(result.stdout).toBe('Foo Bar <foo@bar.com> 1475703207 +0200\n')
   })

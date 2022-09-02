@@ -87,22 +87,22 @@ expect.extend({
         'Expected',
         `  ${this.utils.printExpected(getFriendlyGitError(expectedError))}`,
         'Received:',
-        `  ${this.utils.printReceived(gitError ? getFriendlyGitError(gitError) : null)}`
+        `  ${this.utils.printReceived(gitError ? getFriendlyGitError(gitError) : null)}`,
       ].join('\n')
     }
 
     if (gitError === expectedError) {
       return {
         pass: true,
-        message
+        message,
       }
     }
 
     return {
       pass: false,
-      message
+      message,
     }
-  }
+  },
 })
 
 declare global {
