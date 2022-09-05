@@ -7,11 +7,17 @@ export const gitLfsVersion = '3.1.4'
 
 const temp = require('temp').track()
 
-export async function initialize(repositoryName: string, defaultBranch?: string): Promise<string> {
+export async function initialize(
+  repositoryName: string,
+  defaultBranch?: string
+): Promise<string> {
   const testRepoPath = temp.mkdirSync(`desktop-git-test-${repositoryName}`)
   const branchArgs = defaultBranch !== undefined ? ['-b', defaultBranch] : []
   await GitProcess.exec(['init', ...branchArgs], testRepoPath)
-  await GitProcess.exec(['config', 'user.email', '"some.user@email.com"'], testRepoPath)
+  await GitProcess.exec(
+    ['config', 'user.email', '"some.user@email.com"'],
+    testRepoPath
+  )
   await GitProcess.exec(['config', 'user.name', '"Some User"'], testRepoPath)
   return testRepoPath
 }
@@ -43,11 +49,16 @@ export async function initializeWithRemote(
   return { path: testRepoPath, remote: remotePath }
 }
 
-export function verify(result: IGitResult, callback: (result: IGitResult) => void) {
+export function verify(
+  result: IGitResult,
+  callback: (result: IGitResult) => void
+) {
   try {
     callback(result)
   } catch (e) {
-    console.log('error encountered while verifying; poking at response from Git:')
+    console.log(
+      'error encountered while verifying; poking at response from Git:'
+    )
     console.log(` - exitCode: ${result.exitCode}`)
     console.log(` - stdout: ${result.stdout.trim()}`)
     console.log(` - stderr: ${result.stderr.trim()}`)
@@ -82,27 +93,33 @@ expect.extend({
 
     const message = () => {
       return [
-        this.utils.matcherHint(`${this.isNot ? '.not' : ''}.toHaveGitError`, 'result', 'gitError'),
+        this.utils.matcherHint(
+          `${this.isNot ? '.not' : ''}.toHaveGitError`,
+          'result',
+          'gitError'
+        ),
         '',
         'Expected',
         `  ${this.utils.printExpected(getFriendlyGitError(expectedError))}`,
         'Received:',
-        `  ${this.utils.printReceived(gitError ? getFriendlyGitError(gitError) : null)}`
+        `  ${this.utils.printReceived(
+          gitError ? getFriendlyGitError(gitError) : null
+        )}`,
       ].join('\n')
     }
 
     if (gitError === expectedError) {
       return {
         pass: true,
-        message
+        message,
       }
     }
 
     return {
       pass: false,
-      message
+      message,
     }
-  }
+  },
 })
 
 declare global {

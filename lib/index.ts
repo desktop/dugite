@@ -3,6 +3,10 @@ export {
   IGitResult,
   IGitExecutionOptions,
   IGitTask,
-  GitTaskCancelResult
+  GitTaskCancelResult,
 } from './git-process'
-export { GitError, RepositoryDoesNotExistErrorCode, GitNotFoundErrorCode } from './errors'
+export {
+  GitError,
+  RepositoryDoesNotExistErrorCode,
+  GitNotFoundErrorCode,
+} from './errors'

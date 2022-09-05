@@ -9,18 +9,19 @@ const temp = require('temp').track()
 
 const maximumStringSize = 268435441
 
-function bufferOutput(process: ChildProcess, failPromiseWhenLengthExceeded: boolean = true) {
+function bufferOutput(
+  process: ChildProcess,
+  failPromiseWhenLengthExceeded: boolean = true
+) {
   return new Promise<string>((resolve, reject) => {
     const stdout: Array<Buffer> = []
-    if (process.stdout) {
-      process.stdout.on('data', chunk => {
-        if (chunk instanceof Buffer) {
-          stdout.push(chunk)
-        } else {
-          stdout.push(Buffer.from(chunk))
-        }
-      })
-    }
+    process.stdout?.on('data', chunk => {
+      if (chunk instanceof Buffer) {
+        stdout.push(chunk)
+      } else {
+        stdout.push(Buffer.from(chunk))
+      }
+    })
     process.on('exit', () => {
       const output = Buffer.concat(stdout)
       if (failPromiseWhenLengthExceeded && output.length >= maximumStringSize) {
@@ -79,13 +80,23 @@ describe('GitProcess.spawn', () => {
     Fs.appendFileSync(filePath, firstBuffer.toString('utf-8'))
     Fs.appendFileSync(filePath, secondBuffer.toString('utf-8'))
     const process = GitProcess.spawn(
-      ['diff', '--no-index', '--patch-with-raw', '-z', '--', '/dev/null', 'file.txt'],
+      [
+        'diff',
+        '--no-index',
+        '--patch-with-raw',
+        '-z',
+        '--',
+        '/dev/null',
+        'file.txt',
+      ],
       testRepoPath
     )
 
     bufferOutput(process)
       .then(o => {
-        done(new Error('The diff was returned as-is, which should never happen'))
+        done(
+          new Error('The diff was returned as-is, which should never happen')
+        )
       })
       .catch(err => {
         done()

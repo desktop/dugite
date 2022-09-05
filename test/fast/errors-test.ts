@@ -8,7 +8,10 @@ describe('detects errors', () => {
   it('RemoteAlreadyExists', async () => {
     const repoPath = await initialize('remote-already-exists-test-repo')
 
-    await GitProcess.exec(['remote', 'add', 'new-remote', 'https://github.com'], repoPath)
+    await GitProcess.exec(
+      ['remote', 'add', 'new-remote', 'https://github.com'],
+      repoPath
+    )
 
     const result = await GitProcess.exec(
       ['remote', 'add', 'new-remote', 'https://gitlab.com'],
@@ -46,8 +49,8 @@ describe('detects errors', () => {
 
     const result = await GitProcess.exec(['status'], path, {
       env: {
-        GIT_TEST_ASSUME_DIFFERENT_OWNER: 1
-      }
+        GIT_TEST_ASSUME_DIFFERENT_OWNER: 1,
+      },
     })
 
     expect(result).toHaveGitError(GitError.UnsafeDirectory)
