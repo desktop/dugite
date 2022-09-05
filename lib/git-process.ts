@@ -6,7 +6,7 @@ import {
   GitError,
   GitErrorRegexes,
   RepositoryDoesNotExistErrorCode,
-  GitNotFoundErrorCode
+  GitNotFoundErrorCode,
 } from './errors'
 import { ChildProcess } from 'child_process'
 
@@ -120,7 +120,7 @@ export class GitProcess {
 
     const spawnArgs = {
       env,
-      cwd: path
+      cwd: path,
     }
 
     const spawnedProcess = spawn(gitLocation, args, spawnArgs)
@@ -163,17 +163,21 @@ export class GitProcess {
    *
    * And `cancel()` will try to cancel the git process
    */
-  public static execTask(args: string[], path: string, options?: IGitExecutionOptions): IGitTask {
+  public static execTask(
+    args: string[],
+    path: string,
+    options?: IGitExecutionOptions
+  ): IGitTask {
     let pidResolve: {
       (arg0: any): void
       (value: number | PromiseLike<number | undefined> | undefined): void
     }
-    const pidPromise = new Promise<undefined | number>(function(resolve) {
+    const pidPromise = new Promise<undefined | number>(function (resolve) {
       pidResolve = resolve
     })
 
     let result = new GitTask(
-      new Promise<IGitResult>(function(resolve, reject) {
+      new Promise<IGitResult>(function (resolve, reject) {
         let customEnv = {}
         if (options && options.env) {
           customEnv = options.env
@@ -190,70 +194,69 @@ export class GitProcess {
           cwd: path,
           encoding: 'utf8',
           maxBuffer: options ? options.maxBuffer : 10 * 1024 * 1024,
-          env
+          env,
         }
 
-        const spawnedProcess = execFile(gitLocation, args, execOptions, function(
-          err: Error | null,
-          stdout,
-          stderr
-        ) {
-          result.updateProcessEnded()
+        const spawnedProcess = execFile(
+          gitLocation,
+          args,
+          execOptions,
+          function (err: Error | null, stdout, stderr) {
+            result.updateProcessEnded()
 
-          if (!err) {
-            resolve({ stdout, stderr, exitCode: 0 })
-            return
-          }
+            if (!err) {
+              resolve({ stdout, stderr, exitCode: 0 })
+              return
+            }
 
-          const errWithCode = err as ErrorWithCode
+            const errWithCode = err as ErrorWithCode
 
-          let code = errWithCode.code
+            let code = errWithCode.code
 
-          // If the error's code is a string then it means the code isn't the
-          // process's exit code but rather an error coming from Node's bowels,
-          // e.g., ENOENT.
-          if (typeof code === 'string') {
-            if (code === 'ENOENT') {
-              let message = err.message
-              if (GitProcess.pathExists(path) === false) {
-                message = 'Unable to find path to repository on disk.'
-                code = RepositoryDoesNotExistErrorCode
+            // If the error's code is a string then it means the code isn't the
+            // process's exit code but rather an error coming from Node's bowels,
+            // e.g., ENOENT.
+            if (typeof code === 'string') {
+              if (code === 'ENOENT') {
+                let message = err.message
+                if (GitProcess.pathExists(path) === false) {
+                  message = 'Unable to find path to repository on disk.'
+                  code = RepositoryDoesNotExistErrorCode
+                } else {
+                  message = `Git could not be found at the expected path: '${gitLocation}'. This might be a problem with how the application is packaged, so confirm this folder hasn't been removed when packaging.`
+                  code = GitNotFoundErrorCode
+                }
+
+                const error = new Error(message) as ErrorWithCode
+                error.name = err.name
+                error.code = code
+                reject(error)
               } else {
-                message = `Git could not be found at the expected path: '${gitLocation}'. This might be a problem with how the application is packaged, so confirm this folder hasn't been removed when packaging.`
-                code = GitNotFoundErrorCode
+                reject(err)
               }
 
-              const error = new Error(message) as ErrorWithCode
-              error.name = err.name
-              error.code = code
-              reject(error)
+              return
+            }
+
+            if (typeof code === 'number') {
+              resolve({ stdout, stderr, exitCode: code })
+              return
+            }
+
+            // Git has returned an output that couldn't fit in the specified buffer
+            // as we don't know how many bytes it requires, rethrow the error with
+            // details about what it was previously set to...
+            if (err.message === 'stdout maxBuffer exceeded') {
+              reject(
+                new Error(
+                  `The output from the command could not fit into the allocated stdout buffer. Set options.maxBuffer to a larger value than ${execOptions.maxBuffer} bytes`
+                )
+              )
             } else {
               reject(err)
             }
-
-            return
           }
-
-          if (typeof code === 'number') {
-            resolve({ stdout, stderr, exitCode: code })
-            return
-          }
-
-          // Git has returned an output that couldn't fit in the specified buffer
-          // as we don't know how many bytes it requires, rethrow the error with
-          // details about what it was previously set to...
-          if (err.message === 'stdout maxBuffer exceeded') {
-            reject(
-              new Error(
-                `The output from the command could not fit into the allocated stdout buffer. Set options.maxBuffer to a larger value than ${
-                  execOptions.maxBuffer
-                } bytes`
-              )
-            )
-          } else {
-            reject(err)
-          }
-        })
+        )
 
         pidResolve(spawnedProcess.pid)
 
@@ -358,7 +361,7 @@ export enum GitTaskCancelResult {
   successfulCancel,
   processAlreadyEnded,
   noProcessIdDefined,
-  failedToCancel
+  failedToCancel,
 }
 
 /** This interface represents a git task (process). */

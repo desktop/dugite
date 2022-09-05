@@ -59,29 +59,33 @@ export enum GitError {
   RebaseWithLocalChanges,
   MergeCommitNoMainlineOption,
   UnsafeDirectory,
-  PathExistsButNotInRef
+  PathExistsButNotInRef,
 }
 
 /** A mapping from regexes to the git error they identify. */
 export const GitErrorRegexes: { [regexp: string]: GitError } = {
   'ERROR: ([\\s\\S]+?)\\n+\\[EPOLICYKEYAGE\\]\\n+fatal: Could not read from remote repository.':
     GitError.SSHKeyAuditUnverified,
-  "fatal: Authentication failed for 'https://": GitError.HTTPSAuthenticationFailed,
+  "fatal: Authentication failed for 'https://":
+    GitError.HTTPSAuthenticationFailed,
   'fatal: Authentication failed': GitError.SSHAuthenticationFailed,
   'fatal: Could not read from remote repository.': GitError.SSHPermissionDenied,
   'The requested URL returned error: 403': GitError.HTTPSAuthenticationFailed,
   'fatal: [Tt]he remote end hung up unexpectedly': GitError.RemoteDisconnection,
-  "fatal: unable to access '(.+)': Failed to connect to (.+): Host is down": GitError.HostDown,
+  "fatal: unable to access '(.+)': Failed to connect to (.+): Host is down":
+    GitError.HostDown,
   "Cloning into '(.+)'...\nfatal: unable to access '(.+)': Could not resolve host: (.+)":
     GitError.HostDown,
-  'Resolve all conflicts manually, mark them as resolved with': GitError.RebaseConflicts,
+  'Resolve all conflicts manually, mark them as resolved with':
+    GitError.RebaseConflicts,
   '(Merge conflict|Automatic merge failed; fix conflicts and then commit the result)':
     GitError.MergeConflicts,
   "fatal: repository '(.+)' not found": GitError.HTTPSRepositoryNotFound,
   'ERROR: Repository not found': GitError.SSHRepositoryNotFound,
   "\\((non-fast-forward|fetch first)\\)\nerror: failed to push some refs to '.*'":
     GitError.PushNotFastForward,
-  "error: unable to delete '(.+)': remote ref does not exist": GitError.BranchDeletionFailed,
+  "error: unable to delete '(.+)': remote ref does not exist":
+    GitError.BranchDeletionFailed,
   '\\[remote rejected\\] (.+) \\(deletion of the current branch prohibited\\)':
     GitError.DefaultBranchDeletionFailed,
   "error: could not revert .*\nhint: after resolving the conflicts, mark the corrected paths\nhint: with 'git add <paths>' or 'git rm <paths>'\nhint: and commit the result with 'git commit'":
@@ -93,7 +97,8 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
   "Your configuration specifies to merge with the ref '(.+)'\nfrom the remote, but no such ref was fetched.":
     GitError.NoExistingRemoteBranch,
   'nothing to commit': GitError.NothingToCommit,
-  "[Nn]o submodule mapping found in .gitmodules for path '(.+)'": GitError.NoSubmoduleMapping,
+  "[Nn]o submodule mapping found in .gitmodules for path '(.+)'":
+    GitError.NoSubmoduleMapping,
   "fatal: repository '(.+)' does not exist\nfatal: clone of '.+' into submodule path '(.+)' failed":
     GitError.SubmoduleRepositoryDoesNotExist,
   "Fetched in submodule path '(.+)', but it did not contain (.+). Direct fetching of that commit failed.":
@@ -106,11 +111,13 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
     GitError.NonFastForwardMergeIntoEmptyHead,
   'error: (.+): (patch does not apply|already exists in working directory)':
     GitError.PatchDoesNotApply,
-  "fatal: [Aa] branch named '(.+)' already exists.?": GitError.BranchAlreadyExists,
+  "fatal: [Aa] branch named '(.+)' already exists.?":
+    GitError.BranchAlreadyExists,
   "fatal: bad revision '(.*)'": GitError.BadRevision,
   'fatal: [Nn]ot a git repository \\(or any of the parent directories\\): (.*)':
     GitError.NotAGitRepository,
-  'fatal: refusing to merge unrelated histories': GitError.CannotMergeUnrelatedHistories,
+  'fatal: refusing to merge unrelated histories':
+    GitError.CannotMergeUnrelatedHistories,
   'The .+ attribute should be .+ but is .+': GitError.LFSAttributeDoesNotMatch,
   'fatal: Branch rename failed': GitError.BranchRenameFailed,
   "fatal: path '(.+)' does not exist .+": GitError.PathDoesNotExist,
@@ -129,8 +136,10 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
   // GitHub-specific errors
   'error: GH001: ': GitError.PushWithFileSizeExceedingLimit,
   'error: GH002: ': GitError.HexBranchNameRejected,
-  'error: GH003: Sorry, force-pushing to (.+) is not allowed.': GitError.ForcePushRejected,
-  'error: GH005: Sorry, refs longer than (.+) bytes are not allowed': GitError.InvalidRefLength,
+  'error: GH003: Sorry, force-pushing to (.+) is not allowed.':
+    GitError.ForcePushRejected,
+  'error: GH005: Sorry, refs longer than (.+) bytes are not allowed':
+    GitError.InvalidRefLength,
   'error: GH006: Protected branch update failed for (.+)\nremote: error: At least one approved review is required':
     GitError.ProtectedBranchRequiresReview,
   'error: GH006: Protected branch update failed for (.+)\nremote: error: Cannot force-push to a protected branch':
@@ -139,17 +148,22 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
     GitError.ProtectedBranchDeleteRejected,
   'error: GH006: Protected branch update failed for (.+).\nremote: error: Required status check "(.+)" is expected':
     GitError.ProtectedBranchRequiredStatus,
-  'error: GH007: Your push would publish a private email address.': GitError.PushWithPrivateEmail,
-  'error: could not lock config file (.+): File exists': GitError.ConfigLockFileAlreadyExists,
+  'error: GH007: Your push would publish a private email address.':
+    GitError.PushWithPrivateEmail,
+  'error: could not lock config file (.+): File exists':
+    GitError.ConfigLockFileAlreadyExists,
   'error: remote (.+) already exists.': GitError.RemoteAlreadyExists,
   "fatal: tag '(.+)' already exists": GitError.TagAlreadyExists,
   'error: Your local changes to the following files would be overwritten by merge:\n':
     GitError.MergeWithLocalChanges,
   'error: cannot (pull with rebase|rebase): You have unstaged changes\\.\n\\s*error: [Pp]lease commit or stash them\\.':
     GitError.RebaseWithLocalChanges,
-  'error: commit (.+) is a merge but no -m option was given': GitError.MergeCommitNoMainlineOption,
-  'fatal: detected dubious ownership in repository at (.+)': GitError.UnsafeDirectory,
-  "fatal: path '(.+)' exists on disk, but not in '(.+)'": GitError.PathExistsButNotInRef
+  'error: commit (.+) is a merge but no -m option was given':
+    GitError.MergeCommitNoMainlineOption,
+  'fatal: detected dubious ownership in repository at (.+)':
+    GitError.UnsafeDirectory,
+  "fatal: path '(.+)' exists on disk, but not in '(.+)'":
+    GitError.PathExistsButNotInRef,
 }
 
 /**
