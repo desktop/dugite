@@ -4,7 +4,7 @@ const ProgressBar = require('progress')
 const tar = require('tar')
 const https = require('https')
 const { createHash } = require('crypto')
-const { rm, rmdir, mkdir, createReadStream, createWriteStream, existsSync } = require('fs')
+const { rm, mkdir, createReadStream, createWriteStream, existsSync } = require('fs')
 
 const config = require('./config')()
 
@@ -101,8 +101,7 @@ if (config.source === '') {
   process.exit(0)
 }
 
-// Node 12 didn't have rm, only rmdir
-;(rm || rmdir)(config.outputPath, { recursive: true, force: true }, error => {
+rm(config.outputPath, { recursive: true, force: true }, error => {
   if (error) {
     console.log(`Unable to clean directory at ${config.outputPath}`, error)
     process.exit(1)

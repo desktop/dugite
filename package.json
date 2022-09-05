@@ -20,7 +20,7 @@
     "update-embedded-git": "node ./script/update-embedded-git.js"
   },
   "engines": {
-    "node": ">= 12"
+    "node": ">= 14"
   },
   "repository": {
     "type": "git",
