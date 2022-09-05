@@ -595,13 +595,11 @@ mark them as resolved using git add`
     })
 
     it('can parse an error when pulling with merge with local changes', async () => {
-      const {
-        path: repoPath,
-        remote: remoteRepositoryPath,
-      } = await initializeWithRemote(
-        'desktop-pullrebase-with-local-changes',
-        null
-      )
+      const { path: repoPath, remote: remoteRepositoryPath } =
+        await initializeWithRemote(
+          'desktop-pullrebase-with-local-changes',
+          null
+        )
       const { path: forkRepoPath } = await initializeWithRemote(
         'desktop-pullrebase-with-local-changes-fork',
         remoteRepositoryPath
@@ -642,13 +640,11 @@ mark them as resolved using git add`
     })
 
     it('can parse an error when pulling with rebase with local changes', async () => {
-      const {
-        path: repoPath,
-        remote: remoteRepositoryPath,
-      } = await initializeWithRemote(
-        'desktop-pullrebase-with-local-changes',
-        null
-      )
+      const { path: repoPath, remote: remoteRepositoryPath } =
+        await initializeWithRemote(
+          'desktop-pullrebase-with-local-changes',
+          null
+        )
       const { path: forkRepoPath } = await initializeWithRemote(
         'desktop-pullrebase-with-local-changes-fork',
         remoteRepositoryPath
