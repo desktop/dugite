@@ -2,15 +2,48 @@ import * as path from 'path'
 import * as fs from 'fs'
 import * as crypto from 'crypto'
 
-import { GitProcess, GitError, RepositoryDoesNotExistErrorCode } from '../../lib'
+import {
+  GitProcess,
+  GitError,
+  RepositoryDoesNotExistErrorCode,
+  GitTaskCancelResult
+} from '../../lib'
 import { GitErrorRegexes } from '../../lib/errors'
 import { initialize, verify, initializeWithRemote, gitForWindowsVersion } from '../helpers'
 
 import { gitVersion } from '../helpers'
+import { setupNoAuth } from '../slow/auth'
 
 const temp = require('temp').track()
 
 describe('git-process', () => {
+  it('can cancel in-progress git command', async () => {
+    const testRepoPath = temp.mkdirSync('desktop-git-clone-valid')
+    const options = {
+      env: setupNoAuth()
+    }
+    const task = GitProcess.execTask(
+      ['clone', '--', 'https://github.com/shiftkey/friendly-bassoon.git', '.'],
+      testRepoPath,
+      options
+    )
+
+    const cancelResult = await task.cancel()
+    try {
+      await task.result
+    } catch {}
+    expect(cancelResult).toBe(GitTaskCancelResult.successfulCancel)
+  })
+
+  it('cannot cancel already finished git command', async () => {
+    const testRepoPath = temp.mkdirSync('desktop-git-do-nothing')
+    const task = GitProcess.execTask(['--version'], testRepoPath)
+    await task.result
+
+    const cancelResult = await task.cancel()
+    expect(cancelResult).toBe(GitTaskCancelResult.processAlreadyEnded)
+  })
+
   it('can launch git', async () => {
     const result = await GitProcess.exec(['--version'], __dirname)
     expect(result.stderr).toBe('')
