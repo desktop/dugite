@@ -14,6 +14,7 @@ get(`https://api.github.com/repos/desktop/dugite-native/releases/latest`).then(
       'darwin-x64': await findMacOSx64BitRelease(assets),
       'darwin-arm64': await findMacOSARM64BitRelease(assets),
       'linux-x64': await findLinux64BitRelease(assets),
+      'linux-x86': await findLinux32BitRelease(assets),
       'linux-arm': await findLinuxARM32BitRelease(assets),
       'linux-arm64': await findLinuxARM64BitRelease(assets)
     }
@@ -72,6 +73,14 @@ function findLinux64BitRelease(assets) {
   const asset = assets.find(a => a.name.endsWith('-ubuntu-x64.tar.gz'))
   if (asset == null) {
     throw new Error('Could not find Linux 64-bit archive in latest release')
+  }
+  return getDetailsForAsset(assets, asset)
+}
+
+function findLinux32BitRelease(assets) {
+  const asset = assets.find(a => a.name.endsWith('-ubuntu-x86.tar.gz'))
+  if (asset == null) {
+    throw new Error('Could not find Linux 32-bit archive in latest release')
   }
   return getDetailsForAsset(assets, asset)
 }
