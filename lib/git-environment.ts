@@ -32,12 +32,25 @@ function resolveGitDir(): string {
 /**
  *  Find the path to the embedded Git binary.
  */
-function resolveGitBinary(): string {
+function resolveGitBinary(path_: string): {
+  gitLocation: string
+  gitArgs: string[]
+} {
+  const [, wslDistro] =
+    path_.match(/\\\\wsl(?:\$|\.localhost)\\([^\\]+)\\/) ?? []
+
+  if (wslDistro) {
+    return {
+      gitLocation: 'wsl.exe',
+      gitArgs: ['-d', wslDistro, '-e', 'git'],
+    }
+  }
+
   const gitDir = resolveGitDir()
   if (process.platform === 'win32') {
-    return path.join(gitDir, 'cmd', 'git.exe')
+    return { gitLocation: path.join(gitDir, 'cmd', 'git.exe'), gitArgs: [] }
   } else {
-    return path.join(gitDir, 'bin', 'git')
+    return { gitLocation: path.join(gitDir, 'bin', 'git'), gitArgs: [] }
   }
 }
 
@@ -71,11 +84,15 @@ function resolveGitExecPath(): string {
  *
  * @param additional options to include with the process
  */
-export function setupEnvironment(environmentVariables: NodeJS.ProcessEnv): {
+export function setupEnvironment(
+  environmentVariables: NodeJS.ProcessEnv,
+  path: string
+): {
   env: NodeJS.ProcessEnv
   gitLocation: string
+  gitArgs: string[]
 } {
-  const gitLocation = resolveGitBinary()
+  const { gitLocation, gitArgs } = resolveGitBinary(path)
 
   let envPath: string = process.env.PATH || ''
   const gitDir = resolveGitDir()
@@ -97,6 +114,22 @@ export function setupEnvironment(environmentVariables: NodeJS.ProcessEnv): {
     },
     environmentVariables
   )
+
+  if (gitLocation === 'wsl.exe') {
+    // Forward certain environment variables to WSL to allow authentication.
+    // The /p flag translates windows<->wsl paths.
+    env.WSLENV = [
+      env?.WSLENV,
+      'GIT_ASKPASS/p',
+      'DESKTOP_USERNAME',
+      'DESKTOP_ENDPOINT',
+      'DESKTOP_PORT',
+      'DESKTOP_TRAMPOLINE_TOKEN',
+      'DESKTOP_TRAMPOLINE_IDENTIFIER',
+    ]
+      .filter(Boolean)
+      .join(':')
+  }
 
   if (process.platform === 'win32') {
     // while reading the environment variable is case-insensitive
@@ -131,5 +164,5 @@ export function setupEnvironment(environmentVariables: NodeJS.ProcessEnv): {
     }
   }
 
-  return { env, gitLocation }
+  return { env, gitLocation, gitArgs }
 }

@@ -116,14 +116,14 @@ export class GitProcess {
       customEnv = options.env
     }
 
-    const { env, gitLocation } = setupEnvironment(customEnv)
+    const { env, gitLocation, gitArgs } = setupEnvironment(customEnv, path)
 
     const spawnArgs = {
       env,
       cwd: path,
     }
 
-    const spawnedProcess = spawn(gitLocation, args, spawnArgs)
+    const spawnedProcess = spawn(gitLocation, [...gitArgs, ...args], spawnArgs)
 
     ignoreClosedInputStream(spawnedProcess)
 
@@ -183,7 +183,7 @@ export class GitProcess {
           customEnv = options.env
         }
 
-        const { env, gitLocation } = setupEnvironment(customEnv)
+        const { env, gitLocation, gitArgs } = setupEnvironment(customEnv, path)
 
         // Explicitly annotate opts since typescript is unable to infer the correct
         // signature for execFile when options is passed as an opaque hash. The type
@@ -199,7 +199,7 @@ export class GitProcess {
 
         const spawnedProcess = execFile(
           gitLocation,
-          args,
+          [...gitArgs, ...args],
           execOptions,
           function (err: Error | null, stdout, stderr) {
             result.updateProcessEnded()
