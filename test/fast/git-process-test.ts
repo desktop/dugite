@@ -21,6 +21,8 @@ import { setupNoAuth } from '../slow/auth'
 
 const temp = require('temp').track()
 
+const sleep = (seconds: number) => new Promise(resolve => setTimeout(resolve, 1000 * seconds))
+
 describe('git-process', () => {
   it('can cancel in-progress git command', async () => {
     const testRepoPath = temp.mkdirSync('desktop-git-clone-valid')
@@ -37,6 +39,28 @@ describe('git-process', () => {
     try {
       await task.result
     } catch {}
+    expect(cancelResult).toBe(GitTaskCancelResult.successfulCancel)
+  })
+
+  
+  it('can cancel in-progress multi-process git command', async () => {
+    const testRepoPath = temp.mkdirSync('desktop-git-clone-cancel-empty')
+    const options = {
+      env: setupNoAuth(),
+    }
+    // intentionally choosing a large Git repository so that it won't be cloned in less than one second
+    let task = GitProcess.execTask(
+      ['clone', '--', 'https://github.com/maifeeulasad/maifeeulasad.github.io.git', '.'],
+      testRepoPath,
+      options
+    )
+    
+    await sleep(1)
+    const cancelResult = await task.cancel()
+
+    const clonedListDirectory = fs.readdirSync(testRepoPath)
+    // making that the Git clone process was properly cancelled and the target directory is empty
+    expect(clonedListDirectory).toEqual([])
     expect(cancelResult).toBe(GitTaskCancelResult.successfulCancel)
   })
 
