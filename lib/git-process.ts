@@ -401,7 +401,7 @@ class GitTask implements IGitTask {
     }
 
     try {
-      kill(pid)
+      kill(pid, "SIGINT");
       return GitTaskCancelResult.successfulCancel
     } catch (e) {}
 
