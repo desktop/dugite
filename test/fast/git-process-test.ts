@@ -38,25 +38,28 @@ describe('git-process', () => {
     const cancelResult = await task.cancel()
     try {
       await task.result
-    } catch {}
+    } catch { }
     expect(cancelResult).toBe(GitTaskCancelResult.successfulCancel)
   })
 
-  
   it('can cancel in-progress multi-process git command', async () => {
     const testRepoPath = temp.mkdirSync('desktop-git-clone-cancel-empty')
     const options = {
       env: setupNoAuth(),
     }
     // intentionally choosing a large Git repository so that it won't be cloned in less than one second
-    let task = GitProcess.execTask(
+    const task = GitProcess.execTask(
       ['clone', '--', 'https://github.com/maifeeulasad/maifeeulasad.github.io.git', '.'],
       testRepoPath,
       options
     )
-    
+
+    // wait for 1 second before we cancel it so that all of Git's child processes are created
     await sleep(1)
     const cancelResult = await task.cancel()
+    try {
+      await task.result
+    } catch { }
 
     const clonedListDirectory = fs.readdirSync(testRepoPath)
     // making that the Git clone process was properly cancelled and the target directory is empty
