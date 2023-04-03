@@ -9,7 +9,7 @@
       "args": ["--silent", "--config", "${workspaceFolder}/jest.fast.config.js"],
       "console": "integratedTerminal",
       "env": {
-        "LOCAL_GIT_DIRECTORY": "./git/"
+        "LOCAL_GIT_DIRECTORY": "./git/default"
       },
       "internalConsoleOptions": "neverOpen"
     },
@@ -21,7 +21,7 @@
       "args": ["--silent", "--config", "${workspaceFolder}/jest.slow.config.js"],
       "console": "integratedTerminal",
       "env": {
-        "LOCAL_GIT_DIRECTORY": "./git/"
+        "LOCAL_GIT_DIRECTORY": "./git/default"
       },
       "internalConsoleOptions": "neverOpen"
     },

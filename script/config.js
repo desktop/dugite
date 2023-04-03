@@ -7,25 +7,25 @@ const embeddedGit = require('./embedded-git.json')
 
 function getConfig() {
   const config = {
-    outputPath: path.join(__dirname, '..', 'git'),
+    outputPath: path.join(__dirname, '..', 'git', 'default'),
     source: '',
     checksum: '',
     fileName: '',
-    tempFile: ''
+    tempFile: '',
   }
 
-  let arch = os.arch();
+  let arch = os.arch()
 
   if (process.env.npm_config_arch) {
     // If a specific npm_config_arch is set, we use that one instead of the OS arch (to support cross compilation)
-    console.log('npm_config_arch detected: ' + process.env.npm_config_arch);
-    arch = process.env.npm_config_arch;
+    console.log('npm_config_arch detected: ' + process.env.npm_config_arch)
+    arch = process.env.npm_config_arch
   }
 
   if (process.platform === 'win32' && arch === 'arm64') {
     // Use the Dugite Native ia32 package for Windows arm64 (arm64 can run 32-bit code through emulation)
-    console.log('Downloading 32-bit Dugite Native for Windows arm64');
-    arch = 'ia32';
+    console.log('Downloading 32-bit Dugite Native for Windows arm64')
+    arch = 'ia32'
   }
 
   // Os.arch() calls it x32, we use x86 in actions, dugite-native calls it x86 and our embedded-git.json calls it ia32
@@ -41,30 +41,52 @@ function getConfig() {
     config.checksum = entry.checksum
     config.source = entry.url
   } else {
-    console.log(`No embedded Git found for ${process.platform} and architecture ${arch}`)
+    console.log(
+      `No embedded Git found for ${process.platform} and architecture ${arch}`
+    )
   }
 
   if (config.source !== '') {
-    // compute the filename from the download source
-    const url = URL.parse(config.source)
-    const pathName = url.pathname
-    const index = pathName.lastIndexOf('/')
-    config.fileName = pathName.substr(index + 1)
-
-    const cacheDirEnv = process.env.DUGITE_CACHE_DIR
-
-    const cacheDir = cacheDirEnv ? path.resolve(cacheDirEnv) : os.tmpdir()
-
-    try {
-      fs.statSync(cacheDir)
-    } catch (e) {
-      fs.mkdirSync(cacheDir)
-    }
-
-    config.tempFile = path.join(cacheDir, config.fileName)
+    processConfig(config)
   }
 
-  return config
+  if (process.platform === 'win32') {
+    const entry = embeddedGit['linux-x64']
+
+    const wslConfig = {
+      outputPath: path.join(__dirname, '..', 'git', 'linux-x64'),
+      source: entry.url,
+      checksum: entry.checksum,
+      fileName: '',
+      tempFile: '',
+    }
+
+    processConfig(wslConfig)
+
+    return [config, wslConfig]
+  }
+
+  return [config]
+}
+
+function processConfig(config) {
+  // compute the filename from the download source
+  const url = URL.parse(config.source)
+  const pathName = url.pathname
+  const index = pathName.lastIndexOf('/')
+  config.fileName = pathName.substr(index + 1)
+
+  const cacheDirEnv = process.env.DUGITE_CACHE_DIR
+
+  const cacheDir = cacheDirEnv ? path.resolve(cacheDirEnv) : os.tmpdir()
+
+  try {
+    fs.statSync(cacheDir)
+  } catch (e) {
+    fs.mkdirSync(cacheDir)
+  }
+
+  config.tempFile = path.join(cacheDir, config.fileName)
 }
 
 module.exports = getConfig
