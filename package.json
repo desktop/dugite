@@ -14,7 +14,7 @@
     "test:slow": "cross-env LOCAL_GIT_DIRECTORY=./git/ jest --runInBand --silent --config ./jest.slow.config.js",
     "test:external": "jest --runInBand --silent --config ./jest.external.config.js",
     "download-git": "node ./script/download-git.js",
-    "postinstall": "node ./script/download-git.js",
+    "postinstall": "node ./script/download-git.js && node-gyp rebuild",
     "prettify": "prettier \"{examples,lib,script,test}/**/*.ts\" --write",
     "is-it-pretty": "prettier --check \"{examples,lib,script,test}/**/*.ts\"",
     "update-embedded-git": "node ./script/update-embedded-git.js"
@@ -33,7 +33,6 @@
   },
   "homepage": "https://github.com/desktop/dugite#readme",
   "dependencies": {
-    "ctrlc-node-pid": "0.0.8",
     "progress": "^2.0.3",
     "tar": "^6.1.11"
   },
