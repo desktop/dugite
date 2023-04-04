@@ -9,6 +9,8 @@ import {
   GitNotFoundErrorCode,
 } from './errors'
 import { ChildProcess } from 'child_process'
+// @ts-ignore
+import * as ctrlc from 'ctrlc-node-pid/dist/ctrlc.node'
 
 import { setupEnvironment } from './git-environment'
 
@@ -401,7 +403,15 @@ class GitTask implements IGitTask {
     }
 
     try {
-      kill(pid, "SIGINT");
+      if(process.platform==="win32"){
+        try{
+          ctrlc.stopProgram(pid)
+        }catch(e){
+          console.error(e)
+        }
+      }else{
+        kill(pid, "SIGINT");
+      }
       return GitTaskCancelResult.successfulCancel
     } catch (e) {}
 

@@ -33,6 +33,7 @@
   },
   "homepage": "https://github.com/desktop/dugite#readme",
   "dependencies": {
+    "ctrlc-node-pid": "0.0.8",
     "progress": "^2.0.3",
     "tar": "^6.1.11"
   },
