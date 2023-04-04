@@ -25,6 +25,15 @@ const sleep = (seconds: number) =>
   new Promise(resolve => setTimeout(resolve, 1000 * seconds))
 
 describe('git-process', () => {
+  it('cannot cancel already finished git command', async () => {
+    const testRepoPath = temp.mkdirSync('desktop-git-do-nothing')
+    const task = GitProcess.execTask(['--version'], testRepoPath)
+    await task.result
+
+    const cancelResult = await task.cancel()
+    expect(cancelResult).toBe(GitTaskCancelResult.processAlreadyEnded)
+  })
+
   it('can cancel in-progress git command', async () => {
     const testRepoPath = temp.mkdirSync('desktop-git-clone-valid')
     const options = {
@@ -48,15 +57,6 @@ describe('git-process', () => {
     // making that the Git clone process was properly cancelled and the target directory is empty
     expect(clonedListDirectory).toEqual([])
     expect(cancelResult).toBe(GitTaskCancelResult.successfulCancel)
-  })
-
-  it('cannot cancel already finished git command', async () => {
-    const testRepoPath = temp.mkdirSync('desktop-git-do-nothing')
-    const task = GitProcess.execTask(['--version'], testRepoPath)
-    await task.result
-
-    const cancelResult = await task.cancel()
-    expect(cancelResult).toBe(GitTaskCancelResult.processAlreadyEnded)
   })
 
   it('can launch git', async () => {
