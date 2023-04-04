@@ -45,8 +45,12 @@ jobs:
         run: yarn
         env:
           npm_config_arch: ${{ matrix.arch }}
+      - name: node-gyp installation
+        run: npm i -g node-gyp@9.3.1
       - name: Build
         run: yarn build
+      - name: node-gyp configure and build
+        run: node-gyp configure && node-gyp build
       - name: Lint
         run: yarn is-it-pretty
       - name: Reset safe.directory
