@@ -403,10 +403,10 @@ class GitTask implements IGitTask {
     }
 
     try {
-      if(process.platform==="win32"){
+      if (process.platform === 'win32') {
         ctrlc.sigintWindows(pid)
-      }else{
-        kill(pid, "SIGINT");
+      } else {
+        kill(pid, 'SIGINT')
       }
       return GitTaskCancelResult.successfulCancel
     } catch (e) {}
