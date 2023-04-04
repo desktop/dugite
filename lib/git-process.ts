@@ -10,7 +10,7 @@ import {
 } from './errors'
 import { ChildProcess } from 'child_process'
 // @ts-ignore
-import * as ctrlc from 'ctrlc-node-pid/dist/ctrlc.node'
+import * as ctrlc from '../build/Release/ctrlc.node'
 
 import { setupEnvironment } from './git-environment'
 
@@ -404,11 +404,7 @@ class GitTask implements IGitTask {
 
     try {
       if(process.platform==="win32"){
-        try{
-          ctrlc.stopProgram(pid)
-        }catch(e){
-          console.error(e)
-        }
+        ctrlc.sigintWindows(pid)
       }else{
         kill(pid, "SIGINT");
       }
