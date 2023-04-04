@@ -153,15 +153,13 @@ export class GitProcess {
   /**
    * Execute a command and read the output using the embedded Git environment.
    *
-   * The returned GitTask will will contain `result`, `setPid`, `cancel`
+   * The returned GitTask will will contain `result`, `cancel`
    * `result` will be a promise, which will reject when the git
    * executable fails to launch, in which case the thrown Error will
    * have a string `code` property. See `errors.ts` for some of the
    * known error codes.
    * See the result's `stderr` and `exitCode` for any potential git error
    * information.
-   *
-   * As for, `setPid(pid)`, this is to set the PID
    *
    * And `cancel()` will try to cancel the git process
    */
@@ -170,12 +168,16 @@ export class GitProcess {
     path: string,
     options?: IGitExecutionOptions
   ): IGitTask {
-    let pidResolve: {
+    let gitTaskInfoResolve: {
       (arg0: any): void
-      (value: number | PromiseLike<number | undefined> | undefined): void
+      (
+        value: GitTaskInfo | PromiseLike<GitTaskInfo | undefined> | undefined
+      ): void
     }
-    const pidPromise = new Promise<undefined | number>(function (resolve) {
-      pidResolve = resolve
+    const gitTaskInfoPromise = new Promise<undefined | GitTaskInfo>(function (
+      resolve
+    ) {
+      gitTaskInfoResolve = resolve
     })
 
     let result = new GitTask(
@@ -260,7 +262,13 @@ export class GitProcess {
           }
         )
 
-        pidResolve(spawnedProcess.pid)
+        gitTaskInfoResolve({
+          pid: spawnedProcess.pid,
+          gitTaskActionType:
+            args[0] === 'clone'
+              ? GitTaskActionType.clone
+              : GitTaskActionType.general,
+        } as GitTaskInfo)
 
         ignoreClosedInputStream(spawnedProcess)
 
@@ -277,7 +285,7 @@ export class GitProcess {
           options.processCallback(spawnedProcess)
         }
       }),
-      pidPromise
+      gitTaskInfoPromise
     )
 
     return result
@@ -359,6 +367,16 @@ function ignoreClosedInputStream({ stdin }: ChildProcess) {
   })
 }
 
+enum GitTaskActionType {
+  general,
+  clone,
+}
+
+interface GitTaskInfo {
+  pid: number
+  gitTaskActionType: GitTaskActionType
+}
+
 export enum GitTaskCancelResult {
   successfulCancel,
   processAlreadyEnded,
@@ -375,13 +393,16 @@ export interface IGitTask {
 }
 
 class GitTask implements IGitTask {
-  constructor(result: Promise<IGitResult>, pid: Promise<number | undefined>) {
+  constructor(
+    result: Promise<IGitResult>,
+    gitTaskInfo: Promise<GitTaskInfo | undefined>
+  ) {
     this.result = result
-    this.pid = pid
+    this.gitTaskInfo = gitTaskInfo
     this.processEnded = false
   }
 
-  private pid: Promise<number | undefined>
+  private gitTaskInfo: Promise<GitTaskInfo | undefined>
   /** Process may end because process completed or process errored. Either way, we can no longer cancel it. */
   private processEnded: boolean
 
@@ -396,17 +417,27 @@ class GitTask implements IGitTask {
       return GitTaskCancelResult.processAlreadyEnded
     }
 
-    const pid = await this.pid
+    const gitTaskInfo = await this.gitTaskInfo
+
+    if (!gitTaskInfo) {
+      return GitTaskCancelResult.failedToCancel
+    }
+
+    const pid = gitTaskInfo.pid
+    const gitTaskActionType = gitTaskInfo.gitTaskActionType
 
     if (pid === undefined) {
       return GitTaskCancelResult.noProcessIdDefined
     }
 
     try {
-      if (process.platform === 'win32') {
+      if (
+        process.platform === 'win32' &&
+        gitTaskActionType === GitTaskActionType.clone
+      ) {
         ctrlc.sigintWindows(pid)
       } else {
-        kill(pid, 'SIGINT')
+        kill(pid)
       }
       return GitTaskCancelResult.successfulCancel
     } catch (e) {}

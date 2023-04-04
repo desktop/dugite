@@ -30,24 +30,6 @@ describe('git-process', () => {
     const options = {
       env: setupNoAuth(),
     }
-    const task = GitProcess.execTask(
-      ['clone', '--', 'https://github.com/shiftkey/friendly-bassoon.git', '.'],
-      testRepoPath,
-      options
-    )
-
-    const cancelResult = await task.cancel()
-    try {
-      await task.result
-    } catch {}
-    expect(cancelResult).toBe(GitTaskCancelResult.successfulCancel)
-  })
-
-  it('can cancel in-progress multi-process git command', async () => {
-    const testRepoPath = temp.mkdirSync('desktop-git-clone-cancel-empty')
-    const options = {
-      env: setupNoAuth(),
-    }
     // intentionally choosing a large Git repository so that it won't be cloned in less than one second
     const task = GitProcess.execTask(
       ['clone', '--', 'https://github.com/desktop/desktop.git', '.'],
