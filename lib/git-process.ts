@@ -9,8 +9,10 @@ import {
   GitNotFoundErrorCode,
 } from './errors'
 import { ChildProcess } from 'child_process'
-// @ts-ignore
-import * as ctrlc from '../build/Release/ctrlc.node'
+if(process.platform === 'win32'){
+  // @ts-ignore
+  import * as ctrlc from '../build/Release/ctrlc.node'
+}
 
 import { setupEnvironment } from './git-environment'
 
@@ -433,7 +435,8 @@ class GitTask implements IGitTask {
     try {
       if (
         process.platform === 'win32' &&
-        gitTaskActionType === GitTaskActionType.clone
+        gitTaskActionType === GitTaskActionType.clone &&
+        ctrlc
       ) {
         ctrlc.sigintWindows(pid)
       } else {

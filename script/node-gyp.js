@@ -1,5 +1,4 @@
 const { exec } = require('child_process')
-const os = require('os')
 
 function runCommand(command) {
   return new Promise((resolve, reject) => {
@@ -36,7 +35,7 @@ function buildNodeGyp() {
   return runCommand('node-gyp build')
 }
 
-if (os.platform === 'win32') {
+if (process.platform === 'win32') {
   installNodeGyp()
     .then(() => configureNodeGyp())
     .then(() => buildNodeGyp())
