@@ -10,7 +10,7 @@ import {
 } from './errors'
 import { ChildProcess } from 'child_process'
 // @ts-ignore
-import * as ctrlc from 'ctrlc.node'
+import * as ctrlc from './ctrlc.node'
 
 import { setupEnvironment } from './git-environment'
 
