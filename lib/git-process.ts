@@ -9,7 +9,7 @@ import {
   GitNotFoundErrorCode,
 } from './errors'
 import { ChildProcess } from 'child_process'
-if(process.platform === 'win32'){
+if (process.platform === 'win32') {
   // @ts-ignore
   import * as ctrlc from '../build/Release/ctrlc.node'
 }
