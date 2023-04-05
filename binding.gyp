@@ -2,7 +2,7 @@
   "targets": [
     {
       "target_name": "ctrlc",
-      "sources": [ "ctrlc.cc" ]
+      "sources": [ "lib/ctrlc.cc" ]
     }
   ]
 }
