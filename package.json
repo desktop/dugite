@@ -33,6 +33,7 @@
   },
   "homepage": "https://github.com/desktop/dugite#readme",
   "dependencies": {
+    "global-agent": "^3.0.0",
     "progress": "^2.0.3",
     "tar": "^6.1.11"
   },
