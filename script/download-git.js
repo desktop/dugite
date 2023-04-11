@@ -10,7 +10,7 @@ const { rm, mkdir, createReadStream, createWriteStream, existsSync } = require('
 const config = require('./config')()
 
 // Proxy can be configured with or without GLOBAL_AGENT_ prefix
-for (envVar in ['HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY']) {
+for (envVar of ['HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY']) {
   if (process.env[envVar] && !process.env["GLOBAL_AGENT_" + envVar]) {
     process.env["GLOBAL_AGENT_" + envVar] = process.env[envVar]
   }
