@@ -29,6 +29,7 @@ jobs:
             friendlyName: Windows
             nodeVersion: 16
             arch: x86
+            npm_config_arch: ia32
           - os: ubuntu-22.04
             friendlyName: Linux
     timeout-minutes: 10
@@ -44,7 +45,7 @@ jobs:
       - name: Install and build dependencies
         run: yarn
         env:
-          npm_config_arch: ${{ matrix.arch }}
+          npm_config_arch: ${{ matrix.npm_config_arch }}
       - name: Build
         run: yarn build
       - name: Lint

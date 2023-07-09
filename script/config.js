@@ -14,6 +14,7 @@ function getConfig() {
     tempFile: ''
   }
 
+  // Possible values are ‘x64’, ‘arm’, ‘arm64’, ‘s390’, ‘s390x’, ‘mipsel’, ‘ia32’, ‘mips’, ‘ppc’ and ‘ppc64’
   let arch = os.arch();
 
   if (process.env.npm_config_arch) {
@@ -26,11 +27,6 @@ function getConfig() {
     // Use the Dugite Native ia32 package for Windows arm64 (arm64 can run 32-bit code through emulation)
     console.log('Downloading 32-bit Dugite Native for Windows arm64');
     arch = 'ia32';
-  }
-
-  // Os.arch() calls it x32, we use x86 in actions, dugite-native calls it x86 and our embedded-git.json calls it ia32
-  if (arch === 'x32' || arch === 'x86') {
-    arch = 'ia32'
   }
 
   const key = `${process.platform}-${arch}`
