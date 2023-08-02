@@ -103,7 +103,10 @@ class GitTask implements IGitTask {
 
   public result: Promise<IGitResult>
 
-  public constructor(result: Promise<IGitResult>, pid: Promise<number | undefined>) {
+  public constructor(
+    result: Promise<IGitResult>,
+    pid: Promise<number | undefined>
+  ) {
     this.result = result
     this.pid = pid
     this.processEnded = false
