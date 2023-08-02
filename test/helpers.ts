@@ -124,6 +124,7 @@ expect.extend({
 
 declare global {
   namespace jest {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     interface Matchers<R = IGitResult> {
       toHaveGitError(result: GitError): CustomMatcherResult
     }
