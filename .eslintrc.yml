@@ -117,29 +117,6 @@ rules:
     - error
     - global
   no-buffer-constructor: error
-  no-restricted-imports:
-    - error
-    - paths:
-        - name: electron
-          importNames: ['ipcRenderer']
-          message:
-            "Please use 'import * as ipcRenderer' from 'ipc-renderer' instead to
-            get strongly typed IPC methods."
-        - name: electron/renderer
-          importNames: ['ipcRenderer']
-          message:
-            "Please use 'import * as ipcRenderer' from 'ipc-renderer' instead to
-            get strongly typed IPC methods."
-        - name: electron
-          importNames: ['ipcMain']
-          message:
-            "Please use 'import * as ipcMain' from 'ipc-main' instead to get
-            strongly typed IPC methods."
-        - name: electron/main
-          importNames: ['ipcMain']
-          message:
-            "Please use 'import * as ipcMain' from 'ipc-main' instead to get
-            strongly typed IPC methods."
 
   ###########
   # SPECIAL #
@@ -149,20 +126,6 @@ rules:
     # no-default-export
     - selector: ExportDefaultDeclaration
       message: Use of default exports is forbidden
-
-  ###########
-  # jsx-a11y #
-  ###########
-
-  # autofocus is fine when it is being used to set focus to something in a way
-  # that doesn't skip any context or inputs. For example, in a named dialog, if you had
-  # a close button, a heading reflecting the name, and a labelled text input,
-  # focusing the text input wouldn't disadvantage a user because they're not
-  # missing anything of importance before it.  The problem is when it is used on
-  # larger web pages, e.g. to focus a form field in the main content, entirely
-  # skipping the header and often much else besides.
-  jsx-a11y/no-autofocus:
-    - off
 
 overrides:
   - files: '*.d.ts'
@@ -179,5 +142,3 @@ overrides:
 
 parserOptions:
   sourceType: module
-  ecmaFeatures:
-    jsx: true
