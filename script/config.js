@@ -11,22 +11,22 @@ function getConfig() {
     source: '',
     checksum: '',
     fileName: '',
-    tempFile: ''
+    tempFile: '',
   }
 
   // Possible values are ‘x64’, ‘arm’, ‘arm64’, ‘s390’, ‘s390x’, ‘mipsel’, ‘ia32’, ‘mips’, ‘ppc’ and ‘ppc64’
-  let arch = os.arch();
+  let arch = os.arch()
 
   if (process.env.npm_config_arch) {
     // If a specific npm_config_arch is set, we use that one instead of the OS arch (to support cross compilation)
-    console.log('npm_config_arch detected: ' + process.env.npm_config_arch);
-    arch = process.env.npm_config_arch;
+    console.log('npm_config_arch detected: ' + process.env.npm_config_arch)
+    arch = process.env.npm_config_arch
   }
 
   if (process.platform === 'win32' && arch === 'arm64') {
     // Use the Dugite Native ia32 package for Windows arm64 (arm64 can run 32-bit code through emulation)
-    console.log('Downloading 32-bit Dugite Native for Windows arm64');
-    arch = 'ia32';
+    console.log('Downloading 32-bit Dugite Native for Windows arm64')
+    arch = 'ia32'
   }
 
   const key = `${process.platform}-${arch}`
@@ -37,7 +37,9 @@ function getConfig() {
     config.checksum = entry.checksum
     config.source = entry.url
   } else {
-    console.log(`No embedded Git found for ${process.platform} and architecture ${arch}`)
+    console.log(
+      `No embedded Git found for ${process.platform} and architecture ${arch}`
+    )
   }
 
   if (config.source !== '') {

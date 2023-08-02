@@ -1,6 +1,6 @@
 import { GitProcess, GitError } from '../lib/'
 
-async function getError() {
+export async function getError() {
   const branch = 'master'
   const path = 'C:/path/to/repo/'
 
