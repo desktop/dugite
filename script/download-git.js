@@ -1,19 +1,25 @@
-const fs = require('fs')
-
 const ProgressBar = require('progress')
 const tar = require('tar')
 const https = require('https')
 const { createHash } = require('crypto')
-const { rm, mkdir, createReadStream, createWriteStream, existsSync } = require('fs')
+const {
+  rm,
+  mkdir,
+  createReadStream,
+  createWriteStream,
+  existsSync,
+} = require('fs')
 
 const config = require('./config')()
 
-const verifyFile = function(file, callback) {
+const verifyFile = function (file, callback) {
   const h = createHash('sha256').on('finish', () => {
     const hash = h.digest('hex')
     const match = hash === config.checksum
     if (!match) {
-      console.log(`Validation failed. Expected '${config.checksum}' but got '${hash}'`)
+      console.log(
+        `Validation failed. Expected '${config.checksum}' but got '${hash}'`
+      )
     }
     callback(match)
   })
@@ -21,7 +27,7 @@ const verifyFile = function(file, callback) {
   createReadStream(file).pipe(h)
 }
 
-const unpackFile = function(file) {
+const unpackFile = function (file) {
   tar.x({ cwd: config.outputPath, file }).catch(e => {
     console.log('Unable to extract archive, aborting...', error)
     process.exit(1)
@@ -36,14 +42,14 @@ const downloadAndUnpack = (url, isFollowingRedirect) => {
   const options = {
     headers: {
       Accept: 'application/octet-stream',
-      'User-Agent': 'dugite'
+      'User-Agent': 'dugite',
     },
-    secureProtocol: 'TLSv1_2_method'
+    secureProtocol: 'TLSv1_2_method',
   }
 
   const req = https.get(url, options)
 
-  req.on('error', function(error) {
+  req.on('error', function (error) {
     if (error.code === 'ETIMEDOUT') {
       console.log(
         `A timeout has occurred while downloading '${url}' - check ` +
@@ -57,7 +63,7 @@ const downloadAndUnpack = (url, isFollowingRedirect) => {
     process.exit(1)
   })
 
-  req.on('response', function(res) {
+  req.on('response', function (res) {
     if ([301, 302].includes(res.statusCode) && res.headers['location']) {
       downloadAndUnpack(res.headers.location, true)
       return
@@ -74,13 +80,13 @@ const downloadAndUnpack = (url, isFollowingRedirect) => {
       complete: '=',
       incomplete: ' ',
       width: 50,
-      total: len
+      total: len,
     })
 
     res.pipe(createWriteStream(config.tempFile))
 
     res.on('data', c => bar.tick(c.length))
-    res.on('end', function() {
+    res.on('end', function () {
       verifyFile(config.tempFile, valid => {
         if (valid) {
           unpackFile(config.tempFile)
@@ -97,7 +103,9 @@ if (config.source === '') {
   console.log(
     `Skipping downloading embedded Git as platform '${process.platform}' is not supported.`
   )
-  console.log(`To learn more about using dugite with a system Git: https://git.io/vF5oj`)
+  console.log(
+    `To learn more about using dugite with a system Git: https://git.io/vF5oj`
+  )
   process.exit(0)
 }
 
@@ -107,7 +115,7 @@ rm(config.outputPath, { recursive: true, force: true }, error => {
     process.exit(1)
   }
 
-  mkdir(config.outputPath, { recursive: true }, function(error) {
+  mkdir(config.outputPath, { recursive: true }, function (error) {
     if (error) {
       console.log(`Unable to create directory at ${config.outputPath}`, error)
       process.exit(1)
