@@ -4,7 +4,7 @@ const ProgressBar = require('progress')
 const tar = require('tar')
 const https = require('https')
 const { createHash } = require('crypto')
-const { rm, mkdir, createReadStream, createWriteStream, existsSync } = require('fs')
+const { rm, rmSync, mkdir, createReadStream, createWriteStream, existsSync } = require('fs')
 
 const config = require('./config')()
 
