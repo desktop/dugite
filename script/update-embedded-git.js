@@ -14,7 +14,7 @@ get(`https://api.github.com/repos/desktop/dugite-native/releases/latest`).then(
       'darwin-x64': await findMacOSx64BitRelease(assets),
       'darwin-arm64': await findMacOSARM64BitRelease(assets),
       'linux-x64': await findLinux64BitRelease(assets),
-      'linux-x86': await findLinux32BitRelease(assets),
+      'linux-ia32': await findLinux32BitRelease(assets),
       'linux-arm': await findLinuxARM32BitRelease(assets),
       'linux-arm64': await findLinuxARM64BitRelease(assets)
     }
