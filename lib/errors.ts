@@ -1,5 +1,6 @@
 /** The git errors which can be parsed from failed git commands. */
 export enum GitError {
+  BadConfigValue,
   SSHKeyAuditUnverified,
   SSHAuthenticationFailed,
   SSHPermissionDenied,
@@ -64,6 +65,8 @@ export enum GitError {
 
 /** A mapping from regexes to the git error they identify. */
 export const GitErrorRegexes: { [regexp: string]: GitError } = {
+  "fatal: bad (?:numeric|boolean) config value '(.+)' for '(.+)'":
+    GitError.BadConfigValue,
   'ERROR: ([\\s\\S]+?)\\n+\\[EPOLICYKEYAGE\\]\\n+fatal: Could not read from remote repository.':
     GitError.SSHKeyAuditUnverified,
   "fatal: Authentication failed for 'https://":

@@ -65,4 +65,61 @@ describe('detects errors', () => {
     // toContain because of realpath and we don't care about /private/ on macOS
     expect(m![1]).toContain(repoName)
   })
+  describe('BadConfigValue', () => {
+    it('detects bad boolean config value', async () => {
+      const repoPath = await initialize('bad-config-repo')
+
+      const filePath = 'text.md'
+      writeFileSync(join(repoPath, filePath), 'some text')
+      await GitProcess.exec(['add', filePath], repoPath)
+
+      await GitProcess.exec(['config', 'core.autocrlf', 'nab'], repoPath)
+
+      const result = await GitProcess.exec(
+        ['commit', '-m', 'add a text file'],
+        repoPath
+      )
+
+      expect(result).toHaveGitError(GitError.BadConfigValue)
+
+      const errorEntry = Object.entries(GitErrorRegexes).find(
+        ([_, v]) => v === GitError.BadConfigValue
+      )
+
+      expect(errorEntry).not.toBe(null)
+      const m = result.stderr.match(errorEntry![0])
+
+      expect(m![1]).toBe('nab')
+      expect(m![2]).toBe('core.autocrlf')
+    })
+    it('detects bad numeric config value', async () => {
+      const repoPath = await initialize('bad-config-repo')
+
+      const filePath = 'text.md'
+      writeFileSync(join(repoPath, filePath), 'some text')
+      await GitProcess.exec(['add', filePath], repoPath)
+
+      await GitProcess.exec(
+        ['config', 'core.repositoryformatversion', 'nan'],
+        repoPath
+      )
+
+      const result = await GitProcess.exec(
+        ['commit', '-m', 'add a text file'],
+        repoPath
+      )
+
+      expect(result).toHaveGitError(GitError.BadConfigValue)
+
+      const errorEntry = Object.entries(GitErrorRegexes).find(
+        ([_, v]) => v === GitError.BadConfigValue
+      )
+
+      expect(errorEntry).not.toBe(null)
+      const m = result.stderr.match(errorEntry![0])
+
+      expect(m![1]).toBe('nan')
+      expect(m![2]).toBe('core.repositoryformatversion')
+    })
+  })
 })
