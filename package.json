@@ -33,7 +33,9 @@
   },
   "homepage": "https://github.com/desktop/dugite#readme",
   "dependencies": {
+    "@types/ps-tree": "^1.1.2",
     "progress": "^2.0.3",
+    "ps-tree": "^1.2.0",
     "tar": "^6.1.11"
   },
   "devDependencies": {

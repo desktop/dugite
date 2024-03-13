@@ -1,5 +1,5 @@
 import * as fs from 'fs'
-import { kill } from 'process'
+import * as psTree from 'ps-tree'
 
 import { execFile, spawn, ExecOptionsWithStringEncoding } from 'child_process'
 import {
@@ -401,10 +401,29 @@ class GitTask implements IGitTask {
     }
 
     try {
-      kill(pid)
+      this.killProcess(pid)
       return GitTaskCancelResult.successfulCancel
     } catch (e) {}
 
     return GitTaskCancelResult.failedToCancel
+  }
+
+  private killProcess(pid: number) {
+    psTree(pid, function (err, children) {
+      if (err) {
+        throw err
+      }
+      const isWin32 = process.platform === 'win32'
+      const command = isWin32 ? 'taskkill' : 'kill'
+      const args = isWin32 ? ['/F'] : ['-9']
+      children.forEach(p => {
+        if (p.PID) {
+          isWin32 ? args.push('/PID', p.PID) : args.push(p.PID)
+        }
+      })
+      // Must kill first parent pid at last
+      isWin32 ? args.push('/PID', `${pid}`, '/T') : args.push(`${pid}`)
+      spawn(command, args)
+    })
   }
 }
