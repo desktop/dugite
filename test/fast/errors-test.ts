@@ -82,15 +82,10 @@ describe('detects errors', () => {
 
       expect(result).toHaveGitError(GitError.BadConfigValue)
 
-      const errorEntry = Object.entries(GitErrorRegexes).find(
-        ([_, v]) => v === GitError.BadConfigValue
-      )
-
-      expect(errorEntry).not.toBe(null)
-      const m = result.stderr.match(errorEntry![0])
-
-      expect(m![1]).toBe('nab')
-      expect(m![2]).toBe('core.autocrlf')
+      const errorInfo = GitProcess.parseBadConfigValueErrorInfo(result.stderr)
+      expect(errorInfo).not.toBe(null)
+      expect(errorInfo!.value).toBe('nab')
+      expect(errorInfo!.key).toBe('core.autocrlf')
     })
     it('detects bad numeric config value', async () => {
       const repoPath = await initialize('bad-config-repo')
