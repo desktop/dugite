@@ -21,25 +21,10 @@ import { setupNoAuth } from '../slow/auth'
 
 const temp = require('temp').track()
 
+const sleep = (seconds: number) =>
+  new Promise(resolve => setTimeout(resolve, 1000 * seconds))
+
 describe('git-process', () => {
-  it('can cancel in-progress git command', async () => {
-    const testRepoPath = temp.mkdirSync('desktop-git-clone-valid')
-    const options = {
-      env: setupNoAuth(),
-    }
-    const task = GitProcess.execTask(
-      ['clone', '--', 'https://github.com/shiftkey/friendly-bassoon.git', '.'],
-      testRepoPath,
-      options
-    )
-
-    const cancelResult = await task.cancel()
-    try {
-      await task.result
-    } catch {}
-    expect(cancelResult).toBe(GitTaskCancelResult.successfulCancel)
-  })
-
   it('cannot cancel already finished git command', async () => {
     const testRepoPath = temp.mkdirSync('desktop-git-do-nothing')
     const task = GitProcess.execTask(['--version'], testRepoPath)
@@ -47,6 +32,31 @@ describe('git-process', () => {
 
     const cancelResult = await task.cancel()
     expect(cancelResult).toBe(GitTaskCancelResult.processAlreadyEnded)
+  })
+
+  it('can cancel in-progress git command', async () => {
+    const testRepoPath = temp.mkdirSync('desktop-git-clone-valid')
+    const options = {
+      env: setupNoAuth(),
+    }
+    // intentionally choosing a large Git repository so that it won't be cloned in less than one second
+    const task = GitProcess.execTask(
+      ['clone', '--', 'https://github.com/desktop/desktop.git', '.'],
+      testRepoPath,
+      options
+    )
+
+    // wait for 1 second before we cancel it so that all of Git's child processes are created
+    await sleep(1)
+    const cancelResult = await task.cancel()
+    try {
+      await task.result
+    } catch {}
+
+    const clonedListDirectory = fs.readdirSync(testRepoPath)
+    // making that the Git clone process was properly cancelled and the target directory is empty
+    expect(clonedListDirectory).toEqual([])
+    expect(cancelResult).toBe(GitTaskCancelResult.successfulCancel)
   })
 
   it('can launch git', async () => {
