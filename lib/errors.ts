@@ -69,7 +69,7 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
     GitError.BadConfigValue,
   'ERROR: ([\\s\\S]+?)\\n+\\[EPOLICYKEYAGE\\]\\n+fatal: Could not read from remote repository.':
     GitError.SSHKeyAuditUnverified,
-  "fatal: Authentication failed for 'https://":
+  "fatal: Authentication failed for 'https?://":
     GitError.HTTPSAuthenticationFailed,
   'fatal: Authentication failed': GitError.SSHAuthenticationFailed,
   'fatal: Could not read from remote repository.': GitError.SSHPermissionDenied,

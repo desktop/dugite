@@ -287,7 +287,21 @@ describe('git-process', () => {
       expect((error as any).code).toBe(RepositoryDoesNotExistErrorCode)
     })
 
-    it('can parse errors', () => {
+    it('can parse HTTPS auth errors', () => {
+      const error = GitProcess.parseError(
+        "fatal: Authentication failed for 'https://www.github.com/shiftkey/desktop.git/'"
+      )
+      expect(error).toBe(GitError.HTTPSAuthenticationFailed)
+    })
+
+    it('can parse HTTP auth errors', () => {
+      const error = GitProcess.parseError(
+        "fatal: Authentication failed for 'http://localhost:3000'"
+      )
+      expect(error).toBe(GitError.HTTPSAuthenticationFailed)
+    })
+
+    it('can parse SSH auth errors', () => {
       const error = GitProcess.parseError('fatal: Authentication failed')
       expect(error).toBe(GitError.SSHAuthenticationFailed)
     })
