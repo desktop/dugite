@@ -4,31 +4,37 @@ const ProgressBar = require('progress')
 const tar = require('tar')
 const https = require('https')
 const { createHash } = require('crypto')
-const { rm, rmSync, mkdir, createReadStream, createWriteStream, existsSync } = require('fs')
+const { createReadStream, createWriteStream, existsSync } = require('fs')
+const { rm, mkdir } = require('fs/promises')
 
-const config = require('./config')()
+const configs = require('./config')()
 
-const verifyFile = function(file, callback) {
-  const h = createHash('sha256').on('finish', () => {
-    const hash = h.digest('hex')
-    const match = hash === config.checksum
-    if (!match) {
-      console.log(`Validation failed. Expected '${config.checksum}' but got '${hash}'`)
-    }
-    callback(match)
+const verifyFile = function (config) {
+  const h = createHash('sha256')
+  createReadStream(config.tempFile).pipe(h)
+
+  return new Promise(resolve => {
+    h.on('finish', () => {
+      const hash = h.digest('hex')
+      const match = hash === config.checksum
+      if (!match) {
+        console.log(
+          `Validation failed. Expected '${config.checksum}' but got '${hash}'`
+        )
+      }
+      resolve(match)
+    })
   })
-
-  createReadStream(file).pipe(h)
 }
 
-const unpackFile = function(file) {
-  tar.x({ cwd: config.outputPath, file }).catch(e => {
+const unpackFile = async function (config) {
+  await tar.x({ cwd: config.outputPath, file: config.tempFile }).catch(e => {
     console.log('Unable to extract archive, aborting...', error)
     process.exit(1)
   })
 }
 
-const downloadAndUnpack = (url, isFollowingRedirect) => {
+const downloadAndUnpack = (config, url, isFollowingRedirect) => {
   if (!isFollowingRedirect) {
     console.log(`Downloading Git from: ${url}`)
   }
@@ -36,14 +42,14 @@ const downloadAndUnpack = (url, isFollowingRedirect) => {
   const options = {
     headers: {
       Accept: 'application/octet-stream',
-      'User-Agent': 'dugite'
+      'User-Agent': 'dugite',
     },
-    secureProtocol: 'TLSv1_2_method'
+    secureProtocol: 'TLSv1_2_method',
   }
 
   const req = https.get(url, options)
 
-  req.on('error', function(error) {
+  req.on('error', function (error) {
     if (error.code === 'ETIMEDOUT') {
       console.log(
         `A timeout has occurred while downloading '${url}' - check ` +
@@ -57,33 +63,35 @@ const downloadAndUnpack = (url, isFollowingRedirect) => {
     process.exit(1)
   })
 
-  req.on('response', function(res) {
-    if ([301, 302].includes(res.statusCode) && res.headers['location']) {
-      downloadAndUnpack(res.headers.location, true)
-      return
-    }
+  return new Promise(resolve => {
+    req.on('response', function (res) {
+      if ([301, 302].includes(res.statusCode) && res.headers['location']) {
+        return downloadAndUnpack(config, res.headers.location, true)
+      }
 
-    if (res.statusCode !== 200) {
-      console.log(`Non-200 response returned from ${url} - (${res.statusCode})`)
-      process.exit(1)
-    }
+      if (res.statusCode !== 200) {
+        console.log(
+          `Non-200 response returned from ${url} - (${res.statusCode})`
+        )
+        process.exit(1)
+      }
 
-    const len = parseInt(res.headers['content-length'], 10)
+      const len = parseInt(res.headers['content-length'], 10)
 
-    const bar = new ProgressBar('Downloading Git [:bar] :percent :etas', {
-      complete: '=',
-      incomplete: ' ',
-      width: 50,
-      total: len
-    })
+      const bar = new ProgressBar('Downloading Git [:bar] :percent :etas', {
+        complete: '=',
+        incomplete: ' ',
+        width: 50,
+        total: len,
+      })
 
-    res.pipe(createWriteStream(config.tempFile))
+      res.pipe(createWriteStream(config.tempFile))
 
-    res.on('data', c => bar.tick(c.length))
-    res.on('end', function() {
-      verifyFile(config.tempFile, valid => {
-        if (valid) {
-          unpackFile(config.tempFile)
+      res.on('data', c => bar.tick(c.length))
+      res.on('end', async function () {
+        if (await verifyFile(config)) {
+          await unpackFile(config)
+          resolve()
         } else {
           console.log(`checksum verification failed, refusing to unpack...`)
           process.exit(1)
@@ -93,40 +101,43 @@ const downloadAndUnpack = (url, isFollowingRedirect) => {
   })
 }
 
-if (config.source === '') {
-  console.log(
-    `Skipping downloading embedded Git as platform '${process.platform}' is not supported.`
-  )
-  console.log(`To learn more about using dugite with a system Git: https://git.io/vF5oj`)
-  process.exit(0)
-}
+;(async () => {
+  for (const config of configs) {
+    if (config.source === '') {
+      console.log(
+        `Skipping downloading embedded Git as platform '${process.platform}' is not supported.`
+      )
+      console.log(
+        `To learn more about using dugite with a system Git: https://git.io/vF5oj`
+      )
+      process.exit(0)
+    }
 
-rm(config.outputPath, { recursive: true, force: true }, error => {
-  if (error) {
-    console.log(`Unable to clean directory at ${config.outputPath}`, error)
-    process.exit(1)
-  }
+    try {
+      await rm(config.outputPath, { recursive: true, force: true })
+    } catch (error) {
+      console.log(`Unable to clean directory at ${config.outputPath}`, error)
+      process.exit(1)
+    }
 
-  mkdir(config.outputPath, { recursive: true }, function(error) {
-    if (error) {
+    try {
+      await mkdir(config.outputPath, { recursive: true })
+    } catch (error) {
       console.log(`Unable to create directory at ${config.outputPath}`, error)
       process.exit(1)
     }
 
-    const tempFile = config.tempFile
+    if (existsSync(config.tempFile)) {
+      if (await verifyFile(config)) {
+        await unpackFile(config)
+      } else {
+        await rm(config.tempFile)
+        await downloadAndUnpack(config, config.source)
+      }
 
-    if (existsSync(tempFile)) {
-      verifyFile(tempFile, valid => {
-        if (valid) {
-          unpackFile(tempFile)
-        } else {
-          rmSync(tempFile)
-          downloadAndUnpack(config.source)
-        }
-      })
-      return
+      continue
     }
 
-    downloadAndUnpack(config.source)
-  })
-})
+    await downloadAndUnpack(config, config.source)
+  }
+})()
