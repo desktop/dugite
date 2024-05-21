@@ -38,7 +38,6 @@
   },
   "devDependencies": {
     "@types/jest": "^28.1.7",
-    "@types/mkdirp": "^0.5.2",
     "@types/node": "18",
     "@types/progress": "^2.0.1",
     "@types/rimraf": "2.0.2",
