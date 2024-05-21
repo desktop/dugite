@@ -43,7 +43,6 @@
     "@types/progress": "^2.0.1",
     "@types/rimraf": "2.0.2",
     "@types/tar": "^6.1.2",
-    "byline": "^5.0.0",
     "cross-env": "^5.2.0",
     "find-git-exec": "^0.0.4",
     "jest": "^28.1.3",
