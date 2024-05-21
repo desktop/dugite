@@ -53,11 +53,8 @@ function resolveGitExecPath(env: Record<string, string | undefined>): string {
   }
   const gitDir = resolveGitDir(env)
   if (process.platform === 'win32') {
-    if (process.arch === 'x64') {
-      return path.join(gitDir, 'mingw64', 'libexec', 'git-core')
-    }
-
-    return path.join(gitDir, 'mingw32', 'libexec', 'git-core')
+    const mingw = process.arch === 'x64' ? 'mingw64' : 'mingw32'
+    return path.join(gitDir, mingw, 'libexec', 'git-core')
   } else {
     return path.join(gitDir, 'libexec', 'git-core')
   }
