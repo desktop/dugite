@@ -6,6 +6,7 @@ import { initialize, verify } from '../helpers'
 import { setupAskPass, setupNoAuth } from './auth'
 import { pathToFileURL } from 'url'
 import { resolve } from 'path'
+import { createServer } from 'http'
 
 const temp = require('temp').track()
 
@@ -38,21 +39,40 @@ describe('git-process', () => {
       const options = {
         env: setupAskPass('error', 'error'),
       }
-      const result = await GitProcess.exec(
-        [
-          'clone',
-          '--',
-          'https://github.com/desktop/super-secret-mega-private-repo.git',
-          '.',
-        ],
-        testRepoPath,
-        options
-      )
-      verify(result, r => {
-        expect(r.exitCode).toBe(128)
+
+      const server = createServer((req, res) => {
+        res.writeHead(401, {
+          'Content-Type': 'text/plain',
+          'WWW-Authenticate': 'Basic realm="foo"',
+        })
+        res.end()
       })
-      const error = GitProcess.parseError(result.stderr)
-      expect(error).toBe(GitError.HTTPSAuthenticationFailed)
+
+      const port = await new Promise<number>((resolve, reject) => {
+        server.listen(0, () => {
+          const addr = server.address()
+          if (addr === null || typeof addr === 'string') {
+            reject(new Error('invalid server address'))
+          } else {
+            resolve(addr.port)
+          }
+        })
+      })
+
+      try {
+        const result = await GitProcess.exec(
+          ['clone', '--', `http://127.0.0.1:${port}/`, '.'],
+          testRepoPath,
+          options
+        )
+        verify(result, r => {
+          expect(r.exitCode).toBe(128)
+        })
+        const error = GitProcess.parseError(result.stderr)
+        expect(error).toBe(GitError.HTTPSAuthenticationFailed)
+      } finally {
+        server.close()
+      }
     })
   })
 
