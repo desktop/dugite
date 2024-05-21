@@ -4,6 +4,8 @@ import * as Path from 'path'
 import { GitProcess, GitError } from '../../lib'
 import { initialize, verify } from '../helpers'
 import { setupAskPass, setupNoAuth } from './auth'
+import { pathToFileURL } from 'url'
+import { resolve } from 'path'
 
 const temp = require('temp').track()
 
@@ -15,18 +17,11 @@ describe('git-process', () => {
         env: setupNoAuth(),
       }
 
-      // GitHub will prompt for (and validate) credentials for non-public
-      // repositories, to prevent leakage of information.
-      // Bitbucket will not prompt for credentials, and will immediately
-      // return whether this non-public repository exists.
-      //
-      // This is an easier to way to test for the specific error than to
-      // pass live account credentials to Git.
       const result = await GitProcess.exec(
         [
           'clone',
           '--',
-          'https://bitbucket.org/shiftkey/testing-non-existent.git',
+          pathToFileURL(resolve('i-for-sure-donut-exist')).toString(),
           '.',
         ],
         testRepoPath,
@@ -47,7 +42,7 @@ describe('git-process', () => {
         [
           'clone',
           '--',
-          'https://github.com/shiftkey/repository-private.git',
+          'https://github.com/desktop/super-secret-mega-private-repo.git',
           '.',
         ],
         testRepoPath,
@@ -65,19 +60,12 @@ describe('git-process', () => {
     it("returns exit code when repository doesn't exist", async () => {
       const testRepoPath = await initialize('desktop-git-fetch-failure')
 
-      // GitHub will prompt for (and validate) credentials for non-public
-      // repositories, to prevent leakage of information.
-      // Bitbucket will not prompt for credentials, and will immediately
-      // return whether this non-public repository exists.
-      //
-      // This is an easier to way to test for the specific error than to
-      // pass live account credentials to Git.
       const addRemote = await GitProcess.exec(
         [
           'remote',
           'add',
           'origin',
-          'https://bitbucket.org/shiftkey/testing-non-existent.git',
+          pathToFileURL(resolve('i-for-sure-donut-exist')).toString(),
         ],
         testRepoPath
       )
