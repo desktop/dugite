@@ -14,7 +14,7 @@ function getAskPassTrampolinePath(): string {
   return Path.join(projectRoot, 'test', 'auth', `ask-pass.${extension}`)
 }
 
-const defaultEnv = {
+const defaultEnv: Record<string, string | undefined> = {
   // supported since Git 2.3, this is used to ensure we never interactively prompt
   // for credentials - even as a fallback
   GIT_TERMINAL_PROMPT: '0',
@@ -24,16 +24,19 @@ const defaultEnv = {
   HOME: '',
 }
 
-export function setupAskPass(username?: string, password?: string): object {
-  const auth = {
+export function setupAskPass(
+  username?: string,
+  password?: string
+): Record<string, string | undefined> {
+  return {
     TEST_USERNAME: username,
     TEST_PASSWORD: password,
     ASKPASS_MAIN: getAskPassScriptPath(),
     GIT_ASKPASS: getAskPassTrampolinePath(),
+    ...defaultEnv,
   }
-  return Object.assign(auth, defaultEnv)
 }
 
-export function setupNoAuth(): object {
+export function setupNoAuth() {
   return defaultEnv
 }
