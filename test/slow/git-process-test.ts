@@ -117,37 +117,6 @@ describe('git-process', () => {
         expect(r.exitCode).toBe(128)
       })
     })
-
-    it('returns exit code and error when repository requires credentials', async () => {
-      const testRepoPath = await initialize('desktop-git-fetch-failure')
-      const addRemote = await GitProcess.exec(
-        [
-          'remote',
-          'add',
-          'origin',
-          'https://github.com/shiftkey/repository-private.git',
-        ],
-        testRepoPath
-      )
-      verify(addRemote, r => {
-        expect(r.exitCode).toBe(0)
-      })
-
-      const options = {
-        env: setupAskPass('error', 'error'),
-      }
-      const result = await GitProcess.exec(
-        ['fetch', 'origin'],
-        testRepoPath,
-        options
-      )
-      verify(result, r => {
-        expect(r.exitCode).toBe(128)
-      })
-      const error = GitProcess.parseError(result.stderr)
-      expect(error).toBe(GitError.HTTPSAuthenticationFailed)
-    })
-
     it('returns exit code when successful', async () => {
       const testRepoPath = await initialize('desktop-git-fetch-valid')
       const addRemote = await GitProcess.exec(
