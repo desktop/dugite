@@ -60,7 +60,7 @@ export interface IGitExecutionOptions {
    * The encoding to use when writing to stdin, if the stdin
    * parameter is a string.
    */
-  readonly stdinEncoding?: string
+  readonly stdinEncoding?: BufferEncoding
 
   /**
    * The size the output buffer to allocate to the spawned process. Set this
