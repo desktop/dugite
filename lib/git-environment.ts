@@ -103,6 +103,10 @@ export function setupEnvironment(
     }
   }
 
+  if (process.platform !== 'win32' && !env.GIT_CONFIG_SYSTEM) {
+    env.GIT_CONFIG_SYSTEM = path.join(gitDir, 'etc', 'gitconfig')
+  }
+
   if (process.platform === 'darwin' || process.platform === 'linux') {
     // templates are used to populate your .git folder
     // when a repository is initialized locally
