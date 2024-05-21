@@ -1,11 +1,12 @@
 import { GitProcess, IGitResult, GitError } from '../lib'
+import { track } from 'temp'
 
 // NOTE: bump these versions to the latest stable releases
 export const gitVersion = '2.43.4'
 export const gitForWindowsVersion = '2.43.4.windows.1'
 export const gitLfsVersion = '3.5.1'
 
-const temp = require('temp').track()
+const temp = track()
 
 export async function initialize(
   repositoryName: string,

@@ -1,6 +1,7 @@
 import { GitProcess } from '../../lib'
+import { track } from 'temp'
 
-const temp = require('temp').track()
+const temp = track()
 
 describe('stdin', () => {
   it('can write large buffers', async () => {

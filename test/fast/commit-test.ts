@@ -4,7 +4,9 @@ import { verify } from '../helpers'
 import * as Fs from 'fs'
 import * as Path from 'path'
 
-const temp = require('temp').track()
+import { track } from 'temp'
+
+const temp = track()
 
 describe('commit', () => {
   it('can commit changes', async () => {

@@ -5,7 +5,9 @@ import { ChildProcess } from 'child_process'
 import { GitProcess } from '../../lib'
 
 import { gitForWindowsVersion, gitVersion } from '../helpers'
-const temp = require('temp').track()
+import { track } from 'temp'
+
+const temp = track()
 
 const maximumStringSize = 268435441
 

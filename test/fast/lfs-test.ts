@@ -1,7 +1,8 @@
 import { GitProcess } from '../../lib'
 import { gitLfsVersion } from '../helpers'
+import { track } from 'temp'
 
-const temp = require('temp').track()
+const temp = track()
 
 describe('lfs', () => {
   it('can be resolved', async () => {

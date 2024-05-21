@@ -3,8 +3,9 @@ import findGit from 'find-git-exec'
 
 import { GitProcess } from '../../lib'
 import { verify } from '../helpers'
+import { track } from 'temp'
 
-const temp = require('temp').track()
+const temp = track()
 
 const getExternalGitEnvironment = () =>
   findGit().then(({ path, execPath }) => ({

@@ -19,8 +19,9 @@ import {
 import { gitVersion } from '../helpers'
 import { setupNoAuth } from '../slow/auth'
 import { pathToFileURL } from 'url'
+import { track } from 'temp'
 
-const temp = require('temp').track()
+const temp = track()
 
 describe('git-process', () => {
   it('can cancel in-progress git command', async () => {

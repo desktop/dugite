@@ -1,7 +1,8 @@
 import { GitProcess } from '../../lib'
 import { setupEnvironment } from '../../lib/git-environment'
+import { track } from 'temp'
 
-const temp = require('temp').track()
+const temp = track()
 
 describe('environment variables', () => {
   it('can set them', async () => {

@@ -7,8 +7,9 @@ import { setupAskPass, setupNoAuth } from './auth'
 import { pathToFileURL } from 'url'
 import { resolve } from 'path'
 import { createServer } from 'http'
+import { track } from 'temp'
 
-const temp = require('temp').track()
+const temp = track()
 
 describe('git-process', () => {
   describe('clone', () => {

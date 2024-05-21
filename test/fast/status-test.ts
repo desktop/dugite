@@ -1,10 +1,11 @@
 import { GitProcess } from '../../lib'
 import { verify } from '../helpers'
+import { track } from 'temp'
 
 import * as Fs from 'fs'
 import * as Path from 'path'
 
-const temp = require('temp').track()
+const temp = track()
 
 describe('status', () => {
   it('lists untracked file', async () => {
