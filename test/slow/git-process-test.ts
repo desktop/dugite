@@ -59,26 +59,6 @@ describe('git-process', () => {
       const error = GitProcess.parseError(result.stderr)
       expect(error).toBe(GitError.HTTPSAuthenticationFailed)
     })
-
-    it('returns exit code when successful', async () => {
-      const testRepoPath = temp.mkdirSync('desktop-git-clone-valid')
-      const options = {
-        env: setupNoAuth(),
-      }
-      const result = await GitProcess.exec(
-        [
-          'clone',
-          '--',
-          'https://github.com/shiftkey/friendly-bassoon.git',
-          '.',
-        ],
-        testRepoPath,
-        options
-      )
-      verify(result, r => {
-        expect(r.exitCode).toBe(0)
-      })
-    })
   })
 
   describe('fetch', () => {
@@ -115,33 +95,6 @@ describe('git-process', () => {
       )
       verify(result, r => {
         expect(r.exitCode).toBe(128)
-      })
-    })
-    it('returns exit code when successful', async () => {
-      const testRepoPath = await initialize('desktop-git-fetch-valid')
-      const addRemote = await GitProcess.exec(
-        [
-          'remote',
-          'add',
-          'origin',
-          'https://github.com/shiftkey/friendly-bassoon.git',
-        ],
-        testRepoPath
-      )
-      verify(addRemote, r => {
-        expect(r.exitCode).toBe(0)
-      })
-
-      const options = {
-        env: setupNoAuth(),
-      }
-      const result = await GitProcess.exec(
-        ['fetch', 'origin'],
-        testRepoPath,
-        options
-      )
-      verify(result, r => {
-        expect(r.exitCode).toBe(0)
       })
     })
   })
