@@ -20,7 +20,7 @@
     "update-embedded-git": "node ./script/update-embedded-git.js"
   },
   "engines": {
-    "node": ">= 14"
+    "node": ">= 18"
   },
   "repository": {
     "type": "git",
@@ -39,7 +39,7 @@
   "devDependencies": {
     "@types/jest": "^28.1.7",
     "@types/mkdirp": "^0.5.2",
-    "@types/node": "^11.9.0",
+    "@types/node": "18",
     "@types/progress": "^2.0.1",
     "@types/rimraf": "2.0.2",
     "@types/tar": "^6.1.2",
