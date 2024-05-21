@@ -178,12 +178,7 @@ export class GitProcess {
 
     let result = new GitTask(
       new Promise<IGitResult>(function (resolve, reject) {
-        let customEnv = {}
-        if (options && options.env) {
-          customEnv = options.env
-        }
-
-        const { env, gitLocation } = setupEnvironment(customEnv)
+        const { env, gitLocation } = setupEnvironment(options?.env ?? {})
 
         // Explicitly annotate opts since typescript is unable to infer the correct
         // signature for execFile when options is passed as an opaque hash. The type
