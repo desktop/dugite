@@ -103,6 +103,13 @@ export function setupEnvironment(
     }
   }
 
+  // On Windows the contained Git environment (minGit) ships with a system level
+  // gitconfig that we can control but on macOS and Linux /etc/gitconfig is used
+  // as the system-wide configuration file and we're unable to modify it.
+  //
+  // So in order to be able to provide our own sane defaults that can be overriden
+  // by the user's global and local configuration we'll tell Git to use
+  // dugite-native's custom gitconfig on those platforms.
   if (process.platform !== 'win32' && !env.GIT_CONFIG_SYSTEM) {
     env.GIT_CONFIG_SYSTEM = path.join(gitDir, 'etc', 'gitconfig')
   }
