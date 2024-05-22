@@ -6,6 +6,8 @@ import { GitProcess } from '../../lib'
 
 import { gitForWindowsVersion, gitVersion } from '../helpers'
 import { track } from 'temp'
+import assert from 'assert'
+import { describe, it } from 'node:test'
 
 const temp = track()
 
@@ -43,26 +45,30 @@ describe('GitProcess.spawn', () => {
   it('can launch git', async () => {
     const process = GitProcess.spawn(['--version'], __dirname)
     const result = await bufferOutput(process)
-    if (result.includes('windows')) {
-      expect(result).toContain(`git version ${gitForWindowsVersion}`)
-    } else {
-      expect(result).toContain(`git version ${gitVersion}`)
-    }
+    const version = result.includes('windows')
+      ? gitForWindowsVersion
+      : gitVersion
+    const expected = `git version ${version}`
+
+    assert.ok(
+      result.includes(expected),
+      `Expected git version to contain ${expected}, got: ${result}`
+    )
   })
 
-  it('returns expected exit codes', done => {
+  it('returns expected exit codes', async () => {
     const directory = temp.mkdirSync('desktop-not-a-repo')
     const process = GitProcess.spawn(['status'], directory)
-    process.on('exit', (code, signal) => {
-      if (code === 0) {
-        done(new Error('the exit code returned was zero which was unexpected'))
-      } else {
-        done()
-      }
+    const code = await new Promise<number | null>(resolve => {
+      process.on('exit', code => {
+        resolve(code)
+      })
     })
+
+    assert.notEqual(code, 0)
   })
 
-  it('can fail safely with a diff exceeding the string length', done => {
+  it('can fail safely with a diff exceeding the string length', async () => {
     const testRepoPath = temp.mkdirSync('desktop-git-spwawn-empty')
 
     GitProcess.exec(['init'], testRepoPath)
@@ -94,14 +100,6 @@ describe('GitProcess.spawn', () => {
       testRepoPath
     )
 
-    bufferOutput(process)
-      .then(o => {
-        done(
-          new Error('The diff was returned as-is, which should never happen')
-        )
-      })
-      .catch(err => {
-        done()
-      })
+    await assert.rejects(bufferOutput(process), 'Expected diff to fail')
   })
 })

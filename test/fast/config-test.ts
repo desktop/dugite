@@ -1,5 +1,7 @@
+import assert from 'assert'
 import { GitProcess } from '../../lib'
 import * as os from 'os'
+import { describe, it } from 'node:test'
 
 describe('config', () => {
   it('sets http.sslBackend on Windows', async () => {
@@ -8,7 +10,7 @@ describe('config', () => {
         ['config', '--system', 'http.sslBackend'],
         os.homedir()
       )
-      expect(result.stdout.trim()).toBe('schannel')
+      assert.equal(result.stdout.trim(), 'schannel')
     }
   })
 
@@ -18,7 +20,7 @@ describe('config', () => {
         ['config', '--system', 'http.sslCAInfo'],
         os.homedir()
       )
-      expect(result.stdout.trim()).toBe('')
+      assert.equal(result.stdout.trim(), '')
     }
   })
 })

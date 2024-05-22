@@ -1,3 +1,4 @@
+import assert from 'assert'
 import { GitProcess, IGitResult, GitError } from '../lib'
 import { track } from 'temp'
 
@@ -85,48 +86,18 @@ function getFriendlyGitError(gitError: GitError): string {
   return found[0]
 }
 
-expect.extend({
-  toHaveGitError(result: IGitResult, expectedError: GitError) {
-    let gitError = GitProcess.parseError(result.stderr)
-    if (gitError === null) {
-      gitError = GitProcess.parseError(result.stdout)
-    }
+export const assertHasGitError = (
+  result: IGitResult,
+  expectedError: GitError
+) => {
+  const gitError =
+    GitProcess.parseError(result.stderr) ?? GitProcess.parseError(result.stdout)
 
-    const message = () => {
-      return [
-        this.utils.matcherHint(
-          `${this.isNot ? '.not' : ''}.toHaveGitError`,
-          'result',
-          'gitError'
-        ),
-        '',
-        'Expected',
-        `  ${this.utils.printExpected(getFriendlyGitError(expectedError))}`,
-        'Received:',
-        `  ${this.utils.printReceived(
-          gitError ? getFriendlyGitError(gitError) : null
-        )}`,
-      ].join('\n')
-    }
-
-    if (gitError === expectedError) {
-      return {
-        pass: true,
-        message,
-      }
-    }
-
-    return {
-      pass: false,
-      message,
-    }
-  },
-})
-
-declare global {
-  namespace jest {
-    interface Matchers<R = IGitResult> {
-      toHaveGitError(result: GitError): CustomMatcherResult
-    }
-  }
+  assert.equal(
+    gitError,
+    expectedError,
+    `Expected error ${getFriendlyGitError(expectedError)}, got ${
+      gitError ? getFriendlyGitError(gitError) : 'none'
+    }`
+  )
 }

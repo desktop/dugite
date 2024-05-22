@@ -4,6 +4,8 @@ import { track } from 'temp'
 
 import * as Fs from 'fs'
 import * as Path from 'path'
+import assert from 'assert'
+import { describe, it } from 'node:test'
 
 const temp = track()
 
@@ -24,8 +26,8 @@ describe('status', () => {
     )
 
     verify(result, r => {
-      expect(r.exitCode).toBe(0)
-      expect(r.stdout).toContain('README.md')
+      assert.equal(r.exitCode, 0)
+      assert.ok(r.stdout.includes('README.md'), 'README.md expected in output')
     })
   })
 })
