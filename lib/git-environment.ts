@@ -48,7 +48,7 @@ function resolveGitBinary(env: Record<string, string | undefined>): string {
  * then it returns with it after resolving it as a path.
  */
 function resolveGitExecPath(env: Record<string, string | undefined>): string {
-  if (env.GIT_EXEC_PATH != null) {
+  if (env.GIT_EXEC_PATH) {
     return path.resolve(env.GIT_EXEC_PATH)
   }
   const gitDir = resolveGitDir(env)
