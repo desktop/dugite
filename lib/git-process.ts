@@ -34,7 +34,7 @@ export interface IGitSpawnExecutionOptions {
    * set as environment variables before executing the git
    * process.
    */
-  readonly env?: object
+  readonly env?: Record<string, string | undefined>
 }
 
 /**
@@ -47,7 +47,7 @@ export interface IGitExecutionOptions {
    * set as environment variables before executing the git
    * process.
    */
-  readonly env?: object
+  readonly env?: Record<string, string | undefined>
 
   /**
    * An optional string or buffer which will be written to

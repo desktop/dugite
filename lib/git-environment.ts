@@ -21,9 +21,9 @@ function resolveEmbeddedGitDir(): string {
  *  If a custom Git directory path is defined as the `LOCAL_GIT_DIRECTORY` environment variable, then
  *  returns with it after resolving it as a path.
  */
-function resolveGitDir(): string {
-  if (process.env.LOCAL_GIT_DIRECTORY != null) {
-    return path.resolve(process.env.LOCAL_GIT_DIRECTORY)
+function resolveGitDir(env: Record<string, string | undefined>): string {
+  if (env.LOCAL_GIT_DIRECTORY != null) {
+    return path.resolve(env.LOCAL_GIT_DIRECTORY)
   } else {
     return resolveEmbeddedGitDir()
   }
@@ -32,8 +32,8 @@ function resolveGitDir(): string {
 /**
  *  Find the path to the embedded Git binary.
  */
-function resolveGitBinary(): string {
-  const gitDir = resolveGitDir()
+function resolveGitBinary(env: Record<string, string | undefined>): string {
+  const gitDir = resolveGitDir(env)
   if (process.platform === 'win32') {
     return path.join(gitDir, 'cmd', 'git.exe')
   } else {
@@ -47,11 +47,11 @@ function resolveGitBinary(): string {
  * If a custom git exec path is given as the `GIT_EXEC_PATH` environment variable,
  * then it returns with it after resolving it as a path.
  */
-function resolveGitExecPath(): string {
-  if (process.env.GIT_EXEC_PATH != null) {
-    return path.resolve(process.env.GIT_EXEC_PATH)
+function resolveGitExecPath(env: Record<string, string | undefined>): string {
+  if (env.GIT_EXEC_PATH) {
+    return path.resolve(env.GIT_EXEC_PATH)
   }
-  const gitDir = resolveGitDir()
+  const gitDir = resolveGitDir(env)
   if (process.platform === 'win32') {
     if (process.arch === 'x64') {
       return path.join(gitDir, 'mingw64', 'libexec', 'git-core')
@@ -71,32 +71,26 @@ function resolveGitExecPath(): string {
  *
  * @param additional options to include with the process
  */
-export function setupEnvironment(environmentVariables: NodeJS.ProcessEnv): {
-  env: NodeJS.ProcessEnv
+export function setupEnvironment(
+  environmentVariables: Record<string, string | undefined>
+): {
+  env: Record<string, string | undefined>
   gitLocation: string
 } {
-  const gitLocation = resolveGitBinary()
-
-  let envPath: string = process.env.PATH || ''
-  const gitDir = resolveGitDir()
-
-  if (process.platform === 'win32') {
-    if (process.arch === 'x64') {
-      envPath = `${gitDir}\\mingw64\\bin;${gitDir}\\mingw64\\usr\\bin;${envPath}`
-    } else {
-      envPath = `${gitDir}\\mingw32\\bin;${gitDir}\\mingw32\\usr\\bin;${envPath}`
-    }
+  const env: Record<string, string | undefined> = {
+    ...process.env,
+    ...environmentVariables,
   }
 
-  const env = Object.assign(
-    {},
-    process.env,
-    {
-      GIT_EXEC_PATH: resolveGitExecPath(),
-      PATH: envPath,
-    },
-    environmentVariables
-  )
+  const gitLocation = resolveGitBinary(env)
+  const gitDir = resolveGitDir(env)
+
+  if (process.platform === 'win32') {
+    const mingw = process.arch === 'x64' ? 'mingw64' : 'mingw32'
+    env.PATH = `${gitDir}\\${mingw}\\bin;${gitDir}\\${mingw}\\usr\\bin;${env.PATH}`
+  }
+
+  env.GIT_EXEC_PATH = resolveGitExecPath(env)
 
   if (process.platform === 'win32') {
     // while reading the environment variable is case-insensitive
@@ -107,6 +101,17 @@ export function setupEnvironment(environmentVariables: NodeJS.ProcessEnv): {
     if (env.Path) {
       delete env.Path
     }
+  }
+
+  // On Windows the contained Git environment (minGit) ships with a system level
+  // gitconfig that we can control but on macOS and Linux /etc/gitconfig is used
+  // as the system-wide configuration file and we're unable to modify it.
+  //
+  // So in order to be able to provide our own sane defaults that can be overriden
+  // by the user's global and local configuration we'll tell Git to use
+  // dugite-native's custom gitconfig on those platforms.
+  if (process.platform !== 'win32' && !env.GIT_CONFIG_SYSTEM) {
+    env.GIT_CONFIG_SYSTEM = path.join(gitDir, 'etc', 'gitconfig')
   }
 
   if (process.platform === 'darwin' || process.platform === 'linux') {

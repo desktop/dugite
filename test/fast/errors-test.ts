@@ -49,7 +49,7 @@ describe('detects errors', () => {
 
     const result = await GitProcess.exec(['status'], path, {
       env: {
-        GIT_TEST_ASSUME_DIFFERENT_OWNER: 1,
+        GIT_TEST_ASSUME_DIFFERENT_OWNER: '1',
       },
     })
 
