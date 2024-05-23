@@ -1,6 +1,6 @@
 import * as path from 'path'
 
-function resolveEmbeddedGitDir(): string {
+export function resolveEmbeddedGitDir(): string {
   if (
     process.platform === 'darwin' ||
     process.platform === 'linux' ||
@@ -21,7 +21,7 @@ function resolveEmbeddedGitDir(): string {
  *  If a custom Git directory path is defined as the `LOCAL_GIT_DIRECTORY` environment variable, then
  *  returns with it after resolving it as a path.
  */
-function resolveGitDir(env: Record<string, string | undefined>): string {
+export function resolveGitDir(env: Record<string, string | undefined>): string {
   if (env.LOCAL_GIT_DIRECTORY != null) {
     return path.resolve(env.LOCAL_GIT_DIRECTORY)
   } else {
@@ -32,7 +32,9 @@ function resolveGitDir(env: Record<string, string | undefined>): string {
 /**
  *  Find the path to the embedded Git binary.
  */
-function resolveGitBinary(env: Record<string, string | undefined>): string {
+export function resolveGitBinary(
+  env: Record<string, string | undefined>
+): string {
   const gitDir = resolveGitDir(env)
   if (process.platform === 'win32') {
     return path.join(gitDir, 'cmd', 'git.exe')
@@ -47,7 +49,9 @@ function resolveGitBinary(env: Record<string, string | undefined>): string {
  * If a custom git exec path is given as the `GIT_EXEC_PATH` environment variable,
  * then it returns with it after resolving it as a path.
  */
-function resolveGitExecPath(env: Record<string, string | undefined>): string {
+export function resolveGitExecPath(
+  env: Record<string, string | undefined>
+): string {
   if (env.GIT_EXEC_PATH) {
     return path.resolve(env.GIT_EXEC_PATH)
   }
