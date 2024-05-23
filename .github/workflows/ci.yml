@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        nodeVersion: [14, 16, 18]
+        nodeVersion: [18, 20]
         arch: [x64]
         os: [macos-11, windows-2019, ubuntu-22.04]
         include:
@@ -27,18 +27,18 @@ jobs:
             friendlyName: Windows
           - os: windows-2019
             friendlyName: Windows
-            nodeVersion: 16
+            nodeVersion: 18
             arch: x86
             npm_config_arch: ia32
           - os: ubuntu-22.04
             friendlyName: Linux
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: Install Node.js ${{ matrix.nodeVersion }} (${{ matrix.arch }})
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.nodeVersion }}
           architecture: ${{ matrix.arch }}
