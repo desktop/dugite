@@ -4,6 +4,9 @@ import * as Path from 'path'
 import { GitProcess, GitError } from '../../lib'
 import { initialize, verify } from '../helpers'
 import { setupAskPass, setupNoAuth } from './auth'
+import { pathToFileURL } from 'url'
+import { resolve } from 'path'
+import { createServer } from 'http'
 
 const temp = require('temp').track()
 
@@ -15,18 +18,11 @@ describe('git-process', () => {
         env: setupNoAuth(),
       }
 
-      // GitHub will prompt for (and validate) credentials for non-public
-      // repositories, to prevent leakage of information.
-      // Bitbucket will not prompt for credentials, and will immediately
-      // return whether this non-public repository exists.
-      //
-      // This is an easier to way to test for the specific error than to
-      // pass live account credentials to Git.
       const result = await GitProcess.exec(
         [
           'clone',
           '--',
-          'https://bitbucket.org/shiftkey/testing-non-existent.git',
+          pathToFileURL(resolve('i-for-sure-donut-exist')).toString(),
           '.',
         ],
         testRepoPath,
@@ -43,41 +39,40 @@ describe('git-process', () => {
       const options = {
         env: setupAskPass('error', 'error'),
       }
-      const result = await GitProcess.exec(
-        [
-          'clone',
-          '--',
-          'https://github.com/shiftkey/repository-private.git',
-          '.',
-        ],
-        testRepoPath,
-        options
-      )
-      verify(result, r => {
-        expect(r.exitCode).toBe(128)
-      })
-      const error = GitProcess.parseError(result.stderr)
-      expect(error).toBe(GitError.HTTPSAuthenticationFailed)
-    })
 
-    it('returns exit code when successful', async () => {
-      const testRepoPath = temp.mkdirSync('desktop-git-clone-valid')
-      const options = {
-        env: setupNoAuth(),
-      }
-      const result = await GitProcess.exec(
-        [
-          'clone',
-          '--',
-          'https://github.com/shiftkey/friendly-bassoon.git',
-          '.',
-        ],
-        testRepoPath,
-        options
-      )
-      verify(result, r => {
-        expect(r.exitCode).toBe(0)
+      const server = createServer((req, res) => {
+        res.writeHead(401, {
+          'Content-Type': 'text/plain',
+          'WWW-Authenticate': 'Basic realm="foo"',
+        })
+        res.end()
       })
+
+      const port = await new Promise<number>((resolve, reject) => {
+        server.listen(0, () => {
+          const addr = server.address()
+          if (addr === null || typeof addr === 'string') {
+            reject(new Error('invalid server address'))
+          } else {
+            resolve(addr.port)
+          }
+        })
+      })
+
+      try {
+        const result = await GitProcess.exec(
+          ['clone', '--', `http://127.0.0.1:${port}/`, '.'],
+          testRepoPath,
+          options
+        )
+        verify(result, r => {
+          expect(r.exitCode).toBe(128)
+        })
+        const error = GitProcess.parseError(result.stderr)
+        expect(error).toBe(GitError.HTTPSAuthenticationFailed)
+      } finally {
+        server.close()
+      }
     })
   })
 
@@ -85,19 +80,12 @@ describe('git-process', () => {
     it("returns exit code when repository doesn't exist", async () => {
       const testRepoPath = await initialize('desktop-git-fetch-failure')
 
-      // GitHub will prompt for (and validate) credentials for non-public
-      // repositories, to prevent leakage of information.
-      // Bitbucket will not prompt for credentials, and will immediately
-      // return whether this non-public repository exists.
-      //
-      // This is an easier to way to test for the specific error than to
-      // pass live account credentials to Git.
       const addRemote = await GitProcess.exec(
         [
           'remote',
           'add',
           'origin',
-          'https://bitbucket.org/shiftkey/testing-non-existent.git',
+          pathToFileURL(resolve('i-for-sure-donut-exist')).toString(),
         ],
         testRepoPath
       )
@@ -115,64 +103,6 @@ describe('git-process', () => {
       )
       verify(result, r => {
         expect(r.exitCode).toBe(128)
-      })
-    })
-
-    it('returns exit code and error when repository requires credentials', async () => {
-      const testRepoPath = await initialize('desktop-git-fetch-failure')
-      const addRemote = await GitProcess.exec(
-        [
-          'remote',
-          'add',
-          'origin',
-          'https://github.com/shiftkey/repository-private.git',
-        ],
-        testRepoPath
-      )
-      verify(addRemote, r => {
-        expect(r.exitCode).toBe(0)
-      })
-
-      const options = {
-        env: setupAskPass('error', 'error'),
-      }
-      const result = await GitProcess.exec(
-        ['fetch', 'origin'],
-        testRepoPath,
-        options
-      )
-      verify(result, r => {
-        expect(r.exitCode).toBe(128)
-      })
-      const error = GitProcess.parseError(result.stderr)
-      expect(error).toBe(GitError.HTTPSAuthenticationFailed)
-    })
-
-    it('returns exit code when successful', async () => {
-      const testRepoPath = await initialize('desktop-git-fetch-valid')
-      const addRemote = await GitProcess.exec(
-        [
-          'remote',
-          'add',
-          'origin',
-          'https://github.com/shiftkey/friendly-bassoon.git',
-        ],
-        testRepoPath
-      )
-      verify(addRemote, r => {
-        expect(r.exitCode).toBe(0)
-      })
-
-      const options = {
-        env: setupNoAuth(),
-      }
-      const result = await GitProcess.exec(
-        ['fetch', 'origin'],
-        testRepoPath,
-        options
-      )
-      verify(result, r => {
-        expect(r.exitCode).toBe(0)
       })
     })
   })
