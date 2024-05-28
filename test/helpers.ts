@@ -4,6 +4,7 @@ import { GitProcess, IGitResult, GitError } from '../lib'
 export const gitVersion = '2.43.4'
 export const gitForWindowsVersion = '2.43.4.windows.1'
 export const gitLfsVersion = '3.5.1'
+export const gitCredentialManagerVersion = '2.5.0'
 
 const temp = require('temp').track()
 
