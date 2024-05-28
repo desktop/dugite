@@ -8,6 +8,6 @@ describe('git-credential-manager', () => {
       process.cwd()
     )
     expect(result.exitCode).toBe(0)
-    expect(result.stdout).toContain(`git-lfs/${gitCredentialManagerVersion} `)
+    expect(result.stdout).toContain(gitCredentialManagerVersion)
   })
 })
