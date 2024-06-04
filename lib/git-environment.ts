@@ -83,6 +83,7 @@ export function setupEnvironment(
 } {
   const env: Record<string, string | undefined> = {
     ...process.env,
+    ...{ PATH: process.env.PATH || '' }, // Ensure PATH is always set not process.env.Path like can be on case-insensitive Windows
     ...environmentVariables,
   }
 
