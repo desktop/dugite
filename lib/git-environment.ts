@@ -91,9 +91,6 @@ export function setupEnvironment(
 
   if (process.platform === 'win32') {
     const mingw = process.arch === 'x64' ? 'mingw64' : 'mingw32'
-    if (env.PATH === undefined) {
-      throw new Error("env.PATH is undefined, can't set up environment")
-    }
     env.PATH = `${gitDir}\\${mingw}\\bin;${gitDir}\\${mingw}\\usr\\bin;${env.PATH}`
   }
 
