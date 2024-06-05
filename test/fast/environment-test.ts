@@ -36,4 +36,9 @@ describe('environment variables', () => {
       delete process.env.GIT_EXEC_PATH
     }
   })
+
+  it('resulting PATH contains the original PATH', async () => {
+    const { env } = await setupEnvironment({})
+    expect((<any>env)['PATH']).toContain(process.env.PATH)
+  })
 })
