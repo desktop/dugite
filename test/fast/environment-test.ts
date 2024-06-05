@@ -38,6 +38,9 @@ describe('environment variables', () => {
   })
 
   it('resulting PATH contains the original PATH', async () => {
+    // This test will ensure that on platforms where env vars names are
+    // case-insensitive (like Windows) we don't end up with an invalid PATH
+    // and the original one lost in the process.
     const { env } = await setupEnvironment({})
     expect((<any>env)['PATH']).toContain(process.env.PATH)
   })
