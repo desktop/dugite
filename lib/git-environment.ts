@@ -81,9 +81,17 @@ export function setupEnvironment(
   env: Record<string, string | undefined>
   gitLocation: string
 } {
+  // This will get Path, pATh, PATH et all on Windows
+  const PATH = process.env.PATH
+
   const env: Record<string, string | undefined> = {
-    ...process.env,
-    ...{ PATH: process.env.PATH || '' }, // Ensure PATH is always set not process.env.Path like can be on case-insensitive Windows
+    // Merge all of process.env except Path, PATH, et all, we'll add that in just a sec
+    ...Object.fromEntries(
+      Object.entries(process.env).filter(([k]) => k.toUpperCase() !== 'PATH')
+    ),
+    // Ensure PATH is always set in upper case not process.env.Path like can
+    // be on case-insensitive Windows
+    ...(PATH ? { PATH } : {}),
     ...environmentVariables,
   }
 
@@ -96,17 +104,6 @@ export function setupEnvironment(
   }
 
   env.GIT_EXEC_PATH = resolveGitExecPath(env)
-
-  if (process.platform === 'win32') {
-    // while reading the environment variable is case-insensitive
-    // you can create a hash with multiple values, which means the
-    // wrong value might be used when spawning the child process
-    //
-    // this ensures we only ever supply one value for PATH
-    if (env.Path) {
-      delete env.Path
-    }
-  }
 
   // On Windows the contained Git environment (minGit) ships with a system level
   // gitconfig that we can control but on macOS and Linux /etc/gitconfig is used
