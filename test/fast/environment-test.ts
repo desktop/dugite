@@ -37,8 +37,10 @@ describe('environment variables', () => {
     }
   })
 
-  it('resulting PATH contains the original PATH', async () => {
+  it.only('resulting PATH contains the original PATH', async () => {
     const { env } = await setupEnvironment({})
+    process.stderr.write(`Path: ${process.env.Path}\n`)
+    process.stderr.write(`PATH: ${process.env.PATH}\n`)
     expect((<any>env)['PATH']).toContain(process.env.PATH)
   })
 })
