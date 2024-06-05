@@ -100,7 +100,9 @@ export function setupEnvironment(
 
   if (process.platform === 'win32') {
     const mingw = process.arch === 'x64' ? 'mingw64' : 'mingw32'
-    env.PATH = `${gitDir}\\${mingw}\\bin;${gitDir}\\${mingw}\\usr\\bin;${env.PATH ?? ''}`
+    env.PATH = `${gitDir}\\${mingw}\\bin;${gitDir}\\${mingw}\\usr\\bin;${
+      env.PATH ?? ''
+    }`
   }
 
   env.GIT_EXEC_PATH = resolveGitExecPath(env)
