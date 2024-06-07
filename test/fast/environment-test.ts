@@ -59,5 +59,14 @@ describe('environment variables', () => {
         process.env[originalPathKey!] = originalPathValue
       }
     })
+  } else {
+    it('treats environment variables as case-sensitive', () => {
+      const { env } = setupEnvironment(
+        { PATH: 'WOW_SUCH_CASE_SENSITIVITY' },
+        { path: 'wow-such-case-sensitivity' }
+      )
+      expect(env.PATH).toBe('WOW_SUCH_CASE_SENSITIVITY')
+      expect(env.path).toBe('wow-such-case-sensitivity')
+    })
   }
 })
