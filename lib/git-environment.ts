@@ -74,13 +74,14 @@ export function resolveGitExecPath(
  * @param additional options to include with the process
  */
 export function setupEnvironment(
-  environmentVariables: Record<string, string | undefined>
+  environmentVariables: Record<string, string | undefined>,
+  processEnv = process.env
 ): {
   env: Record<string, string | undefined>
   gitLocation: string
 } {
   const env = new EnvMap([
-    ...Object.entries(process.env),
+    ...Object.entries(processEnv),
     ...Object.entries(environmentVariables),
   ])
 
@@ -92,7 +93,9 @@ export function setupEnvironment(
     const mingw = process.arch === 'x64' ? 'mingw64' : 'mingw32'
     env.set(
       'PATH',
-      `${gitDir}\\${mingw}\\bin;${gitDir}\\${mingw}\\usr\\bin;${env.get('PATH') ?? ''}`
+      `${gitDir}\\${mingw}\\bin;${gitDir}\\${mingw}\\usr\\bin;${
+        env.get('PATH') ?? ''
+      }`
     )
   }
 
