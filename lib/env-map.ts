@@ -22,7 +22,7 @@ export class EnvMap implements Map<string, string | undefined> {
     }
   }
 
-  *[Symbol.iterator]() {
+  [Symbol.iterator]() {
     return this.entries()
   }
 
