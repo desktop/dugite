@@ -22,7 +22,9 @@ export function resolveEmbeddedGitDir(): string {
  *  If a custom Git directory path is defined as the `LOCAL_GIT_DIRECTORY` environment variable, then
  *  returns with it after resolving it as a path.
  */
-export function resolveGitDir(localGitDir = process.env.LOCAL_GIT_DIR): string {
+export function resolveGitDir(
+  localGitDir = process.env.LOCAL_GIT_DIRECTORY
+): string {
   return localGitDir ? path.resolve(localGitDir) : resolveEmbeddedGitDir()
 }
 
