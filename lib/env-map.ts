@@ -17,7 +17,7 @@ export class EnvMap implements Map<string, string | undefined> {
   ) {
     if (iterable) {
       for (const [k, v] of iterable) {
-        this.map.set(k.toUpperCase(), [k, v])
+        this.map.set(normalizeKey(k), [k, v])
       }
     }
   }
