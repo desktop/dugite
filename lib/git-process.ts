@@ -1,5 +1,5 @@
 import * as fs from 'fs'
-import { abort, kill } from 'process'
+import { kill } from 'process'
 
 import { execFile, spawn } from 'child_process'
 import {
