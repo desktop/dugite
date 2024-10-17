@@ -226,7 +226,8 @@ export class GitProcess {
         { cwd: path, encoding, maxBuffer, env, signal, killSignal },
         function (err, stdout, stderr) {
           const exitCode = typeof err?.code === 'number' ? err.code : 0
-          if (!err || exitCode !== 0) {
+
+          if (!err || typeof err?.code === 'number') {
             resolve({ stdout, stderr, exitCode })
             return
           }
@@ -234,24 +235,19 @@ export class GitProcess {
           // If the error's code is a string then it means the code isn't the
           // process's exit code but rather an error coming from Node's bowels,
           // e.g., ENOENT.
-          if (typeof err.code === 'string') {
-            let { message, code } = err
+          let { message, code } = err
 
-            if (err.code === 'ENOENT') {
-              if (GitProcess.pathExists(path) === false) {
-                message = 'Unable to find path to repository on disk.'
-                code = RepositoryDoesNotExistErrorCode
-              } else {
-                message = `Git could not be found at the expected path: '${gitLocation}'. This might be a problem with how the application is packaged, so confirm this folder hasn't been removed when packaging.`
-                code = GitNotFoundErrorCode
-              }
+          if (err.code === 'ENOENT') {
+            if (GitProcess.pathExists(path) === false) {
+              message = 'Unable to find path to repository on disk.'
+              code = RepositoryDoesNotExistErrorCode
+            } else {
+              message = `Git could not be found at the expected path: '${gitLocation}'. This might be a problem with how the application is packaged, so confirm this folder hasn't been removed when packaging.`
+              code = GitNotFoundErrorCode
             }
-
-            reject(new ExecError(message, code, stdout, stderr, err))
-            return
           }
 
-          reject(new ExecError(err.message, undefined, stdout, stderr, err))
+          reject(new ExecError(message, code, stdout, stderr, err))
         }
       )
 
@@ -345,7 +341,7 @@ function ignoreClosedInputStream({ stdin }: ChildProcess) {
     return
   }
 
-  stdin.on('error', err => {
+  stdin.on('error', (err: unknown) => {
     const code = (err as ErrorWithCode).code
 
     // Is the error one that we'd expect from the input stream being
