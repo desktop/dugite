@@ -10,6 +10,7 @@ const {
   createWriteStream,
   existsSync,
 } = require('fs')
+const { Readable } = require('stream')
 
 const config = require('./config')()
 
@@ -35,59 +36,36 @@ const unpackFile = function (file) {
   })
 }
 
-const downloadAndUnpack = (url, isFollowingRedirect) => {
-  if (!isFollowingRedirect) {
-    console.log(`Downloading Git from: ${url}`)
-  }
-
-  const options = {
+const downloadAndUnpack = async url => {
+  const res = await fetch(url, {
     headers: {
       Accept: 'application/octet-stream',
       'User-Agent': 'dugite',
     },
     secureProtocol: 'TLSv1_2_method',
-  }
-
-  const req = https.get(url, options)
-
-  req.on('error', function (error) {
-    if (error.code === 'ETIMEDOUT') {
-      console.log(
-        `A timeout has occurred while downloading '${url}' - check ` +
-          `your internet connection and try again. If you are using a proxy, ` +
-          `make sure that the HTTP_PROXY and HTTPS_PROXY environment variables are set.`,
-        error
-      )
-    } else {
-      console.log(`Error raised while downloading ${url}`, error)
-    }
+  }).catch(e => {
+    console.log('Unable to download archive, aborting...', e)
     process.exit(1)
   })
 
-  req.on('response', function (res) {
-    if ([301, 302].includes(res.statusCode) && res.headers['location']) {
-      downloadAndUnpack(res.headers.location, true)
-      return
-    }
+  if (!res.ok) {
+    console.log(`Got ${res.status} trying to download archive, aborting...`)
+    process.exit(1)
+  }
 
-    if (res.statusCode !== 200) {
-      console.log(`Non-200 response returned from ${url} - (${res.statusCode})`)
-      process.exit(1)
-    }
+  const len = parseInt(res.headers.get('content-length'), 10)
 
-    const len = parseInt(res.headers['content-length'], 10)
+  const bar = new ProgressBar('Downloading Git [:bar] :percent :etas', {
+    complete: '=',
+    incomplete: ' ',
+    width: 50,
+    total: len,
+  })
 
-    const bar = new ProgressBar('Downloading Git [:bar] :percent :etas', {
-      complete: '=',
-      incomplete: ' ',
-      width: 50,
-      total: len,
-    })
-
-    res.pipe(createWriteStream(config.tempFile))
-
-    res.on('data', c => bar.tick(c.length))
-    res.on('end', function () {
+  Readable.fromWeb(res.body)
+    .on('data', c => bar.tick(c.length))
+    .pipe(createWriteStream(config.tempFile))
+    .on('end', () => {
       verifyFile(config.tempFile, valid => {
         if (valid) {
           unpackFile(config.tempFile)
@@ -97,7 +75,8 @@ const downloadAndUnpack = (url, isFollowingRedirect) => {
         }
       })
     })
-  })
+
+  // res.on('data', c => bar.tick(c.length))
 }
 
 if (config.source === '') {
