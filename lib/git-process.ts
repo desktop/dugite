@@ -251,7 +251,7 @@ export class GitProcess {
               }
             }
 
-            reject(new ExecError(err.message, err.code, stdout, stderr, err))
+            reject(new ExecError(message, code, stdout, stderr, err))
             return
           }
 
