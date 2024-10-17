@@ -241,9 +241,9 @@ export class GitProcess {
           // process's exit code but rather an error coming from Node's bowels,
           // e.g., ENOENT.
           if (typeof err.code === 'string') {
+            let { message, code } = err
+
             if (err.code === 'ENOENT') {
-              let message = err.message
-              let code = err.code
               if (GitProcess.pathExists(path) === false) {
                 message = 'Unable to find path to repository on disk.'
                 code = RepositoryDoesNotExistErrorCode
@@ -251,15 +251,9 @@ export class GitProcess {
                 message = `Git could not be found at the expected path: '${gitLocation}'. This might be a problem with how the application is packaged, so confirm this folder hasn't been removed when packaging.`
                 code = GitNotFoundErrorCode
               }
-
-              const error = new Error(message) as ErrorWithCode
-              error.name = err.name
-              error.code = code
-              reject(error)
-            } else {
-              reject(err)
             }
 
+            reject(new ExecError(err.message, err.code, stdout, stderr, err))
             return
           }
 
