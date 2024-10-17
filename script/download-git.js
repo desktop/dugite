@@ -40,7 +40,7 @@ const verifyFile = function (file, callback) {
   })
 }
 
-const unpackFile = file => 
+const unpackFile = file =>
   tar.x({ cwd: config.outputPath, file }).catch(e => {
     console.log('Unable to extract archive, aborting...', e)
     process.exit(1)
