@@ -3,7 +3,7 @@ import { glob } from 'glob'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
-if (['-h', '--help'].includes(process.argv[2])) {
+if (process.argv.some(arg => ['-h', '--help'].includes(arg))) {
   console.log(`Usage: ${process.argv0} [kind]`)
   console.log('  kind: The kind of tests to run (e.g. "fast", "slow", "external", "all")')
   process.exit(0)
