@@ -1,6 +1,4 @@
 import * as fs from 'fs'
-import { kill } from 'process'
-
 import { execFile, ExecFileOptions, spawn } from 'child_process'
 import {
   GitError,
