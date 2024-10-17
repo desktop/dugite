@@ -1,4 +1,3 @@
-import * as Fs from 'fs'
 import * as Path from 'path'
 
 import { ChildProcess } from 'child_process'
@@ -8,6 +7,7 @@ import { gitForWindowsVersion, gitVersion } from '../helpers'
 import { track } from 'temp'
 import assert from 'assert'
 import { describe, it } from 'node:test'
+import { appendFile } from 'fs/promises'
 
 const temp = track()
 
@@ -85,8 +85,9 @@ describe('GitProcess.spawn', () => {
     const secondBuffer = Buffer.alloc(secondBufferLength)
     secondBuffer.fill('b')
 
-    Fs.appendFileSync(filePath, firstBuffer.toString('utf-8'))
-    Fs.appendFileSync(filePath, secondBuffer.toString('utf-8'))
+    await appendFile(filePath, firstBuffer)
+    await appendFile(filePath, secondBuffer)
+
     const process = GitProcess.spawn(
       [
         'diff',
