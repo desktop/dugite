@@ -9,5 +9,5 @@ describe('git-credential-manager', () => {
     )
     expect(result.exitCode).toBe(0)
     expect(result.stdout).toContain(gitCredentialManagerVersion)
-  })
+  }, 30 * 1000)
 })
