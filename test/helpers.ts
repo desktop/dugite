@@ -88,13 +88,15 @@ function getFriendlyGitError(gitError: GitError): string {
 expect.extend({
   toHaveGitError(result: IGitResult, expectedError: GitError) {
     let gitError = GitProcess.parseError(
-      Buffer.isBuffer(result.stderr) ? result.stderr.toString() : result.stderr
+      Buffer.isBuffer(result.stderr)
+        ? result.stderr.toString('utf8')
+        : result.stderr
     )
     if (gitError === null) {
       gitError = GitProcess.parseError(
-        Buffer.isBuffer(result.stderr)
-          ? result.stderr.toString()
-          : result.stderr
+        Buffer.isBuffer(result.stdout)
+          ? result.stdout.toString('utf8')
+          : result.stdout
       )
     }
 
