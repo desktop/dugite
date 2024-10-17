@@ -19,18 +19,18 @@ jobs:
       matrix:
         nodeVersion: [18, 20]
         arch: [x64]
-        os: [macos-11, windows-2019, ubuntu-22.04]
+        os: [macos-latest, windows-latest, ubuntu-latest]
         include:
-          - os: macos-11
+          - os: macos-latest
             friendlyName: macOS
-          - os: windows-2019
+          - os: windows-latest
             friendlyName: Windows
-          - os: windows-2019
+          - os: windows-latest
             friendlyName: Windows
             nodeVersion: 18
             arch: x86
             npm_config_arch: ia32
-          - os: ubuntu-22.04
+          - os: ubuntu-latest
             friendlyName: Linux
     timeout-minutes: 10
     steps:
