@@ -12,8 +12,8 @@
     "test": "node script/test.mjs",
     "download-git": "node ./script/download-git.js",
     "postinstall": "node ./script/download-git.js",
-    "prettify": "prettier \"{examples,lib,script,test}/**/*.ts\" --write",
-    "is-it-pretty": "prettier --check \"{examples,lib,script,test}/**/*.ts\"",
+    "prettify": "prettier \"{examples,lib,script,test}/**/*.ts\" \"**/*.mjs\" --write",
+    "is-it-pretty": "prettier --check \"{examples,lib,script,test}/**/*.ts\" \"**/*.mjs\"",
     "update-embedded-git": "node ./script/update-embedded-git.js"
   },
   "engines": {
