@@ -14,7 +14,7 @@ if (['-h', '--help'].includes(process.argv[2])) {
   const wildcard = kind && kind !== 'all' ? `${kind}/**` : '**'
   const files = await glob(`test/${wildcard}/*-test.ts`)
 
-  spawn('node', ['--loader', 'tsx', '--test', ...files], {
+  spawn('node', ['--import', 'tsx', '--test', ...files], {
     stdio: 'inherit',
     env: {
       ...process.env,
