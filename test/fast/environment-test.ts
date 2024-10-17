@@ -45,7 +45,7 @@ describe('environment variables', () => {
       const originalPathKey = Object.keys(process.env).find(
         k => k.toUpperCase() === 'PATH'
       )
-      expect(originalPathKey).not.toBeUndefined()
+      assert.notEqual(originalPathKey, undefined)
 
       const originalPathValue = process.env.PATH
 
@@ -56,7 +56,7 @@ describe('environment variables', () => {
         // case-insensitive (like Windows) we don't end up with an invalid PATH
         // and the original one lost in the process.
         const { env } = setupEnvironment({})
-        expect(env.PATH).toContain('wow-such-case-insensitivity')
+        assert.ok(env.PATH?.includes('wow-such-case-insensitivity'))
       } finally {
         delete process.env.Path
         process.env[originalPathKey!] = originalPathValue
