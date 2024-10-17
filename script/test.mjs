@@ -20,6 +20,6 @@ if (['-h', '--help'].includes(process.argv[2])) {
       ...process.env,
       LOCAL_GIT_DIRECTORY: resolve(dirname(fileURLToPath(import.meta.url)), '../git/')
     }
-  })
+  }).on('exit', process.exit)
 
 })(process.argv[2])
