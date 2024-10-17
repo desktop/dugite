@@ -276,18 +276,7 @@ export class GitProcess {
             return
           }
 
-          // Git has returned an output that couldn't fit in the specified buffer
-          // as we don't know how many bytes it requires, rethrow the error with
-          // details about what it was previously set to...
-          if (err.message === 'stdout maxBuffer exceeded') {
-            reject(
-              new Error(
-                `The output from the command could not fit into the allocated stdout buffer. Set options.maxBuffer to a larger value than ${maxBuffer} bytes`
-              )
-            )
-          } else {
-            reject(err)
-          }
+          reject(new ExecError(err.message, undefined, stdout, stderr, err))
         }
       )
 
