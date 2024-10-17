@@ -16,7 +16,7 @@ get(`https://api.github.com/repos/desktop/dugite-native/releases/latest`).then(
       'linux-x64': await findLinux64BitRelease(assets),
       'linux-ia32': await findLinux32BitRelease(assets),
       'linux-arm': await findLinuxARM32BitRelease(assets),
-      'linux-arm64': await findLinuxARM64BitRelease(assets)
+      'linux-arm64': await findLinuxARM64BitRelease(assets),
     }
 
     const fileContents = JSON.stringify(output, null, 2)
@@ -105,7 +105,11 @@ async function getDetailsForAsset(assets, currentAsset) {
   const { name } = currentAsset
   const url = currentAsset.browser_download_url
   const checksumFile = assets.find(a => a.name === `${name}.sha256`)
-  const checksumRaw = await get(checksumFile.browser_download_url)
+  const checksumRaw = await fetch(checksumFile.browser_download_url, {
+    headers: {
+      'user-agent': 'dugite'
+    }
+  }).then(b => b.text())
   const checksum = checksumRaw.trim()
   return { name, url, checksum }
 }

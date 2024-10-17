@@ -4,7 +4,7 @@ const https = require('https')
 const get = url => {
   const options = {
     headers: { 'User-Agent': 'dugite' },
-    secureProtocol: 'TLSv1_2_method'
+    secureProtocol: 'TLSv1_2_method',
   }
 
   return new Promise((resolve, reject) => {
