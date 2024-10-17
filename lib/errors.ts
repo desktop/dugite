@@ -181,7 +181,7 @@ export const RepositoryDoesNotExistErrorCode = 'repository-does-not-exist-error'
 export class ExecError extends Error {
   constructor(
     public readonly message: string,
-    public readonly code: string | undefined,
+    public readonly code: string | undefined | null,
     public readonly stdout: Buffer | string,
     public readonly stderr: Buffer | string,
     cause?: unknown
