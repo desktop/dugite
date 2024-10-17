@@ -1,6 +1,6 @@
 import * as path from 'path'
 
-function resolveEmbeddedGitDir(): string {
+export function resolveEmbeddedGitDir(): string {
   if (
     process.platform === 'darwin' ||
     process.platform === 'linux' ||
@@ -21,7 +21,7 @@ function resolveEmbeddedGitDir(): string {
  *  If a custom Git directory path is defined as the `LOCAL_GIT_DIRECTORY` environment variable, then
  *  returns with it after resolving it as a path.
  */
-function resolveGitDir(env: Record<string, string | undefined>): string {
+export function resolveGitDir(env: Record<string, string | undefined>): string {
   if (env.LOCAL_GIT_DIRECTORY != null) {
     return path.resolve(env.LOCAL_GIT_DIRECTORY)
   } else {
@@ -32,7 +32,9 @@ function resolveGitDir(env: Record<string, string | undefined>): string {
 /**
  *  Find the path to the embedded Git binary.
  */
-function resolveGitBinary(env: Record<string, string | undefined>): string {
+export function resolveGitBinary(
+  env: Record<string, string | undefined>
+): string {
   const gitDir = resolveGitDir(env)
   if (process.platform === 'win32') {
     return path.join(gitDir, 'cmd', 'git.exe')
@@ -47,8 +49,10 @@ function resolveGitBinary(env: Record<string, string | undefined>): string {
  * If a custom git exec path is given as the `GIT_EXEC_PATH` environment variable,
  * then it returns with it after resolving it as a path.
  */
-function resolveGitExecPath(env: Record<string, string | undefined>): string {
-  if (env.GIT_EXEC_PATH != null) {
+export function resolveGitExecPath(
+  env: Record<string, string | undefined>
+): string {
+  if (env.GIT_EXEC_PATH) {
     return path.resolve(env.GIT_EXEC_PATH)
   }
   const gitDir = resolveGitDir(env)
@@ -74,8 +78,17 @@ export function setupEnvironment(
   env: Record<string, string | undefined>
   gitLocation: string
 } {
+  // This will get Path, pATh, PATH et all on Windows
+  const PATH = process.env.PATH
+
   const env: Record<string, string | undefined> = {
-    ...process.env,
+    // Merge all of process.env except Path, PATH, et all, we'll add that in just a sec
+    ...Object.fromEntries(
+      Object.entries(process.env).filter(([k]) => k.toUpperCase() !== 'PATH')
+    ),
+    // Ensure PATH is always set in upper case not process.env.Path like can
+    // be on case-insensitive Windows
+    ...(PATH ? { PATH } : {}),
     ...environmentVariables,
   }
 
@@ -84,22 +97,20 @@ export function setupEnvironment(
 
   if (process.platform === 'win32') {
     const mingw = process.arch === 'x64' ? 'mingw64' : 'mingw32'
-    env.PATH = `${gitDir}\\${mingw}\\bin;${gitDir}\\${mingw}\\usr\\bin;${env.PATH}`
+    env.PATH = `${gitDir}\\${mingw}\\bin;${gitDir}\\${mingw}\\usr\\bin;${
+      env.PATH ?? ''
+    }`
   }
 
   env.GIT_EXEC_PATH = resolveGitExecPath(env)
 
-  if (process.platform === 'win32') {
-    // while reading the environment variable is case-insensitive
-    // you can create a hash with multiple values, which means the
-    // wrong value might be used when spawning the child process
-    //
-    // this ensures we only ever supply one value for PATH
-    if (env.Path) {
-      delete env.Path
-    }
-  }
-
+  // On Windows the contained Git environment (minGit) ships with a system level
+  // gitconfig that we can control but on macOS and Linux /etc/gitconfig is used
+  // as the system-wide configuration file and we're unable to modify it.
+  //
+  // So in order to be able to provide our own sane defaults that can be overriden
+  // by the user's global and local configuration we'll tell Git to use
+  // dugite-native's custom gitconfig on those platforms.
   if (process.platform !== 'win32' && !env.GIT_CONFIG_SYSTEM) {
     env.GIT_CONFIG_SYSTEM = path.join(gitDir, 'etc', 'gitconfig')
   }

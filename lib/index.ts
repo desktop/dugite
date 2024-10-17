@@ -10,3 +10,4 @@ export {
   RepositoryDoesNotExistErrorCode,
   GitNotFoundErrorCode,
 } from './errors'
+export * from './git-environment'
