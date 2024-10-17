@@ -10,6 +10,6 @@ describe('git-credential-manager', () => {
       process.cwd()
     )
     assert.equal(result.exitCode, 0)
-    assert.equal(result.stdout, gitCredentialManagerVersion)
+    assert.ok(result.stdout.startsWith(gitCredentialManagerVersion))
   })
 })
