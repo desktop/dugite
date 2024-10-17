@@ -30,7 +30,7 @@ describe('config', () => {
       ['config', '--system', 'credential.https://dev.azure.com.useHttpPath'],
       os.homedir()
     )
-    expect(result.stdout.trim()).toBe('true')
+    assert.equal(result.stdout.trim(), 'true')
   })
 
   it('uses the custom system config from dugite-native', async () => {
@@ -43,11 +43,12 @@ describe('config', () => {
 
       const originPath = origin.substring('file:'.length)
 
-      expect(resolve(originPath)).toBe(
+      assert.equal(
+        resolve(originPath),
         join(resolveGitDir(process.env), 'etc', 'gitconfig')
       )
 
-      expect(value).toBe('/etc/gitconfig')
+      assert.equal(value, '/etc/gitconfig')
     }
   })
 })
