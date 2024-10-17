@@ -13,8 +13,9 @@ if (process.argv.some(arg => ['-h', '--help'].includes(arg))) {
 
   const wildcard = kind && kind !== 'all' ? `${kind}/**` : '**'
   const files = await glob(`test/${wildcard}/*-test.ts`)
+  const testReporterArgs = process.env.GITHUB_ACTIONS ? ['--test-reporter', 'node-test-github-reporter'] : []
 
-  spawn('node', ['--import', 'tsx', '--test', ...files], {
+  spawn('node', ['--import', 'tsx', ...testReporterArgs, '--test', ...files], {
     stdio: 'inherit',
     env: {
       ...process.env,
