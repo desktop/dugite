@@ -177,3 +177,15 @@ export const GitNotFoundErrorCode = 'git-not-found-error'
 
 /** The error code for when the path to a repository doesn't exist. */
 export const RepositoryDoesNotExistErrorCode = 'repository-does-not-exist-error'
+
+export class ExecError extends Error {
+  constructor(
+    public readonly message: string,
+    public readonly code: string | undefined,
+    public readonly stdout: Buffer | string,
+    public readonly stderr: Buffer | string,
+    cause?: unknown
+  ) {
+    super(message, { cause })
+  }
+}

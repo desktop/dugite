@@ -232,6 +232,11 @@ export class GitProcess {
             return
           }
 
+          if (err.code === 'ABORT_ERR') {
+            reject(new ExecError(err.message, err.code, stdout, stderr, err))
+            return
+          }
+
           // If the error's code is a string then it means the code isn't the
           // process's exit code but rather an error coming from Node's bowels,
           // e.g., ENOENT.
