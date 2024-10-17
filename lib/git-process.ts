@@ -104,11 +104,11 @@ export interface IGitExecutionOptions {
   readonly processCallback?: (process: ChildProcess) => void
 }
 
-interface IGitStringExecutionOptions extends IGitExecutionOptions {
+export interface IGitStringExecutionOptions extends IGitExecutionOptions {
   readonly encoding?: BufferEncoding
 }
 
-interface IGitBufferExecutionOptions extends IGitExecutionOptions {
+export interface IGitBufferExecutionOptions extends IGitExecutionOptions {
   readonly encoding: 'buffer'
 }
 
