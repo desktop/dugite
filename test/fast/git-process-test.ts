@@ -6,9 +6,8 @@ import {
   GitProcess,
   GitError,
   RepositoryDoesNotExistErrorCode,
-  GitTaskCancelResult,
 } from '../../lib'
-import { GitErrorRegexes } from '../../lib/errors'
+import { ExecError, GitErrorRegexes } from '../../lib/errors'
 import {
   initialize,
   verify,
@@ -17,7 +16,6 @@ import {
 } from '../helpers'
 
 import { gitVersion } from '../helpers'
-import { setupNoAuth } from '../slow/auth'
 import { pathToFileURL } from 'url'
 
 const temp = require('temp').track()
@@ -26,9 +24,6 @@ describe('git-process', () => {
   it('can cancel in-progress git command', async () => {
     const sourceRepoPath = temp.mkdirSync('desktop-git-clone-source')
     const destinationRepoPath = temp.mkdirSync('desktop-git-clone-destination')
-    const options = {
-      env: setupNoAuth(),
-    }
 
     await GitProcess.exec(['init'], sourceRepoPath)
     await GitProcess.exec(
@@ -36,26 +31,28 @@ describe('git-process', () => {
       sourceRepoPath
     )
 
-    const task = GitProcess.execTask(
+    const ac = new AbortController()
+    const task = GitProcess.exec(
       ['clone', '--', pathToFileURL(sourceRepoPath).toString(), '.'],
       destinationRepoPath,
-      options
+      { signal: ac.signal }
     )
 
-    const cancelResult = await task.cancel()
-    try {
-      await task.result
-    } catch {}
-    expect(cancelResult).toBe(GitTaskCancelResult.successfulCancel)
+    ac.abort()
+
+    const result = await task.catch(e => e)
+    expect(result).toBeInstanceOf(ExecError)
+    expect(result.code).toBe('ABORT_ERR')
   })
 
   it('cannot cancel already finished git command', async () => {
     const testRepoPath = temp.mkdirSync('desktop-git-do-nothing')
-    const task = GitProcess.execTask(['--version'], testRepoPath)
-    await task.result
-
-    const cancelResult = await task.cancel()
-    expect(cancelResult).toBe(GitTaskCancelResult.processAlreadyEnded)
+    const ac = new AbortController()
+    const { stdout } = await GitProcess.exec(['--version'], testRepoPath, {
+      signal: ac.signal,
+    })
+    ac.abort()
+    expect(stdout).toContain('git version')
   })
 
   it('can launch git', async () => {
