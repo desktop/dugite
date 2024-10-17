@@ -1,41 +1,42 @@
 const fs = require('fs')
 const path = require('path')
-const { get } = require('./utils')
 
-get(`https://api.github.com/repos/desktop/dugite-native/releases/latest`).then(
-  async response => {
-    const { tag_name, assets } = JSON.parse(response)
+fetch(`https://api.github.com/repos/desktop/dugite-native/releases/latest`)
+  .then(r => r.text())
+  .then(
+    async response => {
+      const { tag_name, assets } = JSON.parse(response)
 
-    console.log(`Updating embedded git config to use version ${tag_name}`)
+      console.log(`Updating embedded git config to use version ${tag_name}`)
 
-    const output = {
-      'win32-x64': await findWindows64BitRelease(assets),
-      'win32-ia32': await findWindows32BitRelease(assets),
-      'darwin-x64': await findMacOSx64BitRelease(assets),
-      'darwin-arm64': await findMacOSARM64BitRelease(assets),
-      'linux-x64': await findLinux64BitRelease(assets),
-      'linux-ia32': await findLinux32BitRelease(assets),
-      'linux-arm': await findLinuxARM32BitRelease(assets),
-      'linux-arm64': await findLinuxARM64BitRelease(assets),
+      const output = {
+        'win32-x64': await findWindows64BitRelease(assets),
+        'win32-ia32': await findWindows32BitRelease(assets),
+        'darwin-x64': await findMacOSx64BitRelease(assets),
+        'darwin-arm64': await findMacOSARM64BitRelease(assets),
+        'linux-x64': await findLinux64BitRelease(assets),
+        'linux-ia32': await findLinux32BitRelease(assets),
+        'linux-arm': await findLinuxARM32BitRelease(assets),
+        'linux-arm64': await findLinuxARM64BitRelease(assets),
+      }
+
+      const fileContents = JSON.stringify(output, null, 2)
+
+      const embeddedGitPath = path.join(__dirname, 'embedded-git.json')
+
+      fs.writeFileSync(embeddedGitPath, fileContents, 'utf8')
+
+      console.log(`Done!`)
+      console.log()
+      console.log('Next you should prepare a new release:')
+      console.log(`- commit any changes`)
+      console.log(`- update the installed package with \`yarn\``)
+      console.log(`- run the test suite with \`yarn test\``)
+    },
+    err => {
+      console.error('Unable to get latest release', err)
     }
-
-    const fileContents = JSON.stringify(output, null, 2)
-
-    const embeddedGitPath = path.join(__dirname, 'embedded-git.json')
-
-    fs.writeFileSync(embeddedGitPath, fileContents, 'utf8')
-
-    console.log(`Done!`)
-    console.log()
-    console.log('Next you should prepare a new release:')
-    console.log(`- commit any changes`)
-    console.log(`- update the installed package with \`yarn\``)
-    console.log(`- run the test suite with \`yarn test\``)
-  },
-  err => {
-    console.error('Unable to get latest release', err)
-  }
-)
+  )
 
 function findWindows64BitRelease(assets) {
   const asset = assets.find(a => a.name.endsWith('-windows-x64.tar.gz'))
@@ -107,8 +108,8 @@ async function getDetailsForAsset(assets, currentAsset) {
   const checksumFile = assets.find(a => a.name === `${name}.sha256`)
   const checksumRaw = await fetch(checksumFile.browser_download_url, {
     headers: {
-      'user-agent': 'dugite'
-    }
+      'user-agent': 'dugite',
+    },
   }).then(b => b.text())
   const checksum = checksumRaw.trim()
   return { name, url, checksum }
