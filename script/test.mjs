@@ -20,7 +20,7 @@ if (process.argv.some(arg => ['-h', '--help'].includes(arg))) {
     'spec',
     ...reporterDestinationArgs,
   ]
-  
+
   const testReporterArgs = process.env.GITHUB_ACTIONS
     ? [
         '--test-reporter',
