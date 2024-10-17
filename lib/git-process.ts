@@ -1,7 +1,7 @@
 import * as fs from 'fs'
-import { kill } from 'process'
+import { abort, kill } from 'process'
 
-import { execFile, spawn, ExecOptionsWithStringEncoding } from 'child_process'
+import { execFile, spawn } from 'child_process'
 import {
   GitError,
   GitErrorRegexes,
@@ -12,16 +12,33 @@ import { ChildProcess } from 'child_process'
 
 import { setupEnvironment } from './git-environment'
 
-/** The result of shelling out to git. */
 export interface IGitResult {
+  /** The standard output from git. */
+  readonly stdout: string | Buffer
+
+  /** The standard error output from git. */
+  readonly stderr: string | Buffer
+
+  /** The exit code of the git process. */
+  readonly exitCode: number
+}
+
+/** The result of shelling out to git using a string encoding (default) */
+export interface IGitStringResult extends IGitResult {
   /** The standard output from git. */
   readonly stdout: string
 
   /** The standard error output from git. */
   readonly stderr: string
+}
 
-  /** The exit code of the git process. */
-  readonly exitCode: number
+/** The result of shelling out to git using a buffer encoding */
+export interface IGitBufferResult extends IGitResult {
+  /** The standard output from git. */
+  readonly stdout: Buffer
+
+  /** The standard error output from git. */
+  readonly stderr: Buffer
 }
 
 /**
@@ -63,6 +80,12 @@ export interface IGitExecutionOptions {
   readonly stdinEncoding?: BufferEncoding
 
   /**
+   * The encoding to use when decoding the stdout and stderr output. Defaults to
+   * 'utf8'.
+   */
+  readonly encoding?: BufferEncoding | 'buffer'
+
+  /**
    * The size the output buffer to allocate to the spawned process. Set this
    * if you are anticipating a large amount of output.
    *
@@ -79,6 +102,14 @@ export interface IGitExecutionOptions {
    * stream will be closed by the time this callback fires.
    */
   readonly processCallback?: (process: ChildProcess) => void
+}
+
+interface IGitStringExecutionOptions extends IGitExecutionOptions {
+  readonly encoding?: BufferEncoding
+}
+
+interface IGitBufferExecutionOptions extends IGitExecutionOptions {
+  readonly encoding: 'buffer'
 }
 
 /**
@@ -143,6 +174,16 @@ export class GitProcess {
   public static exec(
     args: string[],
     path: string,
+    options?: IGitStringExecutionOptions
+  ): Promise<IGitStringResult>
+  public static exec(
+    args: string[],
+    path: string,
+    options?: IGitBufferExecutionOptions
+  ): Promise<IGitBufferResult>
+  public static exec(
+    args: string[],
+    path: string,
     options?: IGitExecutionOptions
   ): Promise<IGitResult> {
     return this.execTask(args, path, options).result
@@ -166,8 +207,23 @@ export class GitProcess {
   public static execTask(
     args: string[],
     path: string,
+    options?: IGitStringExecutionOptions
+  ): IGitTask<IGitStringResult>
+  public static execTask(
+    args: string[],
+    path: string,
+    options?: IGitBufferExecutionOptions
+  ): IGitTask<IGitBufferResult>
+  public static execTask(
+    args: string[],
+    path: string,
     options?: IGitExecutionOptions
-  ): IGitTask {
+  ): IGitTask<IGitResult>
+  public static execTask(
+    args: string[],
+    path: string,
+    options?: IGitExecutionOptions
+  ): IGitTask<IGitResult> {
     let pidResolve: {
       (arg0: any): void
       (value: number | PromiseLike<number | undefined> | undefined): void
@@ -185,23 +241,28 @@ export class GitProcess {
 
         const { env, gitLocation } = setupEnvironment(customEnv)
 
-        // Explicitly annotate opts since typescript is unable to infer the correct
-        // signature for execFile when options is passed as an opaque hash. The type
-        // definition for execFile currently infers based on the encoding parameter
-        // which could change between declaration time and being passed to execFile.
-        // See https://git.io/vixyQ
-        const execOptions: ExecOptionsWithStringEncoding = {
-          cwd: path,
-          encoding: 'utf8',
-          maxBuffer: options ? options.maxBuffer : 10 * 1024 * 1024,
-          env,
-        }
+        // This is the saddest hack. There's a bug in the types for execFile
+        // (ExecFileOptionsWithBufferEncoding is the exact same as
+        // ExecFileOptionsWithStringEncoding) so we can't get TS to pick the
+        // execFile overload that types stdout/stderr as buffer by setting
+        // the encoding to 'buffer'. So we'll do this ugly where we pretend
+        // it'll only ever be a valid encoding or 'null' (which isn't true).
+        //
+        // This will trick TS to pick the ObjectEncodingOptions overload of
+        // ExecFile which correctly types stderr/stdout as Buffer | string.
+        //
+        // Some day someone with more patience than me will contribute an
+        // upstream fix to DefinitelyTyped and we can remove this. It's
+        // essentially https://github.com/DefinitelyTyped/DefinitelyTyped/pull/67202
+        // but for execFile.
+        const encoding = (options?.encoding ?? 'utf8') as BufferEncoding | null
+        const maxBuffer = options ? options.maxBuffer : 10 * 1024 * 1024
 
         const spawnedProcess = execFile(
           gitLocation,
           args,
-          execOptions,
-          function (err: Error | null, stdout, stderr) {
+          { cwd: path, encoding, maxBuffer, env },
+          function (err, stdout, stderr) {
             result.updateProcessEnded()
 
             if (!err) {
@@ -249,7 +310,7 @@ export class GitProcess {
             if (err.message === 'stdout maxBuffer exceeded') {
               reject(
                 new Error(
-                  `The output from the command could not fit into the allocated stdout buffer. Set options.maxBuffer to a larger value than ${execOptions.maxBuffer} bytes`
+                  `The output from the command could not fit into the allocated stdout buffer. Set options.maxBuffer to a larger value than ${maxBuffer} bytes`
                 )
               )
             } else {
@@ -389,15 +450,15 @@ export enum GitTaskCancelResult {
 }
 
 /** This interface represents a git task (process). */
-export interface IGitTask {
+export interface IGitTask<T> {
   /** Result of the git process. */
-  readonly result: Promise<IGitResult>
+  readonly result: Promise<T>
   /** Allows to cancel the process if it's running. Returns true if the process was killed. */
   readonly cancel: () => Promise<GitTaskCancelResult>
 }
 
-class GitTask implements IGitTask {
-  constructor(result: Promise<IGitResult>, pid: Promise<number | undefined>) {
+class GitTask<T> implements IGitTask<T> {
+  constructor(result: Promise<T>, pid: Promise<number | undefined>) {
     this.result = result
     this.pid = pid
     this.processEnded = false
@@ -407,7 +468,7 @@ class GitTask implements IGitTask {
   /** Process may end because process completed or process errored. Either way, we can no longer cancel it. */
   private processEnded: boolean
 
-  result: Promise<IGitResult>
+  result: Promise<T>
 
   public updateProcessEnded(): void {
     this.processEnded = true
