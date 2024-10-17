@@ -50,9 +50,9 @@ export async function initializeWithRemote(
   return { path: testRepoPath, remote: remotePath }
 }
 
-export function verify(
-  result: IGitResult,
-  callback: (result: IGitResult) => void
+export function verify<T extends IGitResult>(
+  result: T,
+  callback: (result: T) => void
 ) {
   try {
     callback(result)
@@ -61,8 +61,8 @@ export function verify(
       'error encountered while verifying; poking at response from Git:'
     )
     console.log(` - exitCode: ${result.exitCode}`)
-    console.log(` - stdout: ${result.stdout.trim()}`)
-    console.log(` - stderr: ${result.stderr.trim()}`)
+    console.log(` - stdout: ${result.stdout}`)
+    console.log(` - stderr: ${result.stderr}`)
     console.log()
     throw e
   }
@@ -87,9 +87,15 @@ function getFriendlyGitError(gitError: GitError): string {
 
 expect.extend({
   toHaveGitError(result: IGitResult, expectedError: GitError) {
-    let gitError = GitProcess.parseError(result.stderr)
+    let gitError = GitProcess.parseError(
+      Buffer.isBuffer(result.stderr) ? result.stderr.toString() : result.stderr
+    )
     if (gitError === null) {
-      gitError = GitProcess.parseError(result.stdout)
+      gitError = GitProcess.parseError(
+        Buffer.isBuffer(result.stderr)
+          ? result.stderr.toString()
+          : result.stderr
+      )
     }
 
     const message = () => {
