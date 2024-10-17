@@ -27,7 +27,7 @@ jobs:
             friendlyName: Windows
           - os: windows-2019
             friendlyName: Windows
-            nodeVersion: 18
+            nodeVersion: 20
             arch: x86
             npm_config_arch: ia32
           - os: ubuntu-22.04
