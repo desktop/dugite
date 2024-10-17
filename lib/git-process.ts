@@ -225,8 +225,9 @@ export class GitProcess {
         args,
         { cwd: path, encoding, maxBuffer, env, signal, killSignal },
         function (err, stdout, stderr) {
-          if (!err) {
-            resolve({ stdout, stderr, exitCode: 0 })
+          const exitCode = typeof err?.code === 'number' ? err.code : 0
+          if (!err || exitCode !== 0) {
+            resolve({ stdout, stderr, exitCode })
             return
           }
 
@@ -247,19 +248,6 @@ export class GitProcess {
             }
 
             reject(new ExecError(message, code, stdout, stderr, err))
-            return
-          }
-
-          // If a callback function is provided, it is called with the arguments
-          // (error, stdout, stderr). On success, error will be null. On error,
-          // error will be an instance of Error. The error.code property will be
-          // the exit code of the process. By convention, any exit code other
-          // than 0 indicates an error. error.signal will be the signal that
-          // terminated the process.
-          //
-          // From: https://nodejs.org/api/child_process.html#child_processexeccommand-options-callback
-          if (typeof err.code === 'number') {
-            resolve({ stdout, stderr, exitCode: err.code })
             return
           }
 
