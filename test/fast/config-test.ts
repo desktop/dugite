@@ -1,6 +1,8 @@
-import { join, resolve } from 'path'
+import assert from 'assert'
 import { GitProcess, resolveGitDir } from '../../lib'
+import { join, resolve } from 'path'
 import * as os from 'os'
+import { describe, it } from 'node:test'
 
 describe('config', () => {
   it('sets http.sslBackend on Windows', async () => {
@@ -9,7 +11,7 @@ describe('config', () => {
         ['config', '--system', 'http.sslBackend'],
         os.homedir()
       )
-      expect(result.stdout.trim()).toBe('schannel')
+      assert.equal(result.stdout.trim(), 'schannel')
     }
   })
 
@@ -19,7 +21,7 @@ describe('config', () => {
         ['config', '--system', 'http.sslCAInfo'],
         os.homedir()
       )
-      expect(result.stdout.trim()).toBe('')
+      assert.equal(result.stdout.trim(), '')
     }
   })
 
@@ -28,7 +30,7 @@ describe('config', () => {
       ['config', '--system', 'credential.https://dev.azure.com.useHttpPath'],
       os.homedir()
     )
-    expect(result.stdout.trim()).toBe('true')
+    assert.equal(result.stdout.trim(), 'true')
   })
 
   it('uses the custom system config from dugite-native', async () => {
@@ -41,11 +43,12 @@ describe('config', () => {
 
       const originPath = origin.substring('file:'.length)
 
-      expect(resolve(originPath)).toBe(
+      assert.equal(
+        resolve(originPath),
         join(resolveGitDir(), 'etc', 'gitconfig')
       )
 
-      expect(value).toBe('/etc/gitconfig')
+      assert.equal(value, '/etc/gitconfig')
     }
   })
 })

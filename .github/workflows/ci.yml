@@ -17,7 +17,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        nodeVersion: [18, 20]
+        nodeVersion: [20]
         arch: [x64]
         os: [macos-latest, windows-latest, ubuntu-latest]
         include:
@@ -27,7 +27,7 @@ jobs:
             friendlyName: Windows
           - os: windows-latest
             friendlyName: Windows
-            nodeVersion: 18
+            nodeVersion: 20
             arch: x86
             npm_config_arch: ia32
           - os: ubuntu-latest

@@ -10,7 +10,7 @@
     "sourceMap": true,
     "outDir": "./build",
     "declaration": true,
-    "types": ["jest", "node"]
+    "types": ["node"]
   },
   "exclude": ["node_modules", "build"],
   "include": ["lib/**/*.ts", "script/**/*.ts", "test/**/*.ts"],

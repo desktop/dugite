@@ -3,20 +3,19 @@ import * as Path from 'path'
 
 import { GitProcess, GitError } from '../../lib'
 import { initialize, verify } from '../helpers'
-import { setupAskPass, setupNoAuth } from './auth'
 import { pathToFileURL } from 'url'
 import { resolve } from 'path'
 import { createServer } from 'http'
+import { track } from 'temp'
+import assert from 'assert'
+import { describe, it } from 'node:test'
 
-const temp = require('temp').track()
+const temp = track()
 
 describe('git-process', () => {
   describe('clone', () => {
     it("returns exit code when repository doesn't exist", async () => {
       const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
-      const options = {
-        env: setupNoAuth(),
-      }
 
       const result = await GitProcess.exec(
         [
@@ -25,19 +24,22 @@ describe('git-process', () => {
           pathToFileURL(resolve('i-for-sure-donut-exist')).toString(),
           '.',
         ],
-        testRepoPath,
-        options
+        testRepoPath
       )
 
       verify(result, r => {
-        expect(r.exitCode).toBe(128)
+        assert.equal(r.exitCode, 128)
       })
     })
 
     it('returns exit code and error when repository requires credentials', async () => {
       const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
       const options = {
-        env: setupAskPass('error', 'error'),
+        env: {
+          GIT_CONFIG_PARAMETERS: "'credential.helper='",
+          GIT_TERMINAL_PROMPT: '0',
+          GIT_ASKPASS: undefined,
+        },
       }
 
       const server = createServer((req, res) => {
@@ -61,15 +63,16 @@ describe('git-process', () => {
 
       try {
         const result = await GitProcess.exec(
-          ['clone', '--', `http://127.0.0.1:${port}/`, '.'],
+          ['clone', '--', `http://foo:bar@127.0.0.1:${port}/`, '.'],
           testRepoPath,
           options
         )
         verify(result, r => {
-          expect(r.exitCode).toBe(128)
+          assert.equal(r.exitCode, 128)
         })
+
         const error = GitProcess.parseError(result.stderr)
-        expect(error).toBe(GitError.HTTPSAuthenticationFailed)
+        assert.equal(error, GitError.HTTPSAuthenticationFailed)
       } finally {
         server.close()
       }
@@ -90,19 +93,11 @@ describe('git-process', () => {
         testRepoPath
       )
       verify(addRemote, r => {
-        expect(r.exitCode).toBe(0)
+        assert.equal(r.exitCode, 0)
       })
-
-      const options = {
-        env: setupNoAuth(),
-      }
-      const result = await GitProcess.exec(
-        ['fetch', 'origin'],
-        testRepoPath,
-        options
-      )
+      const result = await GitProcess.exec(['fetch', 'origin'], testRepoPath)
       verify(result, r => {
-        expect(r.exitCode).toBe(128)
+        assert.equal(r.exitCode, 128)
       })
     })
   })
@@ -141,8 +136,11 @@ echo 'post-check out hook ran'`
 
       const result = await GitProcess.exec(['checkout', 'main'], testRepoPath)
       verify(result, r => {
-        expect(r.exitCode).toBe(0)
-        expect(r.stderr).toContain('post-check out hook ran')
+        assert.equal(r.exitCode, 0)
+        assert.ok(
+          r.stderr.includes('post-check out hook ran'),
+          'Expected hook to run'
+        )
       })
     })
   })

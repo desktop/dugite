@@ -3,8 +3,11 @@ import findGit from 'find-git-exec'
 
 import { GitProcess } from '../../lib'
 import { verify } from '../helpers'
+import { track } from 'temp'
+import { describe, it } from 'node:test'
+import assert from 'assert'
 
-const temp = require('temp').track()
+const temp = track()
 
 const getExternalGitEnvironment = () =>
   findGit().then(({ path, execPath }) => ({
@@ -22,9 +25,9 @@ describe('git-process [with external Git executable]', () => {
         env,
       })
 
-      verify(result, r => expect(r.exitCode).toEqual(0))
+      verify(result, r => assert.equal(r.exitCode, 0))
       verify(result, r =>
-        expect(resolve(r.stdout.trim())).toEqual(resolve(env.GIT_EXEC_PATH))
+        assert.equal(resolve(r.stdout.trim()), resolve(env.GIT_EXEC_PATH))
       )
     })
   })
