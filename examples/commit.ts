@@ -1,7 +1,4 @@
-import { GitProcess, GitError, IGitExecutionOptions } from '../lib/'
-
-// for readability, let's alias this
-const git = GitProcess.exec
+import { exec as git, parseError } from '../lib/'
 
 export async function isUnbornRepository(path: string): Promise<boolean> {
   const result = await git(['rev-parse', '--verify', 'HEAD^{commit}'], path)
@@ -29,7 +26,7 @@ export async function createCommit(path: string, message: string) {
 
   const result = await git(['commit', '-F', '-'], path, { stdin: message })
   if (result.exitCode !== 0) {
-    const error = GitProcess.parseError(result.stderr)
+    const error = parseError(result.stderr)
     if (error) {
       console.log(`Got error code: ${error}`)
     } else {

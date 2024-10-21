@@ -1,4 +1,3 @@
-import { GitProcess } from '../../lib'
 import { verify } from '../helpers'
 import { track } from 'temp'
 
@@ -6,6 +5,7 @@ import * as Fs from 'fs'
 import * as Path from 'path'
 import assert from 'assert'
 import { describe, it } from 'node:test'
+import { exec } from '../../lib'
 
 const temp = track()
 
@@ -13,14 +13,14 @@ describe('status', () => {
   it('lists untracked file', async () => {
     const testRepoPath = temp.mkdirSync('desktop-git-test-commit')
 
-    await GitProcess.exec(['init'], testRepoPath)
+    await exec(['init'], testRepoPath)
 
     const readme = Path.join(testRepoPath, 'README.md')
     Fs.writeFileSync(readme, 'HELLO WORLD!')
 
-    await GitProcess.exec(['add', 'README.md'], testRepoPath)
+    await exec(['add', 'README.md'], testRepoPath)
 
-    const result = await GitProcess.exec(
+    const result = await exec(
       ['status', '--untracked-files=all', '--porcelain', '-z'],
       testRepoPath
     )

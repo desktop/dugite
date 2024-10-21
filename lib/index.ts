@@ -1,3 +1,7 @@
-export { GitProcess, IGitResult, IGitExecutionOptions } from './git-process'
+export * from './exec'
+export * from './spawn'
+export * from './parse-error'
+export * from './parse-bad-config-value-error-info'
 export { GitError, ExecError } from './errors'
 export * from './git-environment'
+export * from './ignore-closed-input-stream'

@@ -1,11 +1,11 @@
 import assert from 'node:assert'
-import { GitProcess } from '../../lib'
+import { exec } from '../../lib'
 import { gitCredentialManagerVersion } from '../helpers'
 import { describe, it } from 'node:test'
 
 describe('git-credential-manager', () => {
   it('matches the expected version', async () => {
-    const result = await GitProcess.exec(
+    const result = await exec(
       ['credential-manager', '--version'],
       process.cwd()
     )

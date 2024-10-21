@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { GitProcess, IGitResult, GitError } from '../lib'
+import { IGitResult, GitError, exec, parseError } from '../lib'
 import { track } from 'temp'
 
 // NOTE: bump these versions to the latest stable releases
@@ -16,12 +16,9 @@ export async function initialize(
 ): Promise<string> {
   const testRepoPath = temp.mkdirSync(`desktop-git-test-${repositoryName}`)
   const branchArgs = defaultBranch !== undefined ? ['-b', defaultBranch] : []
-  await GitProcess.exec(['init', ...branchArgs], testRepoPath)
-  await GitProcess.exec(
-    ['config', 'user.email', '"some.user@email.com"'],
-    testRepoPath
-  )
-  await GitProcess.exec(['config', 'user.name', '"Some User"'], testRepoPath)
+  await exec(['init', ...branchArgs], testRepoPath)
+  await exec(['config', 'user.email', '"some.user@email.com"'], testRepoPath)
+  await exec(['config', 'user.name', '"Some User"'], testRepoPath)
   return testRepoPath
 }
 
@@ -38,7 +35,7 @@ export async function initializeWithRemote(
 ): Promise<{ path: string; remote: string }> {
   if (remotePath === null) {
     const path = temp.mkdirSync(`desktop-git-test-remote-${repositoryName}`)
-    await GitProcess.exec(['init', '--bare'], path)
+    await exec(['init', '--bare'], path)
     remotePath = path
   }
 
@@ -47,7 +44,7 @@ export async function initializeWithRemote(
   }
 
   const testRepoPath = await initialize(repositoryName)
-  await GitProcess.exec(['remote', 'add', 'origin', remotePath], testRepoPath)
+  await exec(['remote', 'add', 'origin', remotePath], testRepoPath)
 
   return { path: testRepoPath, remote: remotePath }
 }
@@ -92,8 +89,7 @@ export const assertHasGitError = (
   expectedError: GitError
 ) => {
   const gitError =
-    GitProcess.parseError(result.stderr.toString()) ??
-    GitProcess.parseError(result.stdout.toString())
+    parseError(result.stderr.toString()) ?? parseError(result.stdout.toString())
 
   assert.equal(
     gitError,

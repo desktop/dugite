@@ -1,7 +1,7 @@
 import * as Fs from 'fs'
 import * as Path from 'path'
 
-import { GitProcess, GitError } from '../../lib'
+import { exec, GitError, parseError } from '../../lib'
 import { initialize, verify } from '../helpers'
 import { pathToFileURL } from 'url'
 import { resolve } from 'path'
@@ -17,7 +17,7 @@ describe('git-process', () => {
     it("returns exit code when repository doesn't exist", async () => {
       const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
 
-      const result = await GitProcess.exec(
+      const result = await exec(
         [
           'clone',
           '--',
@@ -62,7 +62,7 @@ describe('git-process', () => {
       })
 
       try {
-        const result = await GitProcess.exec(
+        const result = await exec(
           ['clone', '--', `http://foo:bar@127.0.0.1:${port}/`, '.'],
           testRepoPath,
           options
@@ -71,7 +71,7 @@ describe('git-process', () => {
           assert.equal(r.exitCode, 128)
         })
 
-        const error = GitProcess.parseError(result.stderr)
+        const error = parseError(result.stderr)
         assert.equal(error, GitError.HTTPSAuthenticationFailed)
       } finally {
         server.close()
@@ -83,7 +83,7 @@ describe('git-process', () => {
     it("returns exit code when repository doesn't exist", async () => {
       const testRepoPath = await initialize('desktop-git-fetch-failure')
 
-      const addRemote = await GitProcess.exec(
+      const addRemote = await exec(
         [
           'remote',
           'add',
@@ -95,7 +95,7 @@ describe('git-process', () => {
       verify(addRemote, r => {
         assert.equal(r.exitCode, 0)
       })
-      const result = await GitProcess.exec(['fetch', 'origin'], testRepoPath)
+      const result = await exec(['fetch', 'origin'], testRepoPath)
       verify(result, r => {
         assert.equal(r.exitCode, 128)
       })
@@ -112,13 +112,10 @@ describe('git-process', () => {
 
       Fs.writeFileSync(readme, '# README', { encoding: 'utf8' })
 
-      await GitProcess.exec(['add', '.'], testRepoPath)
-      await GitProcess.exec(['commit', '-m', '"added README"'], testRepoPath)
+      await exec(['add', '.'], testRepoPath)
+      await exec(['commit', '-m', '"added README"'], testRepoPath)
 
-      await GitProcess.exec(
-        ['checkout', '-b', 'some-other-branch'],
-        testRepoPath
-      )
+      await exec(['checkout', '-b', 'some-other-branch'], testRepoPath)
 
       const postCheckoutScript = `#!/bin/sh
 echo 'post-check out hook ran'`
@@ -134,7 +131,7 @@ echo 'post-check out hook ran'`
         mode: '755',
       })
 
-      const result = await GitProcess.exec(['checkout', 'main'], testRepoPath)
+      const result = await exec(['checkout', 'main'], testRepoPath)
       verify(result, r => {
         assert.equal(r.exitCode, 0)
         assert.ok(

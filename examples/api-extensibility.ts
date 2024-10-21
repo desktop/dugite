@@ -1,4 +1,4 @@
-import { GitProcess, IGitStringExecutionOptions } from '../lib/git-process'
+import { exec as git, IGitStringExecutionOptions } from '../lib'
 
 const byline = require('byline')
 const ProgressBar = require('progress')
@@ -76,7 +76,7 @@ async function performClone(): Promise<void> {
     },
   }
 
-  const result = await GitProcess.exec(
+  const result = await git(
     ['clone', 'https://github.com/dugite/dugite', '--progress'],
     path,
     options
