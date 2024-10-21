@@ -117,14 +117,6 @@ export interface IGitBufferExecutionOptions extends IGitExecutionOptions {
   readonly encoding: 'buffer'
 }
 
-/**
- * The errors coming from `execFile` have a `code` and we wanna get at that
- * without resorting to `any` casts.
- */
-interface ErrorWithCode extends Error {
-  code: string | number | undefined
-}
-
 export class GitProcess {
   /**
    * Execute a command and interact with the process outputs directly.
@@ -297,8 +289,9 @@ function ignoreClosedInputStream({ stdin }: ChildProcess) {
     return
   }
 
-  stdin.on('error', (err: unknown) => {
-    const code = (err as ErrorWithCode).code
+  stdin.on('error', err => {
+    const code =
+      'code' in err && typeof err.code === 'string' ? err.code : undefined
 
     // Is the error one that we'd expect from the input stream being
     // closed, i.e. EPIPE on macOS and EOF on Windows. We've also
