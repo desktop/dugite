@@ -151,15 +151,13 @@ describe('git-process', () => {
       it('throws error when exceeding the output range', async () => {
         const testRepoPath = temp.mkdirSync('blank-then-large-file')
 
-        // NOTE: if we change the default buffer size in git-process
-        // this test may no longer fail as expected - see https://git.io/v1dq3
-        const output = crypto.randomBytes(10 * 1024 * 1024).toString('hex')
+        const output = crypto.randomBytes(1024).toString('hex')
         const file = path.join(testRepoPath, 'new-file.md')
         fs.writeFileSync(file, output)
 
         // TODO: convert this to assert the error was thrown
 
-        let throws = false
+        let error: unknown = null
         try {
           await exec(
             [
@@ -171,12 +169,18 @@ describe('git-process', () => {
               '/dev/null',
               'new-file.md',
             ],
-            testRepoPath
+            testRepoPath,
+            {
+              maxBuffer: 1,
+            }
           )
-        } catch {
-          throws = true
+        } catch (e) {
+          error = e
         }
-        assert.equal(throws, true)
+
+        assert.ok(error instanceof ExecError)
+        assert.ok(error.cause instanceof RangeError)
+        assert.equal(error.code, 'ERR_CHILD_PROCESS_STDIO_MAXBUFFER')
       })
     })
 
