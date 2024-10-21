@@ -2,13 +2,8 @@ import * as path from 'path'
 import * as fs from 'fs'
 import * as crypto from 'crypto'
 
-import {
-  GitProcess,
-  GitError,
-  RepositoryDoesNotExistErrorCode,
-  GitTaskCancelResult,
-} from '../../lib'
-import { GitErrorRegexes } from '../../lib/errors'
+import { GitProcess, GitError } from '../../lib'
+import { ExecError, GitErrorRegexes } from '../../lib/errors'
 import {
   initialize,
   verify,
@@ -36,25 +31,28 @@ describe('git-process', () => {
       sourceRepoPath
     )
 
-    const task = GitProcess.execTask(
+    const ac = new AbortController()
+    const task = GitProcess.exec(
       ['clone', '--', pathToFileURL(sourceRepoPath).toString(), '.'],
-      destinationRepoPath
+      destinationRepoPath,
+      { signal: ac.signal }
     )
 
-    const cancelResult = await task.cancel()
-    try {
-      await task.result
-    } catch {}
-    assert.equal(cancelResult, GitTaskCancelResult.successfulCancel)
+    ac.abort()
+
+    const result = await task.catch(e => e)
+    assert.ok(result instanceof ExecError)
+    assert.equal(result.code, 'ABORT_ERR')
   })
 
   it('cannot cancel already finished git command', async () => {
     const testRepoPath = temp.mkdirSync('desktop-git-do-nothing')
-    const task = GitProcess.execTask(['--version'], testRepoPath)
-    await task.result
-
-    const cancelResult = await task.cancel()
-    assert.equal(cancelResult, GitTaskCancelResult.processAlreadyEnded)
+    const ac = new AbortController()
+    const { stdout } = await GitProcess.exec(['--version'], testRepoPath, {
+      signal: ac.signal,
+    })
+    ac.abort()
+    assert.ok(stdout.includes('git version'))
   })
 
   it('can launch git', async () => {
@@ -295,8 +293,8 @@ describe('git-process', () => {
         error = e as Error
       }
 
-      assert.equal(error!.message, 'Unable to find path to repository on disk.')
-      assert.equal((error as any).code, RepositoryDoesNotExistErrorCode)
+      assert.ok(error?.message.includes('Git failed to execute.'))
+      assert.equal((error as any).code, 'ENOENT')
     })
 
     it('can parse HTTPS auth errors', () => {
