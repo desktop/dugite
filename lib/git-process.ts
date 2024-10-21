@@ -168,7 +168,7 @@ export class GitProcess {
     const opts = {
       cwd: path,
       env,
-      encoding: options?.encoding,
+      encoding: options?.encoding ?? 'utf8',
       maxBuffer: options ? options.maxBuffer : 10 * 1024 * 1024,
       signal: options?.signal,
       killSignal: options?.killSignal,
