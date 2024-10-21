@@ -1,7 +1,10 @@
+import assert from 'assert'
 import { GitProcess } from '../../lib'
 import { setupEnvironment } from '../../lib/git-environment'
+import { track } from 'temp'
+import { describe, it } from 'node:test'
 
-const temp = require('temp').track()
+const temp = track()
 
 describe('environment variables', () => {
   it('can set them', async () => {
@@ -17,21 +20,21 @@ describe('environment variables', () => {
         },
       }
     )
-    expect(result.stdout).toBe('Foo Bar <foo@bar.com> 1475703207 +0200\n')
+    assert.equal(result.stdout, 'Foo Bar <foo@bar.com> 1475703207 +0200\n')
   })
 
   it('when GIT_EXEC_PATH environment variable is *not* set, it will be calculated', async () => {
-    expect(process.env.GIT_EXEC_PATH).toBeUndefined()
-    const { env } = await setupEnvironment({})
-    expect((<any>env)['GIT_EXEC_PATH']).not.toBeUndefined()
+    assert.equal(process.env.GIT_EXEC_PATH, undefined)
+    const { env } = setupEnvironment({})
+    assert.ok(env['GIT_EXEC_PATH'])
   })
 
   it('when GIT_EXEC_PATH environment variable is set, that will be used as is', async () => {
-    expect(process.env.GIT_EXEC_PATH).toBeUndefined()
+    assert.equal(process.env.GIT_EXEC_PATH, undefined)
     try {
       process.env.GIT_EXEC_PATH = __filename
-      const { env } = await setupEnvironment({})
-      expect((<any>env)['GIT_EXEC_PATH']).toBe(__filename)
+      const { env } = setupEnvironment({})
+      assert.equal(env['GIT_EXEC_PATH'], __filename)
     } finally {
       delete process.env.GIT_EXEC_PATH
     }
@@ -43,8 +46,8 @@ describe('environment variables', () => {
         { PATH: 'custom-path' },
         { path: 'env-path' }
       )
-      expect(env.PATH).toBeUndefined()
-      expect(env.path).toContain('custom-path')
+      assert.equal(env.PATH, undefined)
+      assert.ok(env.path?.includes('custom-path'))
     })
   } else {
     it('treats environment variables as case-sensitive', () => {
@@ -52,8 +55,8 @@ describe('environment variables', () => {
         { PATH: 'WOW_SUCH_CASE_SENSITIVITY' },
         { path: 'wow-such-case-sensitivity' }
       )
-      expect(env.PATH).toBe('WOW_SUCH_CASE_SENSITIVITY')
-      expect(env.path).toBe('wow-such-case-sensitivity')
+      assert.equal(env.PATH, 'WOW_SUCH_CASE_SENSITIVITY')
+      assert.equal(env.path, 'wow-such-case-sensitivity')
     })
   }
 })

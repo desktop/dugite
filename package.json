@@ -9,18 +9,15 @@
     "build": "yarn clean && tsc -p ./tsconfig.json && tsc -p ./examples/tsconfig.json",
     "prepack": "yarn build && yarn test",
     "postpublish": "git push --follow-tags",
-    "test": "yarn test:fast && yarn test:slow && yarn test:external",
-    "test:fast": "cross-env LOCAL_GIT_DIRECTORY=./git/ jest --runInBand --silent --config ./jest.fast.config.js",
-    "test:slow": "cross-env LOCAL_GIT_DIRECTORY=./git/ jest --runInBand --silent --config ./jest.slow.config.js",
-    "test:external": "jest --runInBand --silent --config ./jest.external.config.js",
+    "test": "node script/test.mjs",
     "download-git": "node ./script/download-git.js",
     "postinstall": "node ./script/download-git.js",
-    "prettify": "prettier \"{examples,lib,script,test}/**/*.ts\" --write",
-    "is-it-pretty": "prettier --check \"{examples,lib,script,test}/**/*.ts\"",
+    "prettify": "prettier \"{examples,lib,script,test}/**/*.{ts,js,mjs}\" --write",
+    "is-it-pretty": "prettier \"{examples,lib,script,test}/**/*.{ts,js,mjs}\" --check",
     "update-embedded-git": "node ./script/update-embedded-git.js"
   },
   "engines": {
-    "node": ">= 18"
+    "node": ">= 20"
   },
   "repository": {
     "type": "git",
@@ -34,21 +31,20 @@
   "homepage": "https://github.com/desktop/dugite#readme",
   "dependencies": {
     "progress": "^2.0.3",
-    "tar": "^6.1.11"
+    "tar": "^7.1.0"
   },
   "devDependencies": {
-    "@types/jest": "^28.1.7",
     "@types/node": "18",
     "@types/progress": "^2.0.1",
     "@types/rimraf": "2.0.2",
     "@types/tar": "^6.1.2",
-    "cross-env": "^5.2.0",
+    "@types/temp": "^0.9.4",
     "find-git-exec": "^0.0.4",
-    "jest": "^28.1.3",
+    "node-test-github-reporter": "^1.2.0",
     "prettier": "^3.3.1",
-    "rimraf": "^2.5.4",
-    "temp": "^0.9.0",
-    "ts-jest": "^28.0.8",
+    "rimraf": "^5.0.7",
+    "temp": "^0.9.4",
+    "tsx": "^4.10.5",
     "typescript": "^5.4.5"
   }
 }

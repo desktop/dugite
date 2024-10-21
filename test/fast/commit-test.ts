@@ -1,10 +1,14 @@
+import assert from 'assert'
 import { GitProcess } from '../../lib'
 import { verify } from '../helpers'
 
 import * as Fs from 'fs'
 import * as Path from 'path'
 
-const temp = require('temp').track()
+import { track } from 'temp'
+import { describe, it } from 'node:test'
+
+const temp = track()
 
 describe('commit', () => {
   it('can commit changes', async () => {
@@ -32,9 +36,9 @@ describe('commit', () => {
       stdin: message,
     })
 
-    verify(result, r => {
-      expect(r.exitCode).toBe(0)
-      expect(r.stdout).toContain(message)
+    verify(result, ({ exitCode, stdout }) => {
+      assert.equal(exitCode, 0)
+      assert.ok(stdout.includes(message), 'commit message not found in output')
     })
   })
 })
