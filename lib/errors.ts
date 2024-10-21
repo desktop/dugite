@@ -169,15 +169,6 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
     GitError.PathExistsButNotInRef,
 }
 
-/**
- * The error code for when git cannot be found. This most likely indicates a
- * problem with dugite itself.
- */
-export const GitNotFoundErrorCode = 'git-not-found-error'
-
-/** The error code for when the path to a repository doesn't exist. */
-export const RepositoryDoesNotExistErrorCode = 'repository-does-not-exist-error'
-
 export class ExecError extends Error {
   constructor(
     public readonly message: string,

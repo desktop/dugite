@@ -2,11 +2,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import * as crypto from 'crypto'
 
-import {
-  GitProcess,
-  GitError,
-  RepositoryDoesNotExistErrorCode,
-} from '../../lib'
+import { GitProcess, GitError } from '../../lib'
 import { ExecError, GitErrorRegexes } from '../../lib/errors'
 import {
   initialize,
@@ -289,8 +285,8 @@ describe('git-process', () => {
         error = e as Error
       }
 
-      expect(error!.message).toBe('Unable to find path to repository on disk.')
-      expect((error as any).code).toBe(RepositoryDoesNotExistErrorCode)
+      expect(error!.message).toContain('Git failed to execute.')
+      expect((error as any).code).toBe('ENOENT')
     })
 
     it('can parse HTTPS auth errors', () => {

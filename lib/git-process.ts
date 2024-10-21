@@ -1,12 +1,5 @@
-import * as fs from 'fs'
 import { execFile, ExecFileOptions, spawn } from 'child_process'
-import {
-  GitError,
-  GitErrorRegexes,
-  RepositoryDoesNotExistErrorCode,
-  GitNotFoundErrorCode,
-  ExecError,
-} from './errors'
+import { GitError, GitErrorRegexes, ExecError } from './errors'
 import { ChildProcess } from 'child_process'
 
 import { setupEnvironment } from './git-environment'
@@ -133,15 +126,6 @@ interface ErrorWithCode extends Error {
 }
 
 export class GitProcess {
-  private static pathExists(path: string): Boolean {
-    try {
-      fs.accessSync(path, (fs as any).F_OK)
-      return true
-    } catch {
-      return false
-    }
-  }
-
   /**
    * Execute a command and interact with the process outputs directly.
    *
@@ -235,19 +219,18 @@ export class GitProcess {
           // If the error's code is a string then it means the code isn't the
           // process's exit code but rather an error coming from Node's bowels,
           // e.g., ENOENT.
-          let { message, code } = err
+          let { message } = err
 
           if (err.code === 'ENOENT') {
-            if (GitProcess.pathExists(path) === false) {
-              message = 'Unable to find path to repository on disk.'
-              code = RepositoryDoesNotExistErrorCode
-            } else {
-              message = `Git could not be found at the expected path: '${gitLocation}'. This might be a problem with how the application is packaged, so confirm this folder hasn't been removed when packaging.`
-              code = GitNotFoundErrorCode
-            }
+            message =
+              `ENOENT: Git failed to execute. This typically means that ` +
+              `the path provided doesn't exist or that the Git executable ` +
+              `could not be found which could indicate a problem with the ` +
+              `packaging of dugite. Verify that resolveGitBinary returns a ` +
+              `valid path to the git binary.`
           }
 
-          reject(new ExecError(message, code, stdout, stderr, err))
+          reject(new ExecError(message, err.code, stdout, stderr, err))
         }
       )
 
