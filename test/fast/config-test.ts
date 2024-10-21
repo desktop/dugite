@@ -42,7 +42,7 @@ describe('config', () => {
       const originPath = origin.substring('file:'.length)
 
       expect(resolve(originPath)).toBe(
-        join(resolveGitDir(process.env), 'etc', 'gitconfig')
+        join(resolveGitDir(), 'etc', 'gitconfig')
       )
 
       expect(value).toBe('/etc/gitconfig')
