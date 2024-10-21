@@ -138,19 +138,8 @@ export class GitProcess {
     path: string,
     options?: IGitSpawnExecutionOptions
   ): ChildProcess {
-    let customEnv = {}
-    if (options && options.env) {
-      customEnv = options.env
-    }
-
-    const { env, gitLocation } = setupEnvironment(customEnv)
-
-    const spawnArgs = {
-      env,
-      cwd: path,
-    }
-
-    const spawnedProcess = spawn(gitLocation, args, spawnArgs)
+    const { env, gitLocation } = setupEnvironment(options?.env ?? {})
+    const spawnedProcess = spawn(gitLocation, args, { env, cwd: path })
 
     ignoreClosedInputStream(spawnedProcess)
 
