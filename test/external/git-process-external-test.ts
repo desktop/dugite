@@ -1,11 +1,11 @@
 import { resolve } from 'path'
 import findGit from 'find-git-exec'
 
-import { GitProcess } from '../../lib'
 import { verify } from '../helpers'
 import { track } from 'temp'
 import { describe, it } from 'node:test'
 import assert from 'assert'
+import { exec } from '../../lib'
 
 const temp = track()
 
@@ -21,7 +21,7 @@ describe('git-process [with external Git executable]', () => {
       const env = await getExternalGitEnvironment()
 
       const testRepoPath = temp.mkdirSync('desktop-git-clone-valid-external')
-      const result = await GitProcess.exec(['--exec-path'], testRepoPath, {
+      const result = await exec(['--exec-path'], testRepoPath, {
         env,
       })
 

@@ -1,15 +1,15 @@
 import assert from 'assert'
-import { GitProcess } from '../../lib'
 import { gitLfsVersion } from '../helpers'
 import { track } from 'temp'
 import { describe, it } from 'node:test'
+import { exec } from '../../lib'
 
 const temp = track()
 
 describe('lfs', () => {
   it('can be resolved', async () => {
     const testRepoPath = temp.mkdirSync('desktop-git-lfs')
-    const result = await GitProcess.exec(['lfs'], testRepoPath)
+    const result = await exec(['lfs'], testRepoPath)
     assert.equal(result.exitCode, 0)
     assert.ok(
       result.stdout.includes(
@@ -21,7 +21,7 @@ describe('lfs', () => {
 
   it('matches the expected version', async () => {
     const testRepoPath = temp.mkdirSync('desktop-git-lfs')
-    const result = await GitProcess.exec(['lfs', 'version'], testRepoPath)
+    const result = await exec(['lfs', 'version'], testRepoPath)
     assert.equal(result.exitCode, 0)
     assert.ok(
       result.stdout.includes(`git-lfs/${gitLfsVersion} `),
