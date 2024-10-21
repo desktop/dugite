@@ -1,6 +1,15 @@
 const normalizeKey = (key: string) =>
   process.platform === 'win32' ? key.toUpperCase() : key
 
+const set = (
+  map: Map<string, [string, string | undefined]>,
+  key: string,
+  value: string | undefined
+) => {
+  const existingKey = map.get(normalizeKey(key))?.[0]
+  map.set(normalizeKey(key), [existingKey ?? key, value])
+}
+
 /**
  * On Windows this behaves as a case-insensitive, case-preserving map.
  * On other platforms this is analog to Map<string, string | undefined>
@@ -17,7 +26,7 @@ export class EnvMap implements Map<string, string | undefined> {
   ) {
     if (iterable) {
       for (const [k, v] of iterable) {
-        this.map.set(normalizeKey(k), [k, v])
+        set(this.map, k, v)
       }
     }
   }
@@ -51,8 +60,7 @@ export class EnvMap implements Map<string, string | undefined> {
   }
 
   public set(key: string, value: string | undefined) {
-    const existingKey = this.map.get(normalizeKey(key))?.[0]
-    this.map.set(normalizeKey(key), [existingKey ?? key, value])
+    set(this.map, key, value)
     return this
   }
 
