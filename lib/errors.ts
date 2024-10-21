@@ -170,13 +170,47 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
 }
 
 export class ExecError extends Error {
+  /**
+   * The error.code property is a string label that identifies the kind of error
+   *
+   * See https://nodejs.org/api/errors.html#errorcode
+   */
+  public readonly code?: string
+
+  /**
+   * The signal that terminated the process
+   */
+  public readonly signal?: string
+
+  /**
+   * Whether the child process successfully received a signal from
+   * subprocess.kill(). The killed property does not indicate that the child
+   * process has been terminated.
+   */
+  public readonly killed?: boolean
+
   constructor(
     public readonly message: string,
-    public readonly code: string | undefined | null,
     public readonly stdout: Buffer | string,
     public readonly stderr: Buffer | string,
     cause?: unknown
   ) {
     super(message, { cause })
+
+    if (cause && typeof cause === 'object') {
+      if ('code' in cause) {
+        if (typeof cause.code === 'string') {
+          this.code = cause.code
+        }
+      }
+
+      if ('signal' in cause && typeof cause.signal === 'string') {
+        this.signal = cause.signal
+      }
+
+      if ('killed' in cause && typeof cause.killed === 'boolean') {
+        this.killed = cause.killed
+      }
+    }
   }
 }

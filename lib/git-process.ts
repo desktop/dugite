@@ -202,50 +202,45 @@ export class GitProcess {
     const maxBuffer = options ? options.maxBuffer : 10 * 1024 * 1024
     const signal = options?.signal
     const killSignal = options?.killSignal
+    const opts = { cwd: path, encoding, maxBuffer, env, signal, killSignal }
 
     return new Promise<IGitResult>((resolve, reject) => {
-      const spawnedProcess = execFile(
-        gitLocation,
-        args,
-        { cwd: path, encoding, maxBuffer, env, signal, killSignal },
-        function (err, stdout, stderr) {
+      const cp = execFile(gitLocation, args, opts, (err, stdout, stderr) => {
+        if (!err || typeof err.code === 'number') {
           const exitCode = typeof err?.code === 'number' ? err.code : 0
-
-          if (!err || typeof err?.code === 'number') {
-            resolve({ stdout, stderr, exitCode })
-            return
-          }
-
-          // If the error's code is a string then it means the code isn't the
-          // process's exit code but rather an error coming from Node's bowels,
-          // e.g., ENOENT.
-          let { message } = err
-
-          if (err.code === 'ENOENT') {
-            message =
-              `ENOENT: Git failed to execute. This typically means that ` +
-              `the path provided doesn't exist or that the Git executable ` +
-              `could not be found which could indicate a problem with the ` +
-              `packaging of dugite. Verify that resolveGitBinary returns a ` +
-              `valid path to the git binary.`
-          }
-
-          reject(new ExecError(message, err.code, stdout, stderr, err))
+          resolve({ stdout, stderr, exitCode })
+          return
         }
-      )
 
-      ignoreClosedInputStream(spawnedProcess)
+        // If the error's code is a string then it means the code isn't the
+        // process's exit code but rather an error coming from Node's bowels,
+        // e.g., ENOENT.
+        let { message } = err
 
-      if (options?.stdin !== undefined && spawnedProcess.stdin) {
+        if (err.code === 'ENOENT') {
+          message =
+            `ENOENT: Git failed to execute. This typically means that ` +
+            `the path provided doesn't exist or that the Git executable ` +
+            `could not be found which could indicate a problem with the ` +
+            `packaging of dugite. Verify that resolveGitBinary returns a ` +
+            `valid path to the git binary.`
+        }
+
+        reject(new ExecError(message, stdout, stderr, err))
+      })
+
+      ignoreClosedInputStream(cp)
+
+      if (options?.stdin !== undefined && cp.stdin) {
         // See https://github.com/nodejs/node/blob/7b5ffa46fe4d2868c1662694da06eb55ec744bde/test/parallel/test-stdin-pipe-large.js
         if (options.stdinEncoding) {
-          spawnedProcess.stdin.end(options.stdin, options.stdinEncoding)
+          cp.stdin.end(options.stdin, options.stdinEncoding)
         } else {
-          spawnedProcess.stdin.end(options.stdin)
+          cp.stdin.end(options.stdin)
         }
       }
 
-      options?.processCallback?.(spawnedProcess)
+      options?.processCallback?.(cp)
     })
   }
 
