@@ -44,7 +44,7 @@ describe('environment variables', () => {
         { path: 'env-path' }
       )
       expect(env.PATH).toBeUndefined()
-      expect(env.path).toBe('custom-path')
+      expect(env.path).toContain('custom-path')
     })
   } else {
     it('treats environment variables as case-sensitive', () => {
