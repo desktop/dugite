@@ -1,4 +1,4 @@
-import { execFile, ExecFileOptions } from 'child_process'
+import { ChildProcess, execFile, ExecFileOptions } from 'child_process'
 import { setupEnvironment } from './git-environment'
 import { ExecError } from './errors'
 import { ignoreClosedInputStream } from './ignore-closed-input-stream'
