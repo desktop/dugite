@@ -39,25 +39,12 @@ describe('environment variables', () => {
 
   if (process.platform === 'win32') {
     it('preserves case of path environment', () => {
-      const originalPathKey = Object.keys(process.env).find(
-        k => k.toUpperCase() === 'PATH'
+      const { env } = setupEnvironment(
+        { PATH: 'custom-path' },
+        { path: 'env-path' }
       )
-      expect(originalPathKey).not.toBeUndefined()
-
-      const originalPathValue = process.env.PATH
-
-      try {
-        delete process.env.PATH
-        process.env.Path = 'wow-such-case-insensitivity'
-        // This test will ensure that on platforms where env vars names are
-        // case-insensitive (like Windows) we don't end up with an invalid PATH
-        // and the original one lost in the process.
-        const { env } = setupEnvironment({})
-        expect(env.Path).toContain('wow-such-case-insensitivity')
-      } finally {
-        delete process.env.Path
-        process.env[originalPathKey!] = originalPathValue
-      }
+      expect(env.PATH).toBeUndefined()
+      expect(env.path).toBe('custom-path')
     })
   } else {
     it('treats environment variables as case-sensitive', () => {
