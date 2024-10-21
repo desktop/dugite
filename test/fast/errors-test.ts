@@ -1,8 +1,10 @@
 import { GitProcess, GitError } from '../../lib'
-import { initialize } from '../helpers'
+import { assertHasGitError, initialize } from '../helpers'
 import { writeFileSync } from 'fs'
 import { join } from 'path'
 import { GitErrorRegexes } from '../../lib/errors'
+import assert from 'assert'
+import { describe, it } from 'node:test'
 
 describe('detects errors', () => {
   it('RemoteAlreadyExists', async () => {
@@ -18,7 +20,7 @@ describe('detects errors', () => {
       repoPath
     )
 
-    expect(result).toHaveGitError(GitError.RemoteAlreadyExists)
+    assertHasGitError(result, GitError.RemoteAlreadyExists)
   })
   it('TagAlreadyExists', async () => {
     const repoPath = await initialize('tag-already-exists-test-repo')
@@ -33,7 +35,7 @@ describe('detects errors', () => {
     // try to make the same tag again
     const result = await GitProcess.exec(['tag', 'v0.1'], repoPath)
 
-    expect(result).toHaveGitError(GitError.TagAlreadyExists)
+    assertHasGitError(result, GitError.TagAlreadyExists)
   })
   it('BranchAlreadyExists', async () => {
     const path = await initialize('branch-already-exists', 'foo')
@@ -41,7 +43,7 @@ describe('detects errors', () => {
 
     const result = await GitProcess.exec(['branch', 'foo'], path)
 
-    expect(result).toHaveGitError(GitError.BranchAlreadyExists)
+    assertHasGitError(result, GitError.BranchAlreadyExists)
   })
   it('UnsafeDirectory', async () => {
     const repoName = 'branch-already-exists'
@@ -53,17 +55,17 @@ describe('detects errors', () => {
       },
     })
 
-    expect(result).toHaveGitError(GitError.UnsafeDirectory)
+    assertHasGitError(result, GitError.UnsafeDirectory)
 
     const errorEntry = Object.entries(GitErrorRegexes).find(
       ([_, v]) => v === GitError.UnsafeDirectory
     )
 
-    expect(errorEntry).not.toBe(null)
+    assert.notEqual(errorEntry, null)
     const m = result.stderr.match(errorEntry![0])
 
     // toContain because of realpath and we don't care about /private/ on macOS
-    expect(m![1]).toContain(repoName)
+    assert.ok(m![1].includes(repoName), 'repo name not found in error message')
   })
   describe('BadConfigValue', () => {
     it('detects bad boolean config value', async () => {
@@ -80,12 +82,12 @@ describe('detects errors', () => {
         repoPath
       )
 
-      expect(result).toHaveGitError(GitError.BadConfigValue)
+      assertHasGitError(result, GitError.BadConfigValue)
 
       const errorInfo = GitProcess.parseBadConfigValueErrorInfo(result.stderr)
-      expect(errorInfo).not.toBe(null)
-      expect(errorInfo!.value).toBe('nab')
-      expect(errorInfo!.key).toBe('core.autocrlf')
+      assert.notEqual(errorInfo, null)
+      assert.equal(errorInfo!.value, 'nab')
+      assert.equal(errorInfo!.key, 'core.autocrlf')
     })
     it('detects bad numeric config value', async () => {
       const repoPath = await initialize('bad-config-repo')
@@ -104,17 +106,17 @@ describe('detects errors', () => {
         repoPath
       )
 
-      expect(result).toHaveGitError(GitError.BadConfigValue)
+      assertHasGitError(result, GitError.BadConfigValue)
 
       const errorEntry = Object.entries(GitErrorRegexes).find(
         ([_, v]) => v === GitError.BadConfigValue
       )
 
-      expect(errorEntry).not.toBe(null)
+      assert.notEqual(errorEntry, null)
       const m = result.stderr.match(errorEntry![0])
 
-      expect(m![1]).toBe('nan')
-      expect(m![2]).toBe('core.repositoryformatversion')
+      assert.equal(m![1], 'nan')
+      assert.equal(m![2], 'core.repositoryformatversion')
     })
   })
 })

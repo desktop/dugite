@@ -9,12 +9,16 @@ import {
   verify,
   initializeWithRemote,
   gitForWindowsVersion,
+  assertHasGitError,
 } from '../helpers'
 
 import { gitVersion } from '../helpers'
 import { pathToFileURL } from 'url'
+import { track } from 'temp'
+import assert from 'assert'
+import { describe, it } from 'node:test'
 
-const temp = require('temp').track()
+const temp = track()
 
 describe('git-process', () => {
   it('can cancel in-progress git command', async () => {
@@ -37,8 +41,8 @@ describe('git-process', () => {
     ac.abort()
 
     const result = await task.catch(e => e)
-    expect(result).toBeInstanceOf(ExecError)
-    expect(result.code).toBe('ABORT_ERR')
+    assert.ok(result instanceof ExecError)
+    assert.equal(result.code, 'ABORT_ERR')
   })
 
   it('cannot cancel already finished git command', async () => {
@@ -48,18 +52,22 @@ describe('git-process', () => {
       signal: ac.signal,
     })
     ac.abort()
-    expect(stdout).toContain('git version')
+    assert.ok(stdout.includes('git version'))
   })
 
   it('can launch git', async () => {
     const result = await GitProcess.exec(['--version'], __dirname)
-    expect(result.stderr).toBe('')
-    if (result.stdout.includes('windows')) {
-      expect(result.stdout).toContain(`git version ${gitForWindowsVersion}`)
-    } else {
-      expect(result.stdout).toContain(`git version ${gitVersion}`)
-    }
-    expect(result.exitCode).toBe(0)
+    assert.equal(result.stderr, '')
+    const version = result.stdout.includes('windows')
+      ? gitForWindowsVersion
+      : gitVersion
+    const expected = `git version ${version}`
+
+    assert.ok(
+      result.stdout.includes(expected),
+      `Expected git version to contain ${expected}, got: ${result}`
+    )
+    assert.equal(result.exitCode, 0)
   })
 
   describe('exitCode', () => {
@@ -67,7 +75,7 @@ describe('git-process', () => {
       const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
       const result = await GitProcess.exec(['show', 'HEAD'], testRepoPath)
       verify(result, r => {
-        expect(r.exitCode).toBe(128)
+        assert.equal(r.exitCode, 128)
       })
     })
 
@@ -82,7 +90,7 @@ describe('git-process', () => {
         stdin: '\n'.repeat(1024 * 1024),
       })
       verify(result, r => {
-        expect(r.exitCode).toBe(129)
+        assert.equal(r.exitCode, 129)
       })
     })
 
@@ -106,8 +114,8 @@ describe('git-process', () => {
         )
 
         verify(result, r => {
-          expect(r.exitCode).toBe(1)
-          expect(r.stdout.length).toBeGreaterThan(0)
+          assert.equal(r.exitCode, 1)
+          assert.ok(r.stdout.length > 0, 'expected output from diff command')
         })
       })
 
@@ -124,7 +132,7 @@ describe('git-process', () => {
             stdin: 'hello world!',
           }
         )
-        expect(commit.exitCode).toBe(0)
+        assert.equal(commit.exitCode, 0)
 
         const file = path.join(testRepoPath, 'new-file.md')
         fs.writeFileSync(file, 'this is a new file')
@@ -142,8 +150,8 @@ describe('git-process', () => {
         )
 
         verify(result, r => {
-          expect(r.exitCode).toBe(1)
-          expect(r.stdout.length).toBeGreaterThan(0)
+          assert.equal(r.exitCode, 1)
+          assert.ok(r.stdout.length > 0, 'expected output from diff command')
         })
       })
 
@@ -175,12 +183,12 @@ describe('git-process', () => {
         } catch {
           throws = true
         }
-        expect(throws).toBe(true)
+        assert.equal(throws, true)
       })
     })
 
     describe('show', () => {
-      it('exiting file', async () => {
+      it('existing file', async () => {
         const testRepoPath = await initialize('desktop-show-existing')
         const filePath = path.join(testRepoPath, 'file.txt')
 
@@ -194,8 +202,8 @@ describe('git-process', () => {
           testRepoPath
         )
         verify(result, r => {
-          expect(r.exitCode).toBe(0)
-          expect(r.stdout.trim()).toBe('some content')
+          assert.equal(r.exitCode, 0)
+          assert.equal(r.stdout.trim(), 'some content')
         })
       })
       it('missing from index', async () => {
@@ -206,7 +214,7 @@ describe('git-process', () => {
           testRepoPath
         )
 
-        expect(result).toHaveGitError(GitError.PathDoesNotExist)
+        assertHasGitError(result, GitError.PathDoesNotExist)
       })
       it('missing from commitish', async () => {
         const testRepoPath = await initialize('desktop-show-missing-commitish')
@@ -223,7 +231,7 @@ describe('git-process', () => {
           testRepoPath
         )
 
-        expect(result).toHaveGitError(GitError.PathDoesNotExist)
+        assertHasGitError(result, GitError.PathDoesNotExist)
       })
       it('invalid object name - empty repository', async () => {
         const testRepoPath = await initialize(
@@ -235,7 +243,7 @@ describe('git-process', () => {
           testRepoPath
         )
 
-        expect(result).toHaveGitError(GitError.InvalidObjectName)
+        assertHasGitError(result, GitError.InvalidObjectName)
       })
       it('outside repository', async () => {
         const testRepoPath = await initialize('desktop-show-outside')
@@ -252,7 +260,7 @@ describe('git-process', () => {
           testRepoPath
         )
 
-        expect(result).toHaveGitError(GitError.OutsideRepository)
+        assertHasGitError(result, GitError.OutsideRepository)
       })
     })
   })
@@ -271,8 +279,8 @@ describe('git-process', () => {
       const errorCodesWithoutRegex = difference(errorCodes, regexes)
       const regexWithoutErrorCodes = difference(regexes, errorCodes)
 
-      expect(errorCodesWithoutRegex).toHaveLength(0)
-      expect(regexWithoutErrorCodes).toHaveLength(0)
+      assert.equal(errorCodesWithoutRegex.length, 0)
+      assert.equal(regexWithoutErrorCodes.length, 0)
     })
 
     it('raises error when folder does not exist', async () => {
@@ -285,41 +293,41 @@ describe('git-process', () => {
         error = e as Error
       }
 
-      expect(error!.message).toContain('Git failed to execute.')
-      expect((error as any).code).toBe('ENOENT')
+      assert.ok(error?.message.includes('Git failed to execute.'))
+      assert.equal((error as any).code, 'ENOENT')
     })
 
     it('can parse HTTPS auth errors', () => {
       const error = GitProcess.parseError(
         "fatal: Authentication failed for 'https://www.github.com/shiftkey/desktop.git/'"
       )
-      expect(error).toBe(GitError.HTTPSAuthenticationFailed)
+      assert.equal(error, GitError.HTTPSAuthenticationFailed)
     })
 
     it('can parse HTTP auth errors', () => {
       const error = GitProcess.parseError(
         "fatal: Authentication failed for 'http://localhost:3000'"
       )
-      expect(error).toBe(GitError.HTTPSAuthenticationFailed)
+      assert.equal(error, GitError.HTTPSAuthenticationFailed)
     })
 
     it('can parse SSH auth errors', () => {
       const error = GitProcess.parseError('fatal: Authentication failed')
-      expect(error).toBe(GitError.SSHAuthenticationFailed)
+      assert.equal(error, GitError.SSHAuthenticationFailed)
     })
 
     it('can parse bad revision errors', () => {
       const error = GitProcess.parseError(
         "fatal: bad revision 'beta..origin/beta'"
       )
-      expect(error).toBe(GitError.BadRevision)
+      assert.equal(error, GitError.BadRevision)
     })
 
     it('can parse unrelated histories error', () => {
       const stderr = `fatal: refusing to merge unrelated histories`
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.CannotMergeUnrelatedHistories)
+      assert.equal(error, GitError.CannotMergeUnrelatedHistories)
     })
 
     it('can parse GH001 push file size error', () => {
@@ -332,7 +340,7 @@ To https://github.com/shiftkey/too-large-repository.git
 error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.PushWithFileSizeExceedingLimit)
+      assert.equal(error, GitError.PushWithFileSizeExceedingLimit)
     })
 
     it('can parse GH002 branch name error', () => {
@@ -343,7 +351,7 @@ To https://github.com/shiftkey/too-large-repository.git
 error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.HexBranchNameRejected)
+      assert.equal(error, GitError.HexBranchNameRejected)
     })
 
     it('can parse GH003 force push error', () => {
@@ -353,7 +361,7 @@ To https://github.com/shiftkey/too-large-repository.git
 error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.ForcePushRejected)
+      assert.equal(error, GitError.ForcePushRejected)
     })
 
     it('can parse GH005 ref length error', () => {
@@ -363,7 +371,7 @@ To https://github.com/shiftkey/too-large-repository.git
       // there's probably some output here missing but I couldn't trigger this locally
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.InvalidRefLength)
+      assert.equal(error, GitError.InvalidRefLength)
     })
 
     it('can parse GH006 protected branch push error', () => {
@@ -373,7 +381,7 @@ To https://github.com/shiftkey-tester/protected-branches.git
  ! [remote rejected] master -> master (protected branch hook declined)
 error: failed to push some refs to 'https://github.com/shiftkey-tester/protected-branches.git'`
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.ProtectedBranchRequiresReview)
+      assert.equal(error, GitError.ProtectedBranchRequiresReview)
     })
 
     it('can parse GH006 protected branch force push error', () => {
@@ -384,7 +392,7 @@ To https://github.com/shiftkey/too-large-repository.git
 error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.ProtectedBranchForcePush)
+      assert.equal(error, GitError.ProtectedBranchForcePush)
     })
 
     it('can parse GH006 protected branch delete error', () => {
@@ -395,7 +403,7 @@ To https://github.com/tierninho-tester/trterdgdfgdf.git
 error: failed to push some refs to 'https://github.com/tierninho-tester/trterdgdfgdf.git'`
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.ProtectedBranchDeleteRejected)
+      assert.equal(error, GitError.ProtectedBranchDeleteRejected)
     })
 
     it('can parse GH006 required status check error', () => {
@@ -406,7 +414,7 @@ To https://github.com/Raul6469/EclipseMaven.git
 error: failed to push some refs to 'https://github.com/Raul6469/EclipseMaven.git`
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.ProtectedBranchRequiredStatus)
+      assert.equal(error, GitError.ProtectedBranchRequiredStatus)
     })
 
     it('can parse GH007 push with private email error', () => {
@@ -415,14 +423,14 @@ remote: You can make your email public or disable this protection by visiting:
 remote: http://github.com/settings/emails`
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.PushWithPrivateEmail)
+      assert.equal(error, GitError.PushWithPrivateEmail)
     })
 
     it('can parse LFS attribute does not match error', () => {
       const stderr = `The filter.lfs.clean attribute should be "git-lfs clean -- %f" but is "git lfs clean %f"`
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.LFSAttributeDoesNotMatch)
+      assert.equal(error, GitError.LFSAttributeDoesNotMatch)
     })
 
     it('can parse rename Branch error', () => {
@@ -430,7 +438,7 @@ remote: http://github.com/settings/emails`
       fatal: Branch rename failed`
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.BranchRenameFailed)
+      assert.equal(error, GitError.BranchRenameFailed)
     })
 
     it('can parse path does not exist error - neither on disk nor in the index', () => {
@@ -438,21 +446,21 @@ remote: http://github.com/settings/emails`
         "fatal: path 'missing.txt' does not exist (neither on disk nor in the index).\n"
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.PathDoesNotExist)
+      assert.equal(error, GitError.PathDoesNotExist)
     })
 
     it('can parse path does not exist error - in commitish', () => {
       const stderr = "fatal: path 'missing.txt' does not exist in 'HEAD'\n"
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.PathDoesNotExist)
+      assert.equal(error, GitError.PathDoesNotExist)
     })
 
     it('can parse invalid object name error', () => {
       const stderr = "fatal: invalid object name 'HEAD'.\n"
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.InvalidObjectName)
+      assert.equal(error, GitError.InvalidObjectName)
     })
 
     it('can parse is outside repository error', () => {
@@ -460,7 +468,7 @@ remote: http://github.com/settings/emails`
         "fatal: /missing.txt: '/missing.txt' is outside repository\n"
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.OutsideRepository)
+      assert.equal(error, GitError.OutsideRepository)
     })
 
     it('can parse lock file exists error', () => {
@@ -473,7 +481,7 @@ may have crashed in this repository earlier:
 remove the file manually to continue.`
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.LockFileAlreadyExists)
+      assert.equal(error, GitError.LockFileAlreadyExists)
     })
 
     it('can parse the previous not found repository error', () => {
@@ -481,7 +489,7 @@ remove the file manually to continue.`
         'fatal: Not a git repository (or any of the parent directories): .git'
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.NotAGitRepository)
+      assert.equal(error, GitError.NotAGitRepository)
     })
 
     it('can parse the current found repository error', () => {
@@ -489,14 +497,14 @@ remove the file manually to continue.`
         'fatal: not a git repository (or any of the parent directories): .git'
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.NotAGitRepository)
+      assert.equal(error, GitError.NotAGitRepository)
     })
 
     it('can parse the no merge to abort error', () => {
       const stderr = 'fatal: There is no merge to abort (MERGE_HEAD missing).\n'
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.NoMergeToAbort)
+      assert.equal(error, GitError.NoMergeToAbort)
     })
 
     it('can parse the pulling non-existent remote branch error', () => {
@@ -504,7 +512,7 @@ remove the file manually to continue.`
         "Your configuration specifies to merge with the ref 'refs/heads/tierninho-patch-1'\nfrom the remote, but no such ref was fetched.\n"
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.NoExistingRemoteBranch)
+      assert.equal(error, GitError.NoExistingRemoteBranch)
     })
 
     it('can parse the local files overwritten error', () => {
@@ -512,13 +520,13 @@ remove the file manually to continue.`
         'error: Your local changes to the following files would be overwritten by checkout:\n'
 
       let error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.LocalChangesOverwritten)
+      assert.equal(error, GitError.LocalChangesOverwritten)
 
       stderr =
         'error: The following untracked working tree files would be overwritten by checkout:\n'
 
       error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.LocalChangesOverwritten)
+      assert.equal(error, GitError.LocalChangesOverwritten)
     })
 
     it('can parse the unresovled conflicts error', () => {
@@ -527,7 +535,7 @@ You must edit all merge conflicts and then
 mark them as resolved using git add`
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.UnresolvedConflicts)
+      assert.equal(error, GitError.UnresolvedConflicts)
     })
 
     it('can parse the failed to sign data error within a rebase', () => {
@@ -536,14 +544,14 @@ mark them as resolved using git add`
       error: gpg failed to sign the data`
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.GPGFailedToSignData)
+      assert.equal(error, GitError.GPGFailedToSignData)
     })
 
     it('can parse the could not resolve host error', () => {
       const stderr = `"Cloning into '/cloneablepath/'...\nfatal: unable to access 'https://github.com/Daniel-McCarthy/dugite.git/': Could not resolve host: github.com\n"`
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.HostDown)
+      assert.equal(error, GitError.HostDown)
     })
 
     it('can parse an error when merging with local changes', async () => {
@@ -575,7 +583,7 @@ mark them as resolved using git add`
         repoPath
       )
 
-      expect(result).toHaveGitError(GitError.MergeWithLocalChanges)
+      assertHasGitError(result, GitError.MergeWithLocalChanges)
     })
 
     it('can parse an error when renasing with local changes', async () => {
@@ -607,7 +615,7 @@ mark them as resolved using git add`
         repoPath
       )
 
-      expect(result).toHaveGitError(GitError.RebaseWithLocalChanges)
+      assertHasGitError(result, GitError.RebaseWithLocalChanges)
     })
 
     it('can parse an error when pulling with merge with local changes', async () => {
@@ -652,7 +660,7 @@ mark them as resolved using git add`
         forkRepoPath
       )
 
-      expect(result).toHaveGitError(GitError.MergeWithLocalChanges)
+      assertHasGitError(result, GitError.MergeWithLocalChanges)
     })
 
     it('can parse an error when pulling with rebase with local changes', async () => {
@@ -697,7 +705,7 @@ mark them as resolved using git add`
         forkRepoPath
       )
 
-      expect(result).toHaveGitError(GitError.RebaseWithLocalChanges)
+      assertHasGitError(result, GitError.RebaseWithLocalChanges)
     })
 
     it('can parse an error when there is a conflict while merging', async () => {
@@ -734,7 +742,7 @@ mark them as resolved using git add`
       // Try to merge the branch.
       const result = await GitProcess.exec(['merge', 'my-branch'], repoPath)
 
-      expect(result).toHaveGitError(GitError.MergeConflicts)
+      assertHasGitError(result, GitError.MergeConflicts)
     })
 
     it('can parse an error when there is a conflict while rebasing', async () => {
@@ -771,7 +779,7 @@ mark them as resolved using git add`
       // Try to merge the branch.
       const result = await GitProcess.exec(['rebase', 'my-branch'], repoPath)
 
-      expect(result).toHaveGitError(GitError.RebaseConflicts)
+      assertHasGitError(result, GitError.RebaseConflicts)
     })
 
     it('can parse conflict modify delete error', () => {
@@ -779,14 +787,14 @@ mark them as resolved using git add`
         'CONFLICT (modify/delete): a/path/to/a/file.md deleted in HEAD and modified in 1234567 (A commit message). Version 1234567 (A commit message) of a/path/to/a/file.md left in tree.'
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.ConflictModifyDeletedInBranch)
+      assert.equal(error, GitError.ConflictModifyDeletedInBranch)
     })
 
     it('can parse path exists but not in ref', () => {
       const stderr = `fatal: path 'README.md' exists on disk, but not in '4b825dc642cb6eb9a060e54bf8d69288fbee4904'`
 
       const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.PathExistsButNotInRef)
+      assert.equal(error, GitError.PathExistsButNotInRef)
     })
   })
 })

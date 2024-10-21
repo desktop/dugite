@@ -1,6 +1,9 @@
+import assert from 'assert'
 import { GitProcess } from '../../lib'
+import { track } from 'temp'
+import { describe, it } from 'node:test'
 
-const temp = require('temp').track()
+const temp = track()
 
 describe('stdin', () => {
   it('can write large buffers', async () => {
@@ -22,7 +25,7 @@ describe('stdin', () => {
     )
 
     // Ensure that 10Mb of zeroes hashes correctly
-    expect(result.stdout).toBe('6c5d4031e03408e34ae476c5053ee497a91ac37b\n')
+    assert.equal(result.stdout, '6c5d4031e03408e34ae476c5053ee497a91ac37b\n')
   })
 
   it('can write strings', async () => {
@@ -37,7 +40,7 @@ describe('stdin', () => {
       }
     )
 
-    expect(result.stdout).toBe('96c906756d7b91c45322617c9295e4a80d52d1c5\n')
+    assert.equal(result.stdout, '96c906756d7b91c45322617c9295e4a80d52d1c5\n')
   })
 
   it('can write strings with encoding', async () => {
@@ -53,7 +56,7 @@ describe('stdin', () => {
       }
     )
 
-    expect(result1.stdout).toBe('3889b04ced1aef334c8caaa923559abba286394e\n')
+    assert.equal(result1.stdout, '3889b04ced1aef334c8caaa923559abba286394e\n')
 
     // Hash the object (without writing it to object database)
     const result2 = await GitProcess.exec(
@@ -65,7 +68,7 @@ describe('stdin', () => {
       }
     )
 
-    expect(result2.stdout).toBe('652b06b434a5750d876f9eb55c07c0f1fab93464\n')
+    assert.equal(result2.stdout, '652b06b434a5750d876f9eb55c07c0f1fab93464\n')
   })
 
   it('assumes utf-8 for stdin by default', async () => {
@@ -80,6 +83,6 @@ describe('stdin', () => {
       }
     )
 
-    expect(result.stdout).toBe('3889b04ced1aef334c8caaa923559abba286394e\n')
+    assert.equal(result.stdout, '3889b04ced1aef334c8caaa923559abba286394e\n')
   })
 })

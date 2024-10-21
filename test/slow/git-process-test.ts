@@ -6,8 +6,11 @@ import { initialize, verify } from '../helpers'
 import { pathToFileURL } from 'url'
 import { resolve } from 'path'
 import { createServer } from 'http'
+import { track } from 'temp'
+import assert from 'assert'
+import { describe, it } from 'node:test'
 
-const temp = require('temp').track()
+const temp = track()
 
 describe('git-process', () => {
   describe('clone', () => {
@@ -25,7 +28,7 @@ describe('git-process', () => {
       )
 
       verify(result, r => {
-        expect(r.exitCode).toBe(128)
+        assert.equal(r.exitCode, 128)
       })
     })
 
@@ -65,11 +68,11 @@ describe('git-process', () => {
           options
         )
         verify(result, r => {
-          expect(r.exitCode).toBe(128)
+          assert.equal(r.exitCode, 128)
         })
 
         const error = GitProcess.parseError(result.stderr)
-        expect(error).toBe(GitError.HTTPSAuthenticationFailed)
+        assert.equal(error, GitError.HTTPSAuthenticationFailed)
       } finally {
         server.close()
       }
@@ -90,11 +93,11 @@ describe('git-process', () => {
         testRepoPath
       )
       verify(addRemote, r => {
-        expect(r.exitCode).toBe(0)
+        assert.equal(r.exitCode, 0)
       })
       const result = await GitProcess.exec(['fetch', 'origin'], testRepoPath)
       verify(result, r => {
-        expect(r.exitCode).toBe(128)
+        assert.equal(r.exitCode, 128)
       })
     })
   })
@@ -133,8 +136,11 @@ echo 'post-check out hook ran'`
 
       const result = await GitProcess.exec(['checkout', 'main'], testRepoPath)
       verify(result, r => {
-        expect(r.exitCode).toBe(0)
-        expect(r.stderr).toContain('post-check out hook ran')
+        assert.equal(r.exitCode, 0)
+        assert.ok(
+          r.stderr.includes('post-check out hook ran'),
+          'Expected hook to run'
+        )
       })
     })
   })
