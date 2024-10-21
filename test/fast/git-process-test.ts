@@ -18,7 +18,6 @@ import {
 } from '../helpers'
 
 import { gitVersion } from '../helpers'
-import { setupNoAuth } from '../slow/auth'
 import { pathToFileURL } from 'url'
 import { track } from 'temp'
 import assert from 'assert'
@@ -30,9 +29,6 @@ describe('git-process', () => {
   it('can cancel in-progress git command', async () => {
     const sourceRepoPath = temp.mkdirSync('desktop-git-clone-source')
     const destinationRepoPath = temp.mkdirSync('desktop-git-clone-destination')
-    const options = {
-      env: setupNoAuth(),
-    }
 
     await GitProcess.exec(['init'], sourceRepoPath)
     await GitProcess.exec(
@@ -42,8 +38,7 @@ describe('git-process', () => {
 
     const task = GitProcess.execTask(
       ['clone', '--', pathToFileURL(sourceRepoPath).toString(), '.'],
-      destinationRepoPath,
-      options
+      destinationRepoPath
     )
 
     const cancelResult = await task.cancel()

@@ -3,7 +3,6 @@ import * as Path from 'path'
 
 import { GitProcess, GitError } from '../../lib'
 import { initialize, verify } from '../helpers'
-import { setupAskPass, setupNoAuth } from './auth'
 import { pathToFileURL } from 'url'
 import { resolve } from 'path'
 import { createServer } from 'http'
@@ -17,9 +16,6 @@ describe('git-process', () => {
   describe('clone', () => {
     it("returns exit code when repository doesn't exist", async () => {
       const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
-      const options = {
-        env: setupNoAuth(),
-      }
 
       const result = await GitProcess.exec(
         [
@@ -28,8 +24,7 @@ describe('git-process', () => {
           pathToFileURL(resolve('i-for-sure-donut-exist')).toString(),
           '.',
         ],
-        testRepoPath,
-        options
+        testRepoPath
       )
 
       verify(result, r => {
@@ -40,7 +35,11 @@ describe('git-process', () => {
     it('returns exit code and error when repository requires credentials', async () => {
       const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
       const options = {
-        env: setupAskPass('error', 'error'),
+        env: {
+          GIT_CONFIG_PARAMETERS: "'credential.helper='",
+          GIT_TERMINAL_PROMPT: '0',
+          GIT_ASKPASS: undefined,
+        },
       }
 
       const server = createServer((req, res) => {
@@ -64,13 +63,14 @@ describe('git-process', () => {
 
       try {
         const result = await GitProcess.exec(
-          ['clone', '--', `http://127.0.0.1:${port}/`, '.'],
+          ['clone', '--', `http://foo:bar@127.0.0.1:${port}/`, '.'],
           testRepoPath,
           options
         )
         verify(result, r => {
           assert.equal(r.exitCode, 128)
         })
+
         const error = GitProcess.parseError(result.stderr)
         assert.equal(error, GitError.HTTPSAuthenticationFailed)
       } finally {
@@ -95,15 +95,7 @@ describe('git-process', () => {
       verify(addRemote, r => {
         assert.equal(r.exitCode, 0)
       })
-
-      const options = {
-        env: setupNoAuth(),
-      }
-      const result = await GitProcess.exec(
-        ['fetch', 'origin'],
-        testRepoPath,
-        options
-      )
+      const result = await GitProcess.exec(['fetch', 'origin'], testRepoPath)
       verify(result, r => {
         assert.equal(r.exitCode, 128)
       })
