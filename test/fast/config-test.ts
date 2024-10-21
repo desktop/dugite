@@ -45,7 +45,7 @@ describe('config', () => {
 
       assert.equal(
         resolve(originPath),
-        join(resolveGitDir(process.env), 'etc', 'gitconfig')
+        join(resolveGitDir(), 'etc', 'gitconfig')
       )
 
       assert.equal(value, '/etc/gitconfig')
