@@ -184,25 +184,14 @@ export class GitProcess {
   ): Promise<IGitResult> {
     const { env, gitLocation } = setupEnvironment(options?.env ?? {})
 
-    // This is the saddest hack. There's a bug in the types for execFile
-    // (ExecFileOptionsWithBufferEncoding is the exact same as
-    // ExecFileOptionsWithStringEncoding) so we can't get TS to pick the
-    // execFile overload that types stdout/stderr as buffer by setting
-    // the encoding to 'buffer'. So we'll do this ugly where we pretend
-    // it'll only ever be a valid encoding or 'null' (which isn't true).
-    //
-    // This will trick TS to pick the ObjectEncodingOptions overload of
-    // ExecFile which correctly types stderr/stdout as Buffer | string.
-    //
-    // Some day someone with more patience than me will contribute an
-    // upstream fix to DefinitelyTyped and we can remove this. It's
-    // essentially https://github.com/DefinitelyTyped/DefinitelyTyped/pull/67202
-    // but for execFile.
-    const encoding = (options?.encoding ?? 'utf8') as BufferEncoding | null
-    const maxBuffer = options ? options.maxBuffer : 10 * 1024 * 1024
-    const signal = options?.signal
-    const killSignal = options?.killSignal
-    const opts = { cwd: path, encoding, maxBuffer, env, signal, killSignal }
+    const opts = {
+      cwd: path,
+      env,
+      encoding: options?.encoding,
+      maxBuffer: options ? options.maxBuffer : 10 * 1024 * 1024,
+      signal: options?.signal,
+      killSignal: options?.killSignal,
+    }
 
     return new Promise<IGitResult>((resolve, reject) => {
       const cp = execFile(gitLocation, args, opts, (err, stdout, stderr) => {
