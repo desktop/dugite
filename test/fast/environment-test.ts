@@ -38,26 +38,22 @@ describe('environment variables', () => {
   })
 
   if (process.platform === 'win32') {
-    it('resulting PATH contains the original PATH', () => {
-      const originalPathKey = Object.keys(process.env).find(
-        k => k.toUpperCase() === 'PATH'
+    it('preserves case of path environment', () => {
+      const { env } = setupEnvironment(
+        { PATH: 'custom-path' },
+        { path: 'env-path' }
       )
-      expect(originalPathKey).not.toBeUndefined()
-
-      const originalPathValue = process.env.PATH
-
-      try {
-        delete process.env.PATH
-        process.env.Path = 'wow-such-case-insensitivity'
-        // This test will ensure that on platforms where env vars names are
-        // case-insensitive (like Windows) we don't end up with an invalid PATH
-        // and the original one lost in the process.
-        const { env } = setupEnvironment({})
-        expect(env.PATH).toContain('wow-such-case-insensitivity')
-      } finally {
-        delete process.env.Path
-        process.env[originalPathKey!] = originalPathValue
-      }
+      expect(env.PATH).toBeUndefined()
+      expect(env.path).toContain('custom-path')
+    })
+  } else {
+    it('treats environment variables as case-sensitive', () => {
+      const { env } = setupEnvironment(
+        { PATH: 'WOW_SUCH_CASE_SENSITIVITY' },
+        { path: 'wow-such-case-sensitivity' }
+      )
+      expect(env.PATH).toBe('WOW_SUCH_CASE_SENSITIVITY')
+      expect(env.path).toBe('wow-such-case-sensitivity')
     })
   }
 })
