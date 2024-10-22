@@ -1,6 +1,5 @@
 import * as path from 'path'
 import * as fs from 'fs'
-import * as crypto from 'crypto'
 
 import { exec as git, GitError, parseError } from '../../lib'
 import { ExecError, GitErrorRegexes } from '../../lib/errors'
