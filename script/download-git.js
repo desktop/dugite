@@ -4,7 +4,7 @@ const { createReadStream, createWriteStream } = require('fs')
 const { rm, mkdir, access, symlink } = require('fs/promises')
 const { extract } = require('tar-stream')
 const { createGunzip } = require('zlib')
-const { resolve: resolvePath } = require('path')
+const { join } = require('path')
 const assert = require('node:assert')
 /**
  * Returns a value indicating whether or not the provided path exists (as in
@@ -50,8 +50,7 @@ const unpackFile = file =>
         if (name.includes('..')) {
           throw new Error(`invalid file name: ${name}`)
         }
-        const p = resolvePath(config.outputPath, name)
-        assert.ok(p.startsWith(config.outputPath))
+        const p = join(config.outputPath, name)
         if (type === 'file') {
           stream.pipe(createWriteStream(p, { mode })).on('finish', next)
         } else if (type === 'directory') {
