@@ -47,6 +47,9 @@ const unpackFile = file =>
       .pipe(new createGunzip())
       .pipe(extract())
       .on('entry', ({ type, name, mode, linkname }, stream, next) => {
+        if (name.includes('..')) {
+          throw new Error(`invalid file name: ${name}`)
+        }
         const p = resolvePath(config.outputPath, name)
         assert.ok(p.startsWith(config.outputPath))
         if (type === 'file') {
