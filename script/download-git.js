@@ -1,10 +1,11 @@
 const ProgressBar = require('progress')
-const tar = require('tar')
 const { createHash } = require('crypto')
 const { createReadStream, createWriteStream } = require('fs')
-
-const { rm, mkdir, access } = require('fs/promises')
-
+const { rm, mkdir, access, symlink } = require('fs/promises')
+const { extract } = require('tar-stream')
+const { createGunzip } = require('zlib')
+const { resolve: resolvePath } = require('path')
+const assert = require('node:assert')
 /**
  * Returns a value indicating whether or not the provided path exists (as in
  * whether it's visible to the current process or not).
@@ -41,9 +42,25 @@ const verifyFile = function (file, callback) {
 }
 
 const unpackFile = file =>
-  tar.x({ cwd: config.outputPath, file }).catch(e => {
-    console.log('Unable to extract archive, aborting...', e)
-    process.exit(1)
+  new Promise((resolve, reject) => {
+    createReadStream(file)
+      .pipe(new createGunzip())
+      .pipe(extract())
+      .on('entry', ({ type, name, mode, linkname }, stream, next) => {
+        const p = resolvePath(config.outputPath, name)
+        assert.ok(p.startsWith(config.outputPath))
+        if (type === 'file') {
+          stream.pipe(createWriteStream(p, { mode })).on('finish', next)
+        } else if (type === 'directory') {
+          mkdir(p).then(next)
+        } else if (type === 'symlink') {
+          symlink(linkname, p).then(next)
+        } else {
+          throw new Error(`unknown file type: ${type}`)
+        }
+      })
+      .on('error', reject)
+      .on('finish', resolve)
   })
 
 const downloadAndUnpack = async url => {
@@ -95,11 +112,6 @@ const downloadAndUnpack = async url => {
 
   await rm(config.outputPath, { recursive: true, force: true }).catch(error => {
     console.log(`Unable to clean directory at ${config.outputPath}`, error)
-    process.exit(1)
-  })
-
-  await mkdir(config.outputPath, { recursive: true }).catch(error => {
-    console.log(`Unable to create directory at ${config.outputPath}`, error)
     process.exit(1)
   })
 
