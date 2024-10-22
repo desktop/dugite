@@ -149,9 +149,8 @@ describe('git-process', () => {
       })
 
       it('throws error when exceeding the output range', async () => {
-        const result = git(['--help', '-a'], process.cwd(), {
-          maxBuffer: 1,
-        }).catch(e => Promise.resolve(e))
+        const cwd = process.cwd()
+        const result = await git(['-h'], cwd, { maxBuffer: 1 }).catch(e => e)
 
         assert.ok(result instanceof ExecError)
         assert.ok(result.cause instanceof RangeError)

@@ -4,18 +4,10 @@ import assert from 'node:assert'
 
 describe('maxBuffer', () => {
   it('truncates stdout', async () => {
-    const { stdout } = await git(['--version'], process.cwd(), {
-      maxBuffer: 3,
-    }).catch(e =>
-      e instanceof ExecError && e.code === 'ERR_CHILD_PROCESS_STDIO_MAXBUFFER'
-        ? Promise.resolve({
-            stdout: e.stdout.toString('utf8'),
-            stderr: e.stderr.toString('utf8'),
-            exitCode: 0,
-          })
-        : Promise.reject(e)
-    )
+    const e = await git(['-v'], process.cwd(), { maxBuffer: 3 }).catch(e => e)
 
-    assert.equal(stdout, 'git')
+    assert.ok(e instanceof ExecError)
+    assert.equal(e.code, 'ERR_CHILD_PROCESS_STDIO_MAXBUFFER')
+    assert.equal(e.stdout.toString(), 'git')
   })
 })
