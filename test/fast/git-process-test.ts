@@ -1,8 +1,7 @@
 import * as path from 'path'
 import * as fs from 'fs'
-import * as crypto from 'crypto'
 
-import { exec, GitError, parseError } from '../../lib'
+import { exec as git, GitError, parseError } from '../../lib'
 import { ExecError, GitErrorRegexes } from '../../lib/errors'
 import {
   initialize,
@@ -25,11 +24,11 @@ describe('git-process', () => {
     const sourceRepoPath = temp.mkdirSync('desktop-git-clone-source')
     const destinationRepoPath = temp.mkdirSync('desktop-git-clone-destination')
 
-    await exec(['init'], sourceRepoPath)
-    await exec(['commit', '--allow-empty', '-m', 'Init'], sourceRepoPath)
+    await git(['init'], sourceRepoPath)
+    await git(['commit', '--allow-empty', '-m', 'Init'], sourceRepoPath)
 
     const ac = new AbortController()
-    const task = exec(
+    const task = git(
       ['clone', '--', pathToFileURL(sourceRepoPath).toString(), '.'],
       destinationRepoPath,
       { signal: ac.signal }
@@ -45,7 +44,7 @@ describe('git-process', () => {
   it('cannot cancel already finished git command', async () => {
     const testRepoPath = temp.mkdirSync('desktop-git-do-nothing')
     const ac = new AbortController()
-    const { stdout } = await exec(['--version'], testRepoPath, {
+    const { stdout } = await git(['--version'], testRepoPath, {
       signal: ac.signal,
     })
     ac.abort()
@@ -53,7 +52,7 @@ describe('git-process', () => {
   })
 
   it('can launch git', async () => {
-    const result = await exec(['--version'], __dirname)
+    const result = await git(['--version'], __dirname)
     assert.equal(result.stderr, '')
     const version = result.stdout.includes('windows')
       ? gitForWindowsVersion
@@ -70,7 +69,7 @@ describe('git-process', () => {
   describe('exitCode', () => {
     it('returns exit code when folder is empty', async () => {
       const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
-      const result = await exec(['show', 'HEAD'], testRepoPath)
+      const result = await git(['show', 'HEAD'], testRepoPath)
       verify(result, r => {
         assert.equal(r.exitCode, 128)
       })
@@ -83,7 +82,7 @@ describe('git-process', () => {
       // and then try to write to stdin. Without the ignoreClosedInputStream
       // workaround this will crash the process (timing related) with an
       // EPIPE/EOF error thrown from process.stdin
-      const result = await exec(['--trololol'], testRepoPath, {
+      const result = await git(['--trololol'], testRepoPath, {
         stdin: '\n'.repeat(1024 * 1024),
       })
       verify(result, r => {
@@ -97,7 +96,7 @@ describe('git-process', () => {
 
         const file = path.join(testRepoPath, 'new-file.md')
         fs.writeFileSync(file, 'this is a new file')
-        const result = await exec(
+        const result = await git(
           [
             'diff',
             '--no-index',
@@ -120,16 +119,16 @@ describe('git-process', () => {
         const testRepoPath = await initialize('blank-then-commit')
         const readme = path.join(testRepoPath, 'README.md')
         fs.writeFileSync(readme, 'hello world!')
-        await exec(['add', '.'], testRepoPath)
+        await git(['add', '.'], testRepoPath)
 
-        const commit = await exec(['commit', '-F', '-'], testRepoPath, {
+        const commit = await git(['commit', '-F', '-'], testRepoPath, {
           stdin: 'hello world!',
         })
         assert.equal(commit.exitCode, 0)
 
         const file = path.join(testRepoPath, 'new-file.md')
         fs.writeFileSync(file, 'this is a new file')
-        const result = await exec(
+        const result = await git(
           [
             'diff',
             '--no-index',
@@ -149,34 +148,12 @@ describe('git-process', () => {
       })
 
       it('throws error when exceeding the output range', async () => {
-        const testRepoPath = temp.mkdirSync('blank-then-large-file')
+        const cwd = process.cwd()
+        const result = await git(['-h'], cwd, { maxBuffer: 1 }).catch(e => e)
 
-        // NOTE: if we change the default buffer size in git-process
-        // this test may no longer fail as expected - see https://git.io/v1dq3
-        const output = crypto.randomBytes(10 * 1024 * 1024).toString('hex')
-        const file = path.join(testRepoPath, 'new-file.md')
-        fs.writeFileSync(file, output)
-
-        // TODO: convert this to assert the error was thrown
-
-        let throws = false
-        try {
-          await exec(
-            [
-              'diff',
-              '--no-index',
-              '--patch-with-raw',
-              '-z',
-              '--',
-              '/dev/null',
-              'new-file.md',
-            ],
-            testRepoPath
-          )
-        } catch {
-          throws = true
-        }
-        assert.equal(throws, true)
+        assert.ok(result instanceof ExecError)
+        assert.ok(result.cause instanceof RangeError)
+        assert.equal(result.code, 'ERR_CHILD_PROCESS_STDIO_MAXBUFFER')
       })
     })
 
@@ -187,10 +164,10 @@ describe('git-process', () => {
 
         fs.writeFileSync(filePath, 'some content', { encoding: 'utf8' })
 
-        await exec(['add', '.'], testRepoPath)
-        await exec(['commit', '-m', '"added a file"'], testRepoPath)
+        await git(['add', '.'], testRepoPath)
+        await git(['commit', '-m', '"added a file"'], testRepoPath)
 
-        const result = await exec(['show', ':file.txt'], testRepoPath)
+        const result = await git(['show', ':file.txt'], testRepoPath)
         verify(result, r => {
           assert.equal(r.exitCode, 0)
           assert.equal(r.stdout.trim(), 'some content')
@@ -199,7 +176,7 @@ describe('git-process', () => {
       it('missing from index', async () => {
         const testRepoPath = await initialize('desktop-show-missing-index')
 
-        const result = await exec(['show', ':missing.txt'], testRepoPath)
+        const result = await git(['show', ':missing.txt'], testRepoPath)
 
         assertHasGitError(result, GitError.PathDoesNotExist)
       })
@@ -210,10 +187,10 @@ describe('git-process', () => {
 
         fs.writeFileSync(filePath, 'some content', { encoding: 'utf8' })
 
-        await exec(['add', '.'], testRepoPath)
-        await exec(['commit', '-m', '"added a file"'], testRepoPath)
+        await git(['add', '.'], testRepoPath)
+        await git(['commit', '-m', '"added a file"'], testRepoPath)
 
-        const result = await exec(['show', 'HEAD:missing.txt'], testRepoPath)
+        const result = await git(['show', 'HEAD:missing.txt'], testRepoPath)
 
         assertHasGitError(result, GitError.PathDoesNotExist)
       })
@@ -222,7 +199,7 @@ describe('git-process', () => {
           'desktop-show-invalid-object-empty'
         )
 
-        const result = await exec(['show', 'HEAD:missing.txt'], testRepoPath)
+        const result = await git(['show', 'HEAD:missing.txt'], testRepoPath)
 
         assertHasGitError(result, GitError.InvalidObjectName)
       })
@@ -233,10 +210,10 @@ describe('git-process', () => {
 
         fs.writeFileSync(filePath, 'some content', { encoding: 'utf8' })
 
-        await exec(['add', '.'], testRepoPath)
-        await exec(['commit', '-m', '"added a file"'], testRepoPath)
+        await git(['add', '.'], testRepoPath)
+        await git(['commit', '-m', '"added a file"'], testRepoPath)
 
-        const result = await exec(['show', '--', '/missing.txt'], testRepoPath)
+        const result = await git(['show', '--', '/missing.txt'], testRepoPath)
 
         assertHasGitError(result, GitError.OutsideRepository)
       })
@@ -266,7 +243,7 @@ describe('git-process', () => {
 
       let error: Error | null = null
       try {
-        await exec(['show', 'HEAD'], testRepoPath)
+        await git(['show', 'HEAD'], testRepoPath)
       } catch (e) {
         error = e as Error
       }
@@ -536,25 +513,25 @@ mark them as resolved using git add`
 
       // Add a commit to the default branch.
       fs.writeFileSync(readmePath, '# README', { encoding: 'utf8' })
-      await exec(['add', '.'], repoPath)
-      await exec(['commit', '-m', '"added README"'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"added README"'], repoPath)
 
       // Create another branch and add commit.
-      await exec(['checkout', '-b', 'some-other-branch'], repoPath)
+      await git(['checkout', '-b', 'some-other-branch'], repoPath)
       fs.writeFileSync(readmePath, '# README modified in branch', {
         encoding: 'utf8',
       })
-      await exec(['add', '.'], repoPath)
-      await exec(['commit', '-m', '"updated README"'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"updated README"'], repoPath)
 
       // Go back to the default branch and modify a file.
-      await exec(['checkout', '-'], repoPath)
+      await git(['checkout', '-'], repoPath)
       fs.writeFileSync(readmePath, '# README modified in master', {
         encoding: 'utf8',
       })
 
       // Execute a merge.
-      const result = await exec(['merge', 'some-other-branch'], repoPath)
+      const result = await git(['merge', 'some-other-branch'], repoPath)
 
       assertHasGitError(result, GitError.MergeWithLocalChanges)
     })
@@ -565,25 +542,25 @@ mark them as resolved using git add`
 
       // Add a commit to the default branch.
       fs.writeFileSync(readmePath, '# README', { encoding: 'utf8' })
-      await exec(['add', '.'], repoPath)
-      await exec(['commit', '-m', '"added README"'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"added README"'], repoPath)
 
       // Create another branch and add commit.
-      await exec(['checkout', '-b', 'some-other-branch'], repoPath)
+      await git(['checkout', '-b', 'some-other-branch'], repoPath)
       fs.writeFileSync(readmePath, '# README modified in branch', {
         encoding: 'utf8',
       })
-      await exec(['add', '.'], repoPath)
-      await exec(['commit', '-m', '"updated README"'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"updated README"'], repoPath)
 
       // Go back to the default branch and modify a file.
-      await exec(['checkout', '-'], repoPath)
+      await git(['checkout', '-'], repoPath)
       fs.writeFileSync(readmePath, '# README modified in master', {
         encoding: 'utf8',
       })
 
       // Execute a rebase.
-      const result = await exec(['rebase', 'some-other-branch'], repoPath)
+      const result = await git(['rebase', 'some-other-branch'], repoPath)
 
       assertHasGitError(result, GitError.RebaseWithLocalChanges)
     })
@@ -598,26 +575,26 @@ mark them as resolved using git add`
         'desktop-pullrebase-with-local-changes-fork',
         remoteRepositoryPath
       )
-      await exec(['config', 'pull.rebase', 'false'], forkRepoPath)
+      await git(['config', 'pull.rebase', 'false'], forkRepoPath)
       const readmePath = path.join(repoPath, 'Readme.md')
       const readmePathInFork = path.join(forkRepoPath, 'Readme.md')
 
       // Add a commit to the default branch.
       fs.writeFileSync(readmePath, '# README', { encoding: 'utf8' })
-      await exec(['add', '.'], repoPath)
-      await exec(['commit', '-m', '"added README"'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"added README"'], repoPath)
 
       // Push the commit and fetch it from the fork.
-      await exec(['push', 'origin', 'HEAD', '-u'], repoPath)
-      await exec(['pull', 'origin', 'HEAD'], forkRepoPath)
+      await git(['push', 'origin', 'HEAD', '-u'], repoPath)
+      await git(['pull', 'origin', 'HEAD'], forkRepoPath)
 
       // Add another commit and push it
       fs.writeFileSync(readmePath, '# README modified from upstream', {
         encoding: 'utf8',
       })
-      await exec(['add', '.'], repoPath)
-      await exec(['commit', '-m', '"updated README"'], repoPath)
-      await exec(['push', 'origin'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"updated README"'], repoPath)
+      await git(['push', 'origin'], repoPath)
 
       // Modify locally the Readme file in the fork.
       fs.writeFileSync(readmePathInFork, '# README modified from fork', {
@@ -625,7 +602,7 @@ mark them as resolved using git add`
       })
 
       // Pull from the fork
-      const result = await exec(['pull', 'origin', 'HEAD'], forkRepoPath)
+      const result = await git(['pull', 'origin', 'HEAD'], forkRepoPath)
 
       assertHasGitError(result, GitError.MergeWithLocalChanges)
     })
@@ -640,26 +617,26 @@ mark them as resolved using git add`
         'desktop-pullrebase-with-local-changes-fork',
         remoteRepositoryPath
       )
-      await exec(['config', 'pull.rebase', 'true'], forkRepoPath)
+      await git(['config', 'pull.rebase', 'true'], forkRepoPath)
       const readmePath = path.join(repoPath, 'Readme.md')
       const readmePathInFork = path.join(forkRepoPath, 'Readme.md')
 
       // Add a commit to the default branch.
       fs.writeFileSync(readmePath, '# README', { encoding: 'utf8' })
-      await exec(['add', '.'], repoPath)
-      await exec(['commit', '-m', '"added README"'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"added README"'], repoPath)
 
       // Push the commit and fetch it from the fork.
-      await exec(['push', 'origin', 'HEAD', '-u'], repoPath)
-      await exec(['pull', 'origin', 'HEAD'], forkRepoPath)
+      await git(['push', 'origin', 'HEAD', '-u'], repoPath)
+      await git(['pull', 'origin', 'HEAD'], forkRepoPath)
 
       // Add another commit and push it
       fs.writeFileSync(readmePath, '# README modified from upstream', {
         encoding: 'utf8',
       })
-      await exec(['add', '.'], repoPath)
-      await exec(['commit', '-m', '"updated README"'], repoPath)
-      await exec(['push', 'origin'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"updated README"'], repoPath)
+      await git(['push', 'origin'], repoPath)
 
       // Modify locally the Readme file in the fork.
       fs.writeFileSync(readmePathInFork, '# README modified from fork', {
@@ -667,7 +644,7 @@ mark them as resolved using git add`
       })
 
       // Pull from the fork
-      const result = await exec(['pull', 'origin', 'HEAD'], forkRepoPath)
+      const result = await git(['pull', 'origin', 'HEAD'], forkRepoPath)
 
       assertHasGitError(result, GitError.RebaseWithLocalChanges)
     })
@@ -678,30 +655,30 @@ mark them as resolved using git add`
 
       // Create a commit on the default branch.
       fs.writeFileSync(readmePath, '# README', { encoding: 'utf8' })
-      await exec(['add', '.'], repoPath)
-      await exec(['commit', '-m', '"initial commit"'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"initial commit"'], repoPath)
 
       // Create a branch and add another commit.
-      await exec(['checkout', '-b', 'my-branch'], repoPath)
+      await git(['checkout', '-b', 'my-branch'], repoPath)
       fs.writeFileSync(readmePath, '# README from my-branch', {
         encoding: 'utf8',
       })
-      await exec(['add', '.'], repoPath)
-      await exec(['commit', '-m', '"modify README in my-branch"'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"modify README in my-branch"'], repoPath)
 
       // Go back to the default branch and add a commit that conflicts.
-      await exec(['checkout', '-'], repoPath)
+      await git(['checkout', '-'], repoPath)
       fs.writeFileSync(readmePath, '# README from default', {
         encoding: 'utf8',
       })
-      await exec(['add', '.'], repoPath)
-      await exec(
+      await git(['add', '.'], repoPath)
+      await git(
         ['commit', '-m', '"modifiy README in default branch"'],
         repoPath
       )
 
       // Try to merge the branch.
-      const result = await exec(['merge', 'my-branch'], repoPath)
+      const result = await git(['merge', 'my-branch'], repoPath)
 
       assertHasGitError(result, GitError.MergeConflicts)
     })
@@ -712,30 +689,30 @@ mark them as resolved using git add`
 
       // Create a commit on the default branch.
       fs.writeFileSync(readmePath, '# README', { encoding: 'utf8' })
-      await exec(['add', '.'], repoPath)
-      await exec(['commit', '-m', '"initial commit"'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"initial commit"'], repoPath)
 
       // Create a branch and add another commit.
-      await exec(['checkout', '-b', 'my-branch'], repoPath)
+      await git(['checkout', '-b', 'my-branch'], repoPath)
       fs.writeFileSync(readmePath, '# README from my-branch', {
         encoding: 'utf8',
       })
-      await exec(['add', '.'], repoPath)
-      await exec(['commit', '-m', '"modify README in my-branch"'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"modify README in my-branch"'], repoPath)
 
       // Go back to the default branch and add a commit that conflicts.
-      await exec(['checkout', '-'], repoPath)
+      await git(['checkout', '-'], repoPath)
       fs.writeFileSync(readmePath, '# README from default', {
         encoding: 'utf8',
       })
-      await exec(['add', '.'], repoPath)
-      await exec(
+      await git(['add', '.'], repoPath)
+      await git(
         ['commit', '-m', '"modifiy README in default branch"'],
         repoPath
       )
 
       // Try to merge the branch.
-      const result = await exec(['rebase', 'my-branch'], repoPath)
+      const result = await git(['rebase', 'my-branch'], repoPath)
 
       assertHasGitError(result, GitError.RebaseConflicts)
     })

@@ -64,11 +64,13 @@ export interface IGitExecutionOptions {
   readonly encoding?: BufferEncoding | 'buffer'
 
   /**
-   * The size the output buffer to allocate to the spawned process. Set this
-   * if you are anticipating a large amount of output.
+   * Largest amount of data in bytes allowed on stdout or stderr. If exceeded,
+   * the child process is terminated and any output is truncated.
    *
-   * If not specified, this will be 10MB (10485760 bytes) which should be
-   * enough for most Git operations.
+   * See https://nodejs.org/docs/latest-v22.x/api/child_process.html#maxbuffer-and-unicode
+   *
+   * If not specified the default is Infinity, i.e. the only limit is the amount
+   * of allocatable memory on the system.
    */
   readonly maxBuffer?: number
 
@@ -134,7 +136,7 @@ export function exec(
     cwd: path,
     env,
     encoding: options?.encoding ?? 'utf8',
-    maxBuffer: options ? options.maxBuffer : 10 * 1024 * 1024,
+    maxBuffer: options?.maxBuffer ?? Infinity,
     signal: options?.signal,
     killSignal: options?.killSignal,
   }
