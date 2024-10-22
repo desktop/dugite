@@ -31,13 +31,12 @@
   "homepage": "https://github.com/desktop/dugite#readme",
   "dependencies": {
     "progress": "^2.0.3",
-    "tar": "^7.1.0"
+    "tar-stream": "^3.1.7"
   },
   "devDependencies": {
     "@types/node": "18",
     "@types/progress": "^2.0.1",
     "@types/rimraf": "2.0.2",
-    "@types/tar": "^6.1.2",
     "@types/temp": "^0.9.4",
     "find-git-exec": "^0.0.4",
     "node-test-github-reporter": "^1.2.0",
