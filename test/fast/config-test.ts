@@ -19,8 +19,10 @@ describe('config', () => {
     if (process.platform === 'win32') {
       const result = await exec(
         ['config', '--system', 'http.sslCAInfo'],
-        os.homedir()
+        os.homedir(),
+        { ignoreExitCodes: [1] }
       )
+      assert.equal(result.exitCode, 1)
       assert.equal(result.stdout.trim(), '')
     }
   })
