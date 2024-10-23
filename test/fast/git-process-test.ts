@@ -69,10 +69,10 @@ describe('git-process', () => {
   describe('exitCode', () => {
     it('returns exit code when folder is empty', async () => {
       const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
-      const result = await git(['show', 'HEAD'], testRepoPath)
-      verify(result, r => {
-        assert.equal(r.exitCode, 128)
+      const result = await git(['show', 'HEAD'], testRepoPath, {
+        ignoreExitCodes: [128],
       })
+      assert.equal(result.exitCode, 128)
     })
 
     it('handles stdin closed errors', async () => {
@@ -84,6 +84,7 @@ describe('git-process', () => {
       // EPIPE/EOF error thrown from process.stdin
       const result = await git(['--trololol'], testRepoPath, {
         stdin: '\n'.repeat(1024 * 1024),
+        ignoreExitCodes: true,
       })
       verify(result, r => {
         assert.equal(r.exitCode, 129)
@@ -106,7 +107,8 @@ describe('git-process', () => {
             '/dev/null',
             'new-file.md',
           ],
-          testRepoPath
+          testRepoPath,
+          { ignoreExitCodes: true }
         )
 
         verify(result, r => {
@@ -138,7 +140,8 @@ describe('git-process', () => {
             '/dev/null',
             'new-file.md',
           ],
-          testRepoPath
+          testRepoPath,
+          { ignoreExitCodes: true }
         )
 
         verify(result, r => {
@@ -176,7 +179,9 @@ describe('git-process', () => {
       it('missing from index', async () => {
         const testRepoPath = await initialize('desktop-show-missing-index')
 
-        const result = await git(['show', ':missing.txt'], testRepoPath)
+        const result = await git(['show', ':missing.txt'], testRepoPath, {
+          ignoreExitCodes: true,
+        })
 
         assertHasGitError(result, GitError.PathDoesNotExist)
       })
@@ -190,7 +195,9 @@ describe('git-process', () => {
         await git(['add', '.'], testRepoPath)
         await git(['commit', '-m', '"added a file"'], testRepoPath)
 
-        const result = await git(['show', 'HEAD:missing.txt'], testRepoPath)
+        const result = await git(['show', 'HEAD:missing.txt'], testRepoPath, {
+          ignoreExitCodes: true,
+        })
 
         assertHasGitError(result, GitError.PathDoesNotExist)
       })
@@ -199,7 +206,9 @@ describe('git-process', () => {
           'desktop-show-invalid-object-empty'
         )
 
-        const result = await git(['show', 'HEAD:missing.txt'], testRepoPath)
+        const result = await git(['show', 'HEAD:missing.txt'], testRepoPath, {
+          ignoreExitCodes: true,
+        })
 
         assertHasGitError(result, GitError.InvalidObjectName)
       })
@@ -213,7 +222,9 @@ describe('git-process', () => {
         await git(['add', '.'], testRepoPath)
         await git(['commit', '-m', '"added a file"'], testRepoPath)
 
-        const result = await git(['show', '--', '/missing.txt'], testRepoPath)
+        const result = await git(['show', '--', '/missing.txt'], testRepoPath, {
+          ignoreExitCodes: true,
+        })
 
         assertHasGitError(result, GitError.OutsideRepository)
       })
@@ -241,15 +252,9 @@ describe('git-process', () => {
     it('raises error when folder does not exist', async () => {
       const testRepoPath = path.join(temp.path(), 'desktop-does-not-exist')
 
-      let error: Error | null = null
-      try {
-        await git(['show', 'HEAD'], testRepoPath)
-      } catch (e) {
-        error = e as Error
-      }
+      const e = await git(['show', 'HEAD'], testRepoPath).catch(e => e)
 
-      assert.ok(error?.message.includes('Git failed to execute.'))
-      assert.equal((error as any).code, 'ENOENT')
+      assert.equal(e.code, 'ENOENT')
     })
 
     it('can parse HTTPS auth errors', () => {
@@ -531,7 +536,9 @@ mark them as resolved using git add`
       })
 
       // Execute a merge.
-      const result = await git(['merge', 'some-other-branch'], repoPath)
+      const result = await git(['merge', 'some-other-branch'], repoPath, {
+        ignoreExitCodes: true,
+      })
 
       assertHasGitError(result, GitError.MergeWithLocalChanges)
     })
@@ -560,7 +567,9 @@ mark them as resolved using git add`
       })
 
       // Execute a rebase.
-      const result = await git(['rebase', 'some-other-branch'], repoPath)
+      const result = await git(['rebase', 'some-other-branch'], repoPath, {
+        ignoreExitCodes: true,
+      })
 
       assertHasGitError(result, GitError.RebaseWithLocalChanges)
     })
@@ -602,7 +611,9 @@ mark them as resolved using git add`
       })
 
       // Pull from the fork
-      const result = await git(['pull', 'origin', 'HEAD'], forkRepoPath)
+      const result = await git(['pull', 'origin', 'HEAD'], forkRepoPath, {
+        ignoreExitCodes: true,
+      })
 
       assertHasGitError(result, GitError.MergeWithLocalChanges)
     })
@@ -644,7 +655,9 @@ mark them as resolved using git add`
       })
 
       // Pull from the fork
-      const result = await git(['pull', 'origin', 'HEAD'], forkRepoPath)
+      const result = await git(['pull', 'origin', 'HEAD'], forkRepoPath, {
+        ignoreExitCodes: true,
+      })
 
       assertHasGitError(result, GitError.RebaseWithLocalChanges)
     })
@@ -678,7 +691,9 @@ mark them as resolved using git add`
       )
 
       // Try to merge the branch.
-      const result = await git(['merge', 'my-branch'], repoPath)
+      const result = await git(['merge', 'my-branch'], repoPath, {
+        ignoreExitCodes: true,
+      })
 
       assertHasGitError(result, GitError.MergeConflicts)
     })
@@ -712,7 +727,9 @@ mark them as resolved using git add`
       )
 
       // Try to merge the branch.
-      const result = await git(['rebase', 'my-branch'], repoPath)
+      const result = await git(['rebase', 'my-branch'], repoPath, {
+        ignoreExitCodes: [1],
+      })
 
       assertHasGitError(result, GitError.RebaseConflicts)
     })
