@@ -129,6 +129,11 @@ export function exec(
   args: string[],
   path: string,
   options?: IGitExecutionOptions
+): Promise<IGitResult>
+export function exec(
+  args: string[],
+  path: string,
+  options?: IGitExecutionOptions
 ): Promise<IGitResult> {
   const { env, gitLocation } = setupEnvironment(options?.env ?? {})
 
