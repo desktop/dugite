@@ -2,7 +2,7 @@ import * as Fs from 'fs'
 import * as Path from 'path'
 
 import { exec, GitError, parseError } from '../../lib'
-import { initialize, verify } from '../helpers'
+import { initialize } from '../helpers'
 import { pathToFileURL } from 'url'
 import { resolve } from 'path'
 import { createServer } from 'http'
