@@ -172,10 +172,12 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
 export class ExecError extends Error {
   /**
    * The error.code property is a string label that identifies the kind of error
+   * or, in the case of code being a Number it's indicating the exit code of
+   * the executed process.
    *
    * See https://nodejs.org/api/errors.html#errorcode
    */
-  public readonly code?: string
+  public readonly code?: string | number
 
   /**
    * The signal that terminated the process
@@ -199,7 +201,7 @@ export class ExecError extends Error {
 
     if (cause && typeof cause === 'object') {
       if ('code' in cause) {
-        if (typeof cause.code === 'string') {
+        if (typeof cause.code === 'string' || typeof cause.code === 'number') {
           this.code = cause.code
         }
       }

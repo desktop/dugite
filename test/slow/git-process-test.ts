@@ -2,7 +2,7 @@ import * as Fs from 'fs'
 import * as Path from 'path'
 
 import { exec, GitError, parseError } from '../../lib'
-import { initialize, verify } from '../helpers'
+import { initialize } from '../helpers'
 import { pathToFileURL } from 'url'
 import { resolve } from 'path'
 import { createServer } from 'http'
@@ -24,12 +24,11 @@ describe('git-process', () => {
           pathToFileURL(resolve('i-for-sure-donut-exist')).toString(),
           '.',
         ],
-        testRepoPath
+        testRepoPath,
+        { ignoreExitCodes: [128] }
       )
 
-      verify(result, r => {
-        assert.equal(r.exitCode, 128)
-      })
+      assert.equal(result.exitCode, 128)
     })
 
     it('returns exit code and error when repository requires credentials', async () => {
@@ -40,6 +39,7 @@ describe('git-process', () => {
           GIT_TERMINAL_PROMPT: '0',
           GIT_ASKPASS: undefined,
         },
+        ignoreExitCodes: [128],
       }
 
       const server = createServer((req, res) => {
@@ -67,11 +67,10 @@ describe('git-process', () => {
           testRepoPath,
           options
         )
-        verify(result, r => {
-          assert.equal(r.exitCode, 128)
-        })
 
-        const error = parseError(result.stderr)
+        assert.equal(result.exitCode, 128)
+
+        const error = parseError(result.stderr.toString())
         assert.equal(error, GitError.HTTPSAuthenticationFailed)
       } finally {
         server.close()
@@ -83,7 +82,7 @@ describe('git-process', () => {
     it("returns exit code when repository doesn't exist", async () => {
       const testRepoPath = await initialize('desktop-git-fetch-failure')
 
-      const addRemote = await exec(
+      await exec(
         [
           'remote',
           'add',
@@ -92,13 +91,10 @@ describe('git-process', () => {
         ],
         testRepoPath
       )
-      verify(addRemote, r => {
-        assert.equal(r.exitCode, 0)
+      const result = await exec(['fetch', 'origin'], testRepoPath, {
+        ignoreExitCodes: [128],
       })
-      const result = await exec(['fetch', 'origin'], testRepoPath)
-      verify(result, r => {
-        assert.equal(r.exitCode, 128)
-      })
+      assert.equal(result.exitCode, 128)
     })
   })
 
@@ -132,13 +128,11 @@ echo 'post-check out hook ran'`
       })
 
       const result = await exec(['checkout', 'main'], testRepoPath)
-      verify(result, r => {
-        assert.equal(r.exitCode, 0)
-        assert.ok(
-          r.stderr.includes('post-check out hook ran'),
-          'Expected hook to run'
-        )
-      })
+      assert.equal(result.exitCode, 0)
+      assert.ok(
+        result.stderr.includes('post-check out hook ran'),
+        'Expected hook to run'
+      )
     })
   })
 })
