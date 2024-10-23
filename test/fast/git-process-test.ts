@@ -12,7 +12,6 @@ import {
 } from '../helpers'
 
 import { gitVersion } from '../helpers'
-import { pathToFileURL } from 'url'
 import { track } from 'temp'
 import assert from 'assert'
 import { describe, it } from 'node:test'
@@ -21,22 +20,16 @@ const temp = track()
 
 describe('git-process', () => {
   it('can cancel in-progress git command', async () => {
-    const sourceRepoPath = temp.mkdirSync('desktop-git-clone-source')
-    const destinationRepoPath = temp.mkdirSync('desktop-git-clone-destination')
-
-    await git(['init'], sourceRepoPath)
-    await git(['commit', '--allow-empty', '-m', 'Init'], sourceRepoPath)
-
+    // git-hash-object will wait until stdin is closed so we can use this as
+    // an never-ending process to test the cancellation
     const ac = new AbortController()
-    const task = git(
-      ['clone', '--', pathToFileURL(sourceRepoPath).toString(), '.'],
-      destinationRepoPath,
-      { signal: ac.signal }
-    )
+    const result = await git(['hash-object', '--stdin'], process.cwd(), {
+      signal: ac.signal,
+      processCallback(process) {
+        process.on('spawn', () => ac.abort())
+      },
+    }).catch(e => e)
 
-    ac.abort()
-
-    const result = await task.catch(e => e)
     assert.ok(result instanceof ExecError)
     assert.equal(result.code, 'ABORT_ERR')
   })
