@@ -2,6 +2,9 @@ import { ChildProcess, execFile, ExecFileOptions } from 'child_process'
 import { setupEnvironment } from './git-environment'
 import { ExecError } from './errors'
 import { ignoreClosedInputStream } from './ignore-closed-input-stream'
+import { promisify } from 'util'
+
+const execFileAsync = promisify(execFile)
 
 export interface IGitResult {
   /** The standard output from git. */
@@ -95,6 +98,8 @@ export interface IGitExecutionOptions {
    * AbortSignal being triggered. Defaults to 'SIGTERM'
    */
   readonly killSignal?: ExecFileOptions['killSignal']
+
+  readonly ignoreExitCodes?: ReadonlyArray<number> | true
 }
 
 export interface IGitStringExecutionOptions extends IGitExecutionOptions {
@@ -103,6 +108,17 @@ export interface IGitStringExecutionOptions extends IGitExecutionOptions {
 
 export interface IGitBufferExecutionOptions extends IGitExecutionOptions {
   readonly encoding: 'buffer'
+}
+
+const coerceStdio = (
+  stdio: string | Buffer,
+  encoding: BufferEncoding | 'buffer'
+) => {
+  if (encoding === 'buffer') {
+    return Buffer.isBuffer(stdio) ? stdio : Buffer.from(stdio)
+  }
+
+  return Buffer.isBuffer(stdio) ? stdio.toString(encoding) : stdio
 }
 
 /**
@@ -146,42 +162,42 @@ export function exec(
     killSignal: options?.killSignal,
   }
 
-  return new Promise<IGitResult>((resolve, reject) => {
-    const cp = execFile(gitLocation, args, opts, (err, stdout, stderr) => {
-      if (!err || typeof err.code === 'number') {
-        const exitCode = typeof err?.code === 'number' ? err.code : 0
-        resolve({ stdout, stderr, exitCode })
-        return
-      }
+  const promise = execFileAsync(gitLocation, args, opts)
 
-      // If the error's code is a string then it means the code isn't the
-      // process's exit code but rather an error coming from Node's bowels,
-      // e.g., ENOENT.
-      let { message } = err
+  ignoreClosedInputStream(promise.child)
 
-      if (err.code === 'ENOENT') {
-        message =
-          `ENOENT: Git failed to execute. This typically means that ` +
-          `the path provided doesn't exist or that the Git executable ` +
-          `could not be found which could indicate a problem with the ` +
-          `packaging of dugite. Verify that resolveGitBinary returns a ` +
-          `valid path to the git binary.`
-      }
-
-      reject(new ExecError(message, stdout, stderr, err))
-    })
-
-    ignoreClosedInputStream(cp)
-
-    if (options?.stdin !== undefined && cp.stdin) {
+  promise.child.on('spawn', () => {
+    if (options?.stdin !== undefined && promise.child.stdin) {
       // See https://github.com/nodejs/node/blob/7b5ffa46fe4d2868c1662694da06eb55ec744bde/test/parallel/test-stdin-pipe-large.js
       if (options.stdinEncoding) {
-        cp.stdin.end(options.stdin, options.stdinEncoding)
+        promise.child.stdin.end(options.stdin, options.stdinEncoding)
       } else {
-        cp.stdin.end(options.stdin)
+        promise.child.stdin.end(options.stdin)
       }
     }
-
-    options?.processCallback?.(cp)
   })
+
+  options?.processCallback?.(promise.child)
+
+  return promise
+    .then(({ stdout, stderr }) => ({ stdout, stderr, exitCode: 0 }))
+    .catch(e => {
+      if (typeof e !== 'object') {
+        const stdio = coerceStdio('', opts.encoding)
+        throw new ExecError(typeof e === 'string' ? e : `${e}`, stdio, stdio, e)
+      }
+
+      const stdout = coerceStdio('stdout' in e ? e.stdout : '', opts.encoding)
+      const stderr = coerceStdio('stderr' in e ? e.stderr : '', opts.encoding)
+
+      if ('code' in e && typeof e.code === 'number') {
+        const ignoreExitCodes = options?.ignoreExitCodes
+        if (ignoreExitCodes === true || ignoreExitCodes?.includes(e.code)) {
+          return { stdout, stderr, exitCode: e.code }
+        }
+        throw new ExecError(`Git failed with code ${e.code}`, stdout, stderr, e)
+      }
+
+      throw new ExecError(e.message, stdout, stderr, e)
+    })
 }

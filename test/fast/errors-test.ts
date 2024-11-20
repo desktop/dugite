@@ -14,7 +14,8 @@ describe('detects errors', () => {
 
     const result = await exec(
       ['remote', 'add', 'new-remote', 'https://gitlab.com'],
-      repoPath
+      repoPath,
+      { ignoreExitCodes: true }
     )
 
     assertHasGitError(result, GitError.RemoteAlreadyExists)
@@ -30,7 +31,9 @@ describe('detects errors', () => {
     await exec(['tag', 'v0.1'], repoPath)
 
     // try to make the same tag again
-    const result = await exec(['tag', 'v0.1'], repoPath)
+    const result = await exec(['tag', 'v0.1'], repoPath, {
+      ignoreExitCodes: true,
+    })
 
     assertHasGitError(result, GitError.TagAlreadyExists)
   })
@@ -38,7 +41,9 @@ describe('detects errors', () => {
     const path = await initialize('branch-already-exists', 'foo')
     await exec(['commit', '-m', 'initial', '--allow-empty'], path)
 
-    const result = await exec(['branch', 'foo'], path)
+    const result = await exec(['branch', 'foo'], path, {
+      ignoreExitCodes: true,
+    })
 
     assertHasGitError(result, GitError.BranchAlreadyExists)
   })
@@ -50,6 +55,7 @@ describe('detects errors', () => {
       env: {
         GIT_TEST_ASSUME_DIFFERENT_OWNER: '1',
       },
+      ignoreExitCodes: true,
     })
 
     assertHasGitError(result, GitError.UnsafeDirectory)
@@ -74,7 +80,9 @@ describe('detects errors', () => {
 
       await exec(['config', 'core.autocrlf', 'nab'], repoPath)
 
-      const result = await exec(['commit', '-m', 'add a text file'], repoPath)
+      const result = await exec(['commit', '-m', 'add a text file'], repoPath, {
+        ignoreExitCodes: true,
+      })
 
       assertHasGitError(result, GitError.BadConfigValue)
 
@@ -92,7 +100,9 @@ describe('detects errors', () => {
 
       await exec(['config', 'core.repositoryformatversion', 'nan'], repoPath)
 
-      const result = await exec(['commit', '-m', 'add a text file'], repoPath)
+      const result = await exec(['commit', '-m', 'add a text file'], repoPath, {
+        ignoreExitCodes: true,
+      })
 
       assertHasGitError(result, GitError.BadConfigValue)
 
