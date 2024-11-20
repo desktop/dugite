@@ -5,7 +5,7 @@
   "main": "./build/lib/index.js",
   "typings": "./build/lib/index.d.ts",
   "scripts": {
-    "clean": "rimraf build",
+    "clean": "node script/clean.js",
     "build": "yarn clean && tsc -p ./tsconfig.json && tsc -p ./examples/tsconfig.json",
     "prepack": "yarn build && yarn test",
     "postpublish": "git push --follow-tags",
@@ -36,11 +36,9 @@
   "devDependencies": {
     "@types/node": "20",
     "@types/progress": "^2.0.1",
-    "@types/rimraf": "2.0.2",
     "@types/temp": "^0.9.4",
     "node-test-github-reporter": "^1.2.0",
     "prettier": "^3.3.1",
-    "rimraf": "^5.0.7",
     "temp": "^0.9.4",
     "tsx": "^4.10.5",
     "typescript": "^5.4.5"
