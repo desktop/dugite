@@ -23,13 +23,8 @@ const testReporterArgs = process.env.GITHUB_ACTIONS
     ]
   : specTestReporterArgs
 
-spawn('node', ['--import', 'tsx', ...testReporterArgs, '--test', ...files], {
-  stdio: 'inherit',
-  env: {
-    ...process.env,
-    LOCAL_GIT_DIRECTORY: resolve(
-      dirname(fileURLToPath(import.meta.url)),
-      '../git/'
-    ),
-  },
-}).on('exit', process.exit)
+const scriptsDir = dirname(fileURLToPath(import.meta.url))
+process.env.LOCAL_GIT_DIRECTORY = resolve(scriptsDir, '../git/')
+const args = ['--import', 'tsx', ...testReporterArgs, '--test', ...files]
+
+spawn('node', args, { stdio: 'inherit' }).on('exit', process.exit)
