@@ -1,4 +1,5 @@
 import { spawn } from 'child_process'
+import { join } from 'path'
 import { readdir } from 'fs/promises'
 
 const files = await readdir('test', { recursive: true }).then(x =>
