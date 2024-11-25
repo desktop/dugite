@@ -2,20 +2,17 @@ import * as Fs from 'fs'
 import * as Path from 'path'
 
 import { exec, GitError, parseError } from '../../lib'
-import { initialize, verify } from '../helpers'
+import { createTestDir, initialize, verify } from '../helpers'
 import { pathToFileURL } from 'url'
 import { resolve } from 'path'
 import { createServer } from 'http'
-import { track } from 'temp'
 import assert from 'assert'
 import { describe, it } from 'node:test'
 
-const temp = track()
-
 describe('git-process', () => {
   describe('clone', () => {
-    it("returns exit code when repository doesn't exist", async () => {
-      const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
+    it("returns exit code when repository doesn't exist", async t => {
+      const testRepoPath = await createTestDir(t, 'desktop-git-test-blank')
 
       const result = await exec(
         [
@@ -32,8 +29,8 @@ describe('git-process', () => {
       })
     })
 
-    it('returns exit code and error when repository requires credentials', async () => {
-      const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
+    it('returns exit code and error when repository requires credentials', async t => {
+      const testRepoPath = await createTestDir(t, 'desktop-git-test-blank')
       const options = {
         env: {
           GIT_CONFIG_PARAMETERS: "'credential.helper='",
@@ -80,8 +77,8 @@ describe('git-process', () => {
   })
 
   describe('fetch', () => {
-    it("returns exit code when repository doesn't exist", async () => {
-      const testRepoPath = await initialize('desktop-git-fetch-failure')
+    it("returns exit code when repository doesn't exist", async t => {
+      const testRepoPath = await initialize(t, 'desktop-git-fetch-failure')
 
       const addRemote = await exec(
         [
@@ -103,8 +100,9 @@ describe('git-process', () => {
   })
 
   describe('checkout', () => {
-    it('runs hook without error', async () => {
+    it('runs hook without error', async t => {
       const testRepoPath = await initialize(
+        t,
         'desktop-git-checkout-hooks',
         'main'
       )

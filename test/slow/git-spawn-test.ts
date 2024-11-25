@@ -1,15 +1,11 @@
 import * as Path from 'path'
-
 import { ChildProcess } from 'child_process'
 
-import { gitForWindowsVersion, gitVersion } from '../helpers'
-import { track } from 'temp'
+import { createTestDir, gitForWindowsVersion, gitVersion } from '../helpers'
 import assert from 'assert'
 import { describe, it } from 'node:test'
 import { appendFile } from 'fs/promises'
 import { exec, spawn } from '../../lib'
-
-const temp = track()
 
 const maximumStringSize = 268435441
 
@@ -56,8 +52,8 @@ describe('spawn', () => {
     )
   })
 
-  it('returns expected exit codes', async () => {
-    const directory = temp.mkdirSync('desktop-not-a-repo')
+  it('returns expected exit codes', async t => {
+    const directory = await createTestDir(t, 'desktop-not-a-repo')
     const process = spawn(['status'], directory)
     const code = await new Promise<number | null>(resolve => {
       process.on('exit', code => {
@@ -68,8 +64,8 @@ describe('spawn', () => {
     assert.notEqual(code, 0)
   })
 
-  it('can fail safely with a diff exceeding the string length', async () => {
-    const testRepoPath = temp.mkdirSync('desktop-git-spwawn-empty')
+  it('can fail safely with a diff exceeding the string length', async t => {
+    const testRepoPath = await createTestDir(t, 'desktop-git-spwawn-empty')
 
     exec(['init'], testRepoPath)
 

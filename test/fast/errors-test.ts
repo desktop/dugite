@@ -7,8 +7,8 @@ import assert from 'assert'
 import { describe, it } from 'node:test'
 
 describe('detects errors', () => {
-  it('RemoteAlreadyExists', async () => {
-    const repoPath = await initialize('remote-already-exists-test-repo')
+  it('RemoteAlreadyExists', async t => {
+    const repoPath = await initialize(t, 'remote-already-exists-test-repo')
 
     await exec(['remote', 'add', 'new-remote', 'https://github.com'], repoPath)
 
@@ -19,8 +19,8 @@ describe('detects errors', () => {
 
     assertHasGitError(result, GitError.RemoteAlreadyExists)
   })
-  it('TagAlreadyExists', async () => {
-    const repoPath = await initialize('tag-already-exists-test-repo')
+  it('TagAlreadyExists', async t => {
+    const repoPath = await initialize(t, 'tag-already-exists-test-repo')
     const filePath = 'text.md'
 
     writeFileSync(join(repoPath, filePath), 'some text')
@@ -34,17 +34,17 @@ describe('detects errors', () => {
 
     assertHasGitError(result, GitError.TagAlreadyExists)
   })
-  it('BranchAlreadyExists', async () => {
-    const path = await initialize('branch-already-exists', 'foo')
+  it('BranchAlreadyExists', async t => {
+    const path = await initialize(t, 'branch-already-exists', 'foo')
     await exec(['commit', '-m', 'initial', '--allow-empty'], path)
 
     const result = await exec(['branch', 'foo'], path)
 
     assertHasGitError(result, GitError.BranchAlreadyExists)
   })
-  it('UnsafeDirectory', async () => {
+  it('UnsafeDirectory', async t => {
     const repoName = 'branch-already-exists'
-    const path = await initialize(repoName)
+    const path = await initialize(t, repoName)
 
     const result = await exec(['status'], path, {
       env: {
@@ -65,8 +65,8 @@ describe('detects errors', () => {
     assert.ok(m![1].includes(repoName), 'repo name not found in error message')
   })
   describe('BadConfigValue', () => {
-    it('detects bad boolean config value', async () => {
-      const repoPath = await initialize('bad-config-repo')
+    it('detects bad boolean config value', async t => {
+      const repoPath = await initialize(t, 'bad-config-repo')
 
       const filePath = 'text.md'
       writeFileSync(join(repoPath, filePath), 'some text')
@@ -83,8 +83,8 @@ describe('detects errors', () => {
       assert.equal(errorInfo!.value, 'nab')
       assert.equal(errorInfo!.key, 'core.autocrlf')
     })
-    it('detects bad numeric config value', async () => {
-      const repoPath = await initialize('bad-config-repo')
+    it('detects bad numeric config value', async t => {
+      const repoPath = await initialize(t, 'bad-config-repo')
 
       const filePath = 'text.md'
       writeFileSync(join(repoPath, filePath), 'some text')
