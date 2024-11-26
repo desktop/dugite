@@ -9,14 +9,14 @@ import {
   initializeWithRemote,
   gitForWindowsVersion,
   assertHasGitError,
+  createTestDir,
 } from '../helpers'
 
 import { gitVersion } from '../helpers'
-import { track } from 'temp'
 import assert from 'assert'
 import { describe, it } from 'node:test'
-
-const temp = track()
+import { tmpdir } from 'os'
+import { randomBytes } from 'crypto'
 
 describe('git-process', () => {
   it('can cancel in-progress git command', async () => {
@@ -34,8 +34,8 @@ describe('git-process', () => {
     assert.equal(result.code, 'ABORT_ERR')
   })
 
-  it('cannot cancel already finished git command', async () => {
-    const testRepoPath = temp.mkdirSync('desktop-git-do-nothing')
+  it('cannot cancel already finished git command', async t => {
+    const testRepoPath = await createTestDir(t, 'desktop-git-do-nothing')
     const ac = new AbortController()
     const { stdout } = await git(['--version'], testRepoPath, {
       signal: ac.signal,
@@ -60,16 +60,16 @@ describe('git-process', () => {
   })
 
   describe('exitCode', () => {
-    it('returns exit code when folder is empty', async () => {
-      const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
+    it('returns exit code when folder is empty', async t => {
+      const testRepoPath = await createTestDir(t, 'desktop-git-test-blank')
       const result = await git(['show', 'HEAD'], testRepoPath)
       verify(result, r => {
         assert.equal(r.exitCode, 128)
       })
     })
 
-    it('handles stdin closed errors', async () => {
-      const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
+    it('handles stdin closed errors', async t => {
+      const testRepoPath = await createTestDir(t, 'desktop-git-test-blank')
 
       // Pass an unknown arg to Git, forcing it to terminate immediately
       // and then try to write to stdin. Without the ignoreClosedInputStream
@@ -84,8 +84,8 @@ describe('git-process', () => {
     })
 
     describe('diff', () => {
-      it('returns expected error code for initial commit when creating diff', async () => {
-        const testRepoPath = await initialize('blank-no-commits')
+      it('returns expected error code for initial commit when creating diff', async t => {
+        const testRepoPath = await initialize(t, 'blank-no-commits')
 
         const file = path.join(testRepoPath, 'new-file.md')
         fs.writeFileSync(file, 'this is a new file')
@@ -108,8 +108,8 @@ describe('git-process', () => {
         })
       })
 
-      it('returns expected error code for repository with history when creating diff', async () => {
-        const testRepoPath = await initialize('blank-then-commit')
+      it('returns expected error code for repository with history when creating diff', async t => {
+        const testRepoPath = await initialize(t, 'blank-then-commit')
         const readme = path.join(testRepoPath, 'README.md')
         fs.writeFileSync(readme, 'hello world!')
         await git(['add', '.'], testRepoPath)
@@ -151,8 +151,8 @@ describe('git-process', () => {
     })
 
     describe('show', () => {
-      it('existing file', async () => {
-        const testRepoPath = await initialize('desktop-show-existing')
+      it('existing file', async t => {
+        const testRepoPath = await initialize(t, 'desktop-show-existing')
         const filePath = path.join(testRepoPath, 'file.txt')
 
         fs.writeFileSync(filePath, 'some content', { encoding: 'utf8' })
@@ -166,15 +166,18 @@ describe('git-process', () => {
           assert.equal(r.stdout.trim(), 'some content')
         })
       })
-      it('missing from index', async () => {
-        const testRepoPath = await initialize('desktop-show-missing-index')
+      it('missing from index', async t => {
+        const testRepoPath = await initialize(t, 'desktop-show-missing-index')
 
         const result = await git(['show', ':missing.txt'], testRepoPath)
 
         assertHasGitError(result, GitError.PathDoesNotExist)
       })
-      it('missing from commitish', async () => {
-        const testRepoPath = await initialize('desktop-show-missing-commitish')
+      it('missing from commitish', async t => {
+        const testRepoPath = await initialize(
+          t,
+          'desktop-show-missing-commitish'
+        )
 
         const filePath = path.join(testRepoPath, 'file.txt')
 
@@ -187,8 +190,9 @@ describe('git-process', () => {
 
         assertHasGitError(result, GitError.PathDoesNotExist)
       })
-      it('invalid object name - empty repository', async () => {
+      it('invalid object name - empty repository', async t => {
         const testRepoPath = await initialize(
+          t,
           'desktop-show-invalid-object-empty'
         )
 
@@ -196,8 +200,8 @@ describe('git-process', () => {
 
         assertHasGitError(result, GitError.InvalidObjectName)
       })
-      it('outside repository', async () => {
-        const testRepoPath = await initialize('desktop-show-outside')
+      it('outside repository', async t => {
+        const testRepoPath = await initialize(t, 'desktop-show-outside')
 
         const filePath = path.join(testRepoPath, 'file.txt')
 
@@ -232,7 +236,10 @@ describe('git-process', () => {
     })
 
     it('raises error when folder does not exist', async () => {
-      const testRepoPath = path.join(temp.path(), 'desktop-does-not-exist')
+      const testRepoPath = path.join(
+        tmpdir(),
+        'desktop-does-not-exist-' + randomBytes(8).toString('hex')
+      )
 
       let error: Error | null = null
       try {
@@ -500,8 +507,8 @@ mark them as resolved using git add`
       assert.equal(error, GitError.HostDown)
     })
 
-    it('can parse an error when merging with local changes', async () => {
-      const repoPath = await initialize('desktop-merge-with-local-changes')
+    it('can parse an error when merging with local changes', async t => {
+      const repoPath = await initialize(t, 'desktop-merge-with-local-changes')
       const readmePath = path.join(repoPath, 'Readme.md')
 
       // Add a commit to the default branch.
@@ -529,8 +536,8 @@ mark them as resolved using git add`
       assertHasGitError(result, GitError.MergeWithLocalChanges)
     })
 
-    it('can parse an error when renasing with local changes', async () => {
-      const repoPath = await initialize('desktop-merge-with-local-changes')
+    it('can parse an error when renasing with local changes', async t => {
+      const repoPath = await initialize(t, 'desktop-merge-with-local-changes')
       const readmePath = path.join(repoPath, 'Readme.md')
 
       // Add a commit to the default branch.
@@ -558,13 +565,15 @@ mark them as resolved using git add`
       assertHasGitError(result, GitError.RebaseWithLocalChanges)
     })
 
-    it('can parse an error when pulling with merge with local changes', async () => {
+    it('can parse an error when pulling with merge with local changes', async t => {
       const { path: repoPath, remote: remoteRepositoryPath } =
         await initializeWithRemote(
+          t,
           'desktop-pullrebase-with-local-changes',
           null
         )
       const { path: forkRepoPath } = await initializeWithRemote(
+        t,
         'desktop-pullrebase-with-local-changes-fork',
         remoteRepositoryPath
       )
@@ -600,13 +609,15 @@ mark them as resolved using git add`
       assertHasGitError(result, GitError.MergeWithLocalChanges)
     })
 
-    it('can parse an error when pulling with rebase with local changes', async () => {
+    it('can parse an error when pulling with rebase with local changes', async t => {
       const { path: repoPath, remote: remoteRepositoryPath } =
         await initializeWithRemote(
+          t,
           'desktop-pullrebase-with-local-changes',
           null
         )
       const { path: forkRepoPath } = await initializeWithRemote(
+        t,
         'desktop-pullrebase-with-local-changes-fork',
         remoteRepositoryPath
       )
@@ -642,8 +653,11 @@ mark them as resolved using git add`
       assertHasGitError(result, GitError.RebaseWithLocalChanges)
     })
 
-    it('can parse an error when there is a conflict while merging', async () => {
-      const repoPath = await initialize('desktop-pullrebase-with-local-changes')
+    it('can parse an error when there is a conflict while merging', async t => {
+      const repoPath = await initialize(
+        t,
+        'desktop-pullrebase-with-local-changes'
+      )
       const readmePath = path.join(repoPath, 'Readme.md')
 
       // Create a commit on the default branch.
@@ -676,8 +690,11 @@ mark them as resolved using git add`
       assertHasGitError(result, GitError.MergeConflicts)
     })
 
-    it('can parse an error when there is a conflict while rebasing', async () => {
-      const repoPath = await initialize('desktop-pullrebase-with-local-changes')
+    it('can parse an error when there is a conflict while rebasing', async t => {
+      const repoPath = await initialize(
+        t,
+        'desktop-pullrebase-with-local-changes'
+      )
       const readmePath = path.join(repoPath, 'Readme.md')
 
       // Create a commit on the default branch.

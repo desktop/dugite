@@ -1,6 +1,9 @@
 import assert from 'assert'
 import { IGitResult, GitError, exec, parseError } from '../lib'
-import { track } from 'temp'
+import { TestContext } from 'node:test'
+import { mkdtemp, rm } from 'fs/promises'
+import { join } from 'path'
+import { tmpdir } from 'os'
 
 // NOTE: bump these versions to the latest stable releases
 export const gitVersion = '2.45.1'
@@ -8,13 +11,13 @@ export const gitForWindowsVersion = '2.45.1.windows.1'
 export const gitLfsVersion = '3.5.1'
 export const gitCredentialManagerVersion = '2.5.0'
 
-const temp = track()
-
 export async function initialize(
+  t: TestContext,
   repositoryName: string,
   defaultBranch?: string
 ): Promise<string> {
-  const testRepoPath = temp.mkdirSync(`desktop-git-test-${repositoryName}`)
+  const prefix = `desktop-git-test-${repositoryName}`
+  const testRepoPath = await createTestDir(t, prefix)
   const branchArgs = defaultBranch !== undefined ? ['-b', defaultBranch] : []
   await exec(['init', ...branchArgs], testRepoPath)
   await exec(['config', 'user.email', '"some.user@email.com"'], testRepoPath)
@@ -30,11 +33,15 @@ export async function initialize(
  * @param remotePath        The path of the remote reposiry (when null a new repository will get created)
  */
 export async function initializeWithRemote(
+  t: TestContext,
   repositoryName: string,
   remotePath: string | null
 ): Promise<{ path: string; remote: string }> {
   if (remotePath === null) {
-    const path = temp.mkdirSync(`desktop-git-test-remote-${repositoryName}`)
+    const path = await createTestDir(
+      t,
+      `desktop-git-test-remote-${repositoryName}`
+    )
     await exec(['init', '--bare'], path)
     remotePath = path
   }
@@ -43,7 +50,7 @@ export async function initializeWithRemote(
     throw new Error('for TypeScript')
   }
 
-  const testRepoPath = await initialize(repositoryName)
+  const testRepoPath = await initialize(t, repositoryName)
   await exec(['remote', 'add', 'origin', remotePath], testRepoPath)
 
   return { path: testRepoPath, remote: remotePath }
@@ -98,4 +105,10 @@ export const assertHasGitError = (
       gitError ? getFriendlyGitError(gitError) : 'none'
     }`
   )
+}
+
+export const createTestDir = async (t: TestContext, prefix: string) => {
+  const dir = await mkdtemp(join(tmpdir(), prefix))
+  t.after(() => rm(dir, { recursive: true, force: true }))
+  return dir
 }

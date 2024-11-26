@@ -1,18 +1,14 @@
 import assert from 'assert'
-import { verify } from '../helpers'
+import { createTestDir, verify } from '../helpers'
 
 import * as Fs from 'fs'
 import * as Path from 'path'
-
-import { track } from 'temp'
 import { describe, it } from 'node:test'
 import { exec } from '../../lib'
 
-const temp = track()
-
 describe('commit', () => {
-  it('can commit changes', async () => {
-    const testRepoPath = temp.mkdirSync('desktop-git-test-commit')
+  it('can commit changes', async t => {
+    const testRepoPath = await createTestDir(t, 'desktop-git-test-commit')
 
     await exec(['init'], testRepoPath)
 

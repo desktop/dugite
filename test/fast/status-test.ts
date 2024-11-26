@@ -1,5 +1,4 @@
-import { verify } from '../helpers'
-import { track } from 'temp'
+import { createTestDir, verify } from '../helpers'
 
 import * as Fs from 'fs'
 import * as Path from 'path'
@@ -7,12 +6,9 @@ import assert from 'assert'
 import { describe, it } from 'node:test'
 import { exec } from '../../lib'
 
-const temp = track()
-
 describe('status', () => {
-  it('lists untracked file', async () => {
-    const testRepoPath = temp.mkdirSync('desktop-git-test-commit')
-
+  it('lists untracked file', async t => {
+    const testRepoPath = await createTestDir(t, 'desktop-git-test-commit')
     await exec(['init'], testRepoPath)
 
     const readme = Path.join(testRepoPath, 'README.md')

@@ -1,14 +1,12 @@
 import assert from 'assert'
 import { setupEnvironment } from '../../lib/git-environment'
-import { track } from 'temp'
 import { describe, it } from 'node:test'
 import { exec } from '../../lib'
-
-const temp = track()
+import { createTestDir } from '../helpers'
 
 describe('environment variables', () => {
-  it('can set them', async () => {
-    const testRepoPath = temp.mkdirSync('desktop-git-test-environment')
+  it('can set them', async t => {
+    const testRepoPath = await createTestDir(t, 'desktop-git-test-environment')
     const result = await exec(['var', 'GIT_AUTHOR_IDENT'], testRepoPath, {
       env: {
         GIT_AUTHOR_NAME: 'Foo Bar',
