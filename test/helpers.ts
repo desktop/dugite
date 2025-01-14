@@ -6,10 +6,10 @@ import { join } from 'path'
 import { tmpdir } from 'os'
 
 // NOTE: bump these versions to the latest stable releases
-export const gitVersion = '2.45.1'
-export const gitForWindowsVersion = '2.45.1.windows.1'
-export const gitLfsVersion = '3.5.1'
-export const gitCredentialManagerVersion = '2.5.0'
+export const gitVersion = '2.45.3'
+export const gitForWindowsVersion = '2.45.2.windows.2'
+export const gitLfsVersion = '3.6.1'
+export const gitCredentialManagerVersion = '2.6.1'
 
 export async function initialize(
   t: TestContext,
