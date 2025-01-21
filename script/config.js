@@ -23,12 +23,6 @@ function getConfig() {
     arch = process.env.npm_config_arch
   }
 
-  if (process.platform === 'win32' && arch === 'arm64') {
-    // Use the Dugite Native ia32 package for Windows arm64 (arm64 can run 32-bit code through emulation)
-    console.log('Downloading 32-bit Dugite Native for Windows arm64')
-    arch = 'ia32'
-  }
-
   const key = `${process.platform}-${arch}`
 
   const entry = embeddedGit[key]
