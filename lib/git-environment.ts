@@ -1,6 +1,16 @@
 import * as path from 'path'
 import { EnvMap } from './env-map'
 
+function getWin32GitSubfolder(): string {
+  if (process.arch === 'x64') {
+    return 'mingw64'
+  } else if (process.arch === 'arm64') {
+    return 'clangarm64'
+  } else {
+    return 'mingw32'
+  }
+}
+
 export function resolveEmbeddedGitDir(): string {
   if (
     process.platform === 'darwin' ||
@@ -57,8 +67,7 @@ export function resolveGitExecPath(
   }
   const gitDir = resolveGitDir(localGitDir)
   if (process.platform === 'win32') {
-    const mingw = process.arch === 'x64' ? 'mingw64' : 'mingw32'
-    return path.join(gitDir, mingw, 'libexec', 'git-core')
+    return path.join(gitDir, getWin32GitSubfolder(), 'libexec', 'git-core')
   } else {
     return path.join(gitDir, 'libexec', 'git-core')
   }
@@ -89,10 +98,9 @@ export function setupEnvironment(
   const gitDir = resolveGitDir(localGitDir)
 
   if (process.platform === 'win32') {
-    const mingw = process.arch === 'x64' ? 'mingw64' : 'mingw32'
     env.set(
       'PATH',
-      `${gitDir}\\${mingw}\\bin;${gitDir}\\${mingw}\\usr\\bin;${
+      `${gitDir}\\${getWin32GitSubfolder()}\\bin;${gitDir}\\${getWin32GitSubfolder()}\\usr\\bin;${
         env.get('PATH') ?? ''
       }`
     )
