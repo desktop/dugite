@@ -12,6 +12,7 @@ fetch(`https://api.github.com/repos/desktop/dugite-native/releases/latest`)
       const output = {
         'win32-x64': await findWindows64BitRelease(assets),
         'win32-ia32': await findWindows32BitRelease(assets),
+        'win32-arm64': await findWindowsARM64BitRelease(assets),
         'darwin-x64': await findMacOSx64BitRelease(assets),
         'darwin-arm64': await findMacOSARM64BitRelease(assets),
         'linux-x64': await findLinux64BitRelease(assets),
@@ -54,6 +55,14 @@ function findWindows32BitRelease(assets) {
   return getDetailsForAsset(assets, asset)
 }
 
+function findWindowsARM64BitRelease(assets) {
+  const asset = assets.find(a => a.name.endsWith('-windows-arm64.tar.gz'))
+  if (asset == null) {
+    throw new Error('Could not find Windows arm64 archive in latest release')
+  }
+  return getDetailsForAsset(assets, asset)
+}
+
 function findMacOSx64BitRelease(assets) {
   const asset = assets.find(a => a.name.endsWith('-macOS-x64.tar.gz'))
   if (asset == null) {
@@ -65,7 +74,7 @@ function findMacOSx64BitRelease(assets) {
 function findMacOSARM64BitRelease(assets) {
   const asset = assets.find(a => a.name.endsWith('-macOS-arm64.tar.gz'))
   if (asset == null) {
-    throw new Error('Could not find MacOS 64-bit archive in latest release')
+    throw new Error('Could not find MacOS arm64 archive in latest release')
   }
   return getDetailsForAsset(assets, asset)
 }
