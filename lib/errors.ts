@@ -61,6 +61,7 @@ export enum GitError {
   MergeCommitNoMainlineOption,
   UnsafeDirectory,
   PathExistsButNotInRef,
+  PushWithSecretDetected,
 }
 
 /** A mapping from regexes to the git error they identify. */
@@ -167,6 +168,8 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
     GitError.UnsafeDirectory,
   "fatal: path '(.+)' exists on disk, but not in '(.+)'":
     GitError.PathExistsButNotInRef,
+  'GITHUB PUSH PROTECTION[.\\s\\S]+Push cannot contain secrets':
+    GitError.PushWithSecretDetected,
 }
 
 export class ExecError extends Error {
