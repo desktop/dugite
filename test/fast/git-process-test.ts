@@ -741,5 +741,71 @@ mark them as resolved using git add`
       const error = parseError(stderr)
       assert.equal(error, GitError.PathExistsButNotInRef)
     })
+
+    it('can parse github remote secret detected on push error', () => {
+      const stderr = `Enumerating objects: 8, done.
+Counting objects:  12% (1/8)
+Counting objects:  25% (2/8)
+Counting objects:  37% (3/8)
+Counting objects:  50% (4/8)
+Counting objects:  62% (5/8)
+Counting objects:  75% (6/8)
+Counting objects:  87% (7/8)
+Counting objects: 100% (8/8)
+Counting objects: 100% (8/8), done.
+Delta compression using up to 10 threads
+Compressing objects:  25% (1/4)
+Compressing objects:  50% (2/4)
+Compressing objects:  75% (3/4)
+Compressing objects: 100% (4/4)
+Compressing objects: 100% (4/4), done.
+Writing objects:  16% (1/6)
+Writing objects:  33% (2/6)
+Writing objects:  50% (3/6)
+Writing objects:  66% (4/6)
+Writing objects:  83% (5/6)
+Writing objects: 100% (6/6)
+Writing objects: 100% (6/6), 618 bytes | 618.00 KiB/s, done.
+Total 6 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas:   0% (0/1)        
+remote: Resolving deltas: 100% (1/1)        
+remote: Resolving deltas: 100% (1/1), done.        
+remote: error: GH013: Repository rule violations found for refs/heads/main.        
+remote: 
+remote: - GITHUB PUSH PROTECTION        
+remote:   —————————————————————————————————————————        
+remote:     Resolve the following violations before pushing again        
+remote: 
+remote:     - Push cannot contain secrets        
+remote: 
+remote:             
+remote:      (?) Learn how to resolve a blocked push        
+remote:      https://docs.github.com/code-security/secret-scanning/working-with-secret-scanning-and-push-protection/working-with-push-protection-from-the-command-line#resolving-a-blocked-push        
+remote:             
+remote:             
+remote:       —— GitHub Personal Access Token ——————————————————————        
+remote:        locations:        
+remote:          - commit: a6cf64dbe7fcefb6d90238a8d13d831db5dec3e9        
+remote:            path: README.md:4        
+remote:          - commit: 34800b208dd1432b6d7bff2789e09a3c89ab037d        
+remote:            path: README.md:4        
+remote:          - commit: a6cf64dbe7fcefb6d90238a8d13d831db5dec3e9        
+remote:            path: README.md:5        
+remote:          - commit: a6cf64dbe7fcefb6d90238a8d13d831db5dec3e9        
+remote:            path: README.md:6        
+remote:             
+remote:        (?) To push, remove secret from commit(s) or follow this URL to allow the secret.        
+remote:        https://github.com/tidy-dev/public_playground/security/secret-scanning/unblock-secret/2w2db5WJQCitzO0A2UDh0yyB3Ob        
+remote:             
+remote: 
+remote: 
+To https://github.com/tidy-dev/public_playground.git
+ ! [remote rejected] main -> main (push declined due to repository rule violations)
+error: failed to push some refs to 'https://github.com/tidy-dev/public_playground.git'
+`
+
+      const error = parseError(stderr)
+      assert.equal(error, GitError.PushWithSecretDetected)
+    })
   })
 })
