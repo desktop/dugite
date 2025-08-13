@@ -6,12 +6,13 @@
   "typings": "./build/lib/index.d.ts",
   "scripts": {
     "clean": "node script/clean.js",
-    "build": "yarn clean && tsc -p ./tsconfig.json && tsc -p ./examples/tsconfig.json",
+    "build": "yarn clean && yarn build:native && tsc -p ./tsconfig.json && tsc -p ./examples/tsconfig.json",
+    "build:native": "node-gyp rebuild",
     "prepack": "yarn build && yarn test",
     "postpublish": "git push --follow-tags",
     "test": "node script/test.mjs",
     "download-git": "node ./script/download-git.js",
-    "postinstall": "node ./script/download-git.js",
+    "postinstall": "node ./script/download-git.js && yarn build:native",
     "prettify": "prettier \"{examples,lib,script,test}/**/*.{ts,js,mjs}\" --write",
     "is-it-pretty": "prettier \"{examples,lib,script,test}/**/*.{ts,js,mjs}\" --check",
     "update-embedded-git": "node ./script/update-embedded-git.js"
