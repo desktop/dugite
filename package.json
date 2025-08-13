@@ -36,6 +36,7 @@
   "devDependencies": {
     "@types/node": "20",
     "@types/progress": "^2.0.1",
+    "node-gyp": "^11.0.0",
     "node-test-github-reporter": "^1.2.0",
     "prettier": "^3.3.1",
     "tsx": "^4.10.5",
