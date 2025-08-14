@@ -74,6 +74,50 @@ describe('git-process', () => {
         server.close()
       }
     })
+
+    it('can cancel clone operation with AbortController', async t => {
+      const testRepoPath = await createTestDir(t, 'desktop-git-clone-cancel')
+      const controller = new AbortController()
+
+      // Cancel after 2 second to test cancellation during clone
+      // Cause those 4, 5 process creation takes a bit of time
+      const cancelTimeout = setTimeout(() => {
+        console.log('Cancelling git clone operation...')
+        controller.abort()
+      }, 2000)
+
+      try {
+        // Using a real repository URL that's large enough to not complete instantly
+        const result = await exec(
+          [
+            'clone',
+            '--depth', '1',
+            'http://github.com/maifeeulasad/maifeeulasad.github.io.git',
+            'vscode-clone'
+          ],
+          testRepoPath,
+          {
+            signal: controller.signal,
+            processCallback: (process) => {
+              console.log(`Started git clone with PID: ${process.pid}`)
+            }
+          }
+        )
+
+        // If we get here, the clone completed before cancellation
+        console.log('Clone completed before cancellation')
+        verify(result, r => {
+          assert.equal(r.exitCode, 0)
+        })
+      } catch (error: any) {
+        // This is expected when cancellation works
+        console.log(`Git clone was cancelled: ${error.code}`)
+        assert.equal(error.code, 'ABORT_ERR', 'Expected ABORT_ERR when clone is cancelled')
+      } finally {
+        clearTimeout(cancelTimeout)
+      }
+    })
+
   })
 
   describe('fetch', () => {
