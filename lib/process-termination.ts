@@ -29,8 +29,8 @@ export function processTerminator(childProcess: ChildProcess): void {
   childProcess.kill = function (signal?: NodeJS.Signals | number): boolean {
     const pid = childProcess.pid
 
-    // Try Ctrl+C first for SIGTERM/SIGINT on Windows, then fallback
-    if (pid && (signal === 'SIGTERM' || signal === 'SIGINT' || !signal)) {
+    // Only try Ctrl+C for explicit SIGTERM/SIGINT signals on Windows
+    if (pid && (signal === 'SIGTERM' || signal === 'SIGINT')) {
       try {
         if (ctrlc!.sigintWindows(pid)) {
           return true
