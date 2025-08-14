@@ -51,24 +51,28 @@ namespace ctrlc
         // Try to attach to console
         if (!AttachConsole(processId))
         {
-            v8::Local<v8::String> v8String = v8::String::NewFromUtf8(isolate, ("Failed to attach to console. Error code: " + std::to_string(GetLastError())).c_str()).ToLocalChecked();
-            isolate->ThrowException(v8::Exception::Error(v8String));
+            DWORD error = GetLastError();
 
-            // If attaching to console fails, try sending Ctrl-C event directly
-            if (!GenerateConsoleCtrlEvent(CTRL_C_EVENT, processId))
+            // If already attached to a console or no console, try direct termination
+            if (error == ERROR_ACCESS_DENIED || error == ERROR_INVALID_HANDLE)
             {
-                v8::Local<v8::String> v8String = v8::String::NewFromUtf8(isolate, ("Failed to send Ctrl-C event. Error code: " + std::to_string(GetLastError())).c_str()).ToLocalChecked();
-                isolate->ThrowException(v8::Exception::Error(v8String));
+                // Try to send Ctrl-C event directly to the process group
+                if (!GenerateConsoleCtrlEvent(CTRL_C_EVENT, processId))
+                {
+                    CloseHandle(hProcess);
+                    args.GetReturnValue().Set(false);
+                    return;
+                }
 
                 CloseHandle(hProcess);
-
-                return;
-            }
-            else
-            {
                 args.GetReturnValue().Set(true);
                 return;
             }
+
+            v8::Local<v8::String> v8String = v8::String::NewFromUtf8(isolate, ("Failed to attach to console. Error code: " + std::to_string(error)).c_str()).ToLocalChecked();
+            isolate->ThrowException(v8::Exception::Error(v8String));
+            CloseHandle(hProcess);
+            return;
         }
         else
         {
@@ -102,22 +106,15 @@ namespace ctrlc
             }
             else
             {
-                // Wait for process to exit
-                if (WaitForSingleObject(hProcess, 2000) != WAIT_OBJECT_0)
-                {
-                    v8::Local<v8::String> v8String = v8::String::NewFromUtf8(isolate, "Process did not exit within 2 seconds.").ToLocalChecked();
-                    isolate->ThrowException(v8::Exception::Error(v8String));
-                }
+                // Wait for process to exit (but don't fail if it takes longer)
+                WaitForSingleObject(hProcess, 2000);
 
                 // Re-enable Ctrl-C handling
-                if (!SetConsoleCtrlHandler(NULL, FALSE))
-                {
-                    v8::Local<v8::String> v8String = v8::String::NewFromUtf8(isolate, ("Failed to re-enable Ctrl-C handling. Error code: " + std::to_string(GetLastError())).c_str()).ToLocalChecked();
-                    isolate->ThrowException(v8::Exception::Error(v8String));
-                }
+                SetConsoleCtrlHandler(NULL, FALSE);
 
                 FreeConsole();
                 CloseHandle(hProcess);
+                args.GetReturnValue().Set(true);
                 return;
             }
         }
@@ -135,7 +132,7 @@ namespace ctrlc
 
         FreeConsole();
         CloseHandle(hProcess);
-        args.GetReturnValue().Set(True(isolate));
+        args.GetReturnValue().Set(v8::Boolean::New(isolate, true));
 #endif
     }
 
