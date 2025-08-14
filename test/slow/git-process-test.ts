@@ -118,6 +118,11 @@ describe('git-process', () => {
           'ABORT_ERR',
           'Expected ABORT_ERR when clone is cancelled'
         )
+
+        // Wait 3 seconds after cancellation to allow file handles to be released
+        // 4,5 process takes a while to release as there are rolling file handles
+        console.log('Waiting 3 seconds for process cleanup...')
+        await new Promise(resolve => setTimeout(resolve, 3000))
       } finally {
         clearTimeout(cancelTimeout)
       }
