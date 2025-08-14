@@ -91,16 +91,17 @@ describe('git-process', () => {
         const result = await exec(
           [
             'clone',
-            '--depth', '1',
+            '--depth',
+            '1',
             'http://github.com/maifeeulasad/maifeeulasad.github.io.git',
-            'vscode-clone'
+            'vscode-clone',
           ],
           testRepoPath,
           {
             signal: controller.signal,
-            processCallback: (process) => {
+            processCallback: process => {
               console.log(`Started git clone with PID: ${process.pid}`)
-            }
+            },
           }
         )
 
@@ -112,12 +113,15 @@ describe('git-process', () => {
       } catch (error: any) {
         // This is expected when cancellation works
         console.log(`Git clone was cancelled: ${error.code}`)
-        assert.equal(error.code, 'ABORT_ERR', 'Expected ABORT_ERR when clone is cancelled')
+        assert.equal(
+          error.code,
+          'ABORT_ERR',
+          'Expected ABORT_ERR when clone is cancelled'
+        )
       } finally {
         clearTimeout(cancelTimeout)
       }
     })
-
   })
 
   describe('fetch', () => {
