@@ -33,5 +33,12 @@ jobs:
           body: |
             This PR updates the embedded Git version to ${{ steps.update-embedded-git.outputs.dugite_version }}.
 
+            This contains
+
+            - Git: ${{ steps.update-embedded-git.outputs.gitVersion }}
+            - Git for Windows: ${{ steps.update-embedded-git.outputs.gitForWindowsVersion }}
+            - Git LFS: ${{ steps.update-embedded-git.outputs.gitLfsVersion }}
+            - Git Credential Manager: ${{ steps.update-embedded-git.outputs.gitCredentialManagerVersion }}
+
             Initiated by @${{ github.actor }} in ${{ github.server_url}}/${{ github.repository }}/actions/runs/${{ github.run_id }}.
           branch: update-embedded-git-auto
