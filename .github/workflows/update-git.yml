@@ -18,11 +18,17 @@ jobs:
           node-version-file: '.node-version'
       - name: Update embedded Git versions
         run: node script/update-embedded-git.js
+      - uses: actions/create-github-app-token@v1
+        id: generate-token
+        with:
+          app-id: ${{ vars.RELEASES_APP_ID }}
+          private-key: ${{ secrets.RELEASES_APP_KEY }}
       - name: Create update pull request
         uses: peter-evans/create-pull-request@v5
         with:
           commit-message: Update embedded Git
-          title: Update embedded Git versions
+          token: ${{ steps.generate-token.outputs.token }}
+          title: Update embedded Git
           body: |
             This PR updates the embedded Git versions to the latest release.
 
