@@ -1,0 +1,54 @@
+name: Publish
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish'
+        default: 'minor'
+        required: true
+      dry-run:
+        description: 'Dry run (do not publish)'
+        required: true
+        type: boolean
+        default: true
+
+jobs:
+  build:
+    uses: ./.github/workflows/ci.yml
+  publish:
+    permissions:
+      contents: write
+      id-token: write # Required for OIDC
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Install dependencies
+        run: yarn
+      - name: Get author name
+        id: get_author
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: echo name=`gh api users/${{ github.actor }} | jq -j .name` >> $GITHUB_OUTPUT
+      - name: Set version
+        env:
+          GIT_AUTHOR_NAME: ${{steps.get_author.outputs.name || github.actor}}
+          GIT_AUTHOR_EMAIL: ${{github.actor_id}}+${{github.actor}}@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+        run: npm version ${{ github.event.inputs.version }}
+      - name: Show commit
+        run: git log -1
+      - name: Update npm to latest version # Required for OIDC
+        run: npm install -g npm@latest
+      - name: Publish package
+        run: npm publish ${{ github.event.inputs['dry-run'] == 'true' && '--dry-run' || '' }}
+      - name: Publish tag
+        run: git push origin HEAD --tags ${{ github.event.inputs['dry-run'] == 'true' && '--dry-run' || ''  }}
