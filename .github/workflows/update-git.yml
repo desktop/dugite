@@ -1,0 +1,30 @@
+name: Update Git
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-git:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+      - name: Update embedded Git versions
+        run: node script/update-embedded-git.js
+      - name: Create update pull request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: Update embedded Git
+          title: Update embedded Git versions
+          body: |
+            This PR updates the embedded Git versions to the latest release.
+
+            Initiated by @${{ github.actor }} in ${{ github.server_url}}/${{ github.repository }}/actions/runs/${{ github.run_id }}.
+          branch: update-embedded-git-auto
