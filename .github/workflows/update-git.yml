@@ -18,7 +18,7 @@ jobs:
           node-version-file: '.node-version'
       - name: Update embedded Git versions
         id: update-embedded-git
-        run: node script/update-embedded-git.js --write-github-output
+        run: node script/update-embedded-git.js
       - uses: actions/create-github-app-token@v1
         id: generate-token
         with:
