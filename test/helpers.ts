@@ -8,7 +8,7 @@ import { tmpdir } from 'os'
 // NOTE: bump these versions to the latest stable releases
 export const gitVersion = '2.47.3'
 export const gitForWindowsVersion = '2.47.3.windows.1'
-export const gitLfsVersion = '3.6.1'
+export const gitLfsVersion = '3.7.1'
 export const gitCredentialManagerVersion = '2.6.1'
 
 export async function initialize(
