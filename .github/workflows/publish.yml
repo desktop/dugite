@@ -18,6 +18,8 @@ on:
 
 jobs:
   build:
+    permissions:
+      contents: read
     uses: ./.github/workflows/ci.yml
   publish:
     permissions:

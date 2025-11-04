@@ -13,6 +13,8 @@ concurrency:
 
 jobs:
   build:
+    permissions:
+      contents: read
     name: ${{ matrix.friendlyName }} Node ${{matrix.nodeVersion}} ${{ matrix.arch }}
     runs-on: ${{ matrix.os }}
     strategy:
