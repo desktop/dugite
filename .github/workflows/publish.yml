@@ -6,6 +6,10 @@ on:
         description: 'Version to publish'
         default: 'minor'
         required: true
+      tag:
+        description: 'NPM tag to publish to'
+        default: 'latest'
+        required: true
       dry-run:
         description: 'Dry run (do not publish)'
         required: true
@@ -57,4 +61,4 @@ jobs:
       - name: Publish tag
         run: git push origin HEAD --tags ${{ github.event.inputs['dry-run'] == 'true' && '--dry-run' || ''  }}
       - name: Publish package
-        run: npm publish ${{ github.event.inputs['dry-run'] == 'true' && '--dry-run' || '' }}
+        run: npm publish --tag ${{ github.event.inputs.tag }} ${{ github.event.inputs['dry-run'] == 'true' && '--dry-run' || '' }}
