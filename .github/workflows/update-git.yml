@@ -41,4 +41,4 @@ jobs:
             - Git Credential Manager: ${{ steps.update-embedded-git.outputs.gitCredentialManagerVersion }}
 
             Initiated by @${{ github.actor }} in ${{ github.server_url}}/${{ github.repository }}/actions/runs/${{ github.run_id }}.
-          branch: update-embedded-git-auto
+          branch: bump-dugite-native-${{ steps.update-embedded-git.outputs.dugite_version }}
