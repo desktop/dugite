@@ -51,9 +51,6 @@ jobs:
         run: yarn build
       - name: Lint
         run: yarn is-it-pretty
-      - name: Reset safe.directory
-        run: git config --global --add safe.directory ""
-        shell: bash
       - name: Test
         run: yarn test
         env:

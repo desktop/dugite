@@ -49,6 +49,7 @@ describe('detects errors', () => {
     const result = await exec(['status'], path, {
       env: {
         GIT_TEST_ASSUME_DIFFERENT_OWNER: '1',
+        GIT_CONFIG_PARAMETERS: '"safe.directory="',
       },
     })
 
