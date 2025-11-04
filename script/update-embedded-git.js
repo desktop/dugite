@@ -1,5 +1,22 @@
-const fs = require('fs')
-const path = require('path')
+const { writeFile } = require('fs/promises')
+const { join } = require('path')
+
+async function findDetailsForAsset(assets, suffix) {
+  const asset = assets.find(a => a.name.endsWith(`-${suffix}.tar.gz`))
+
+  if (!asset) {
+    throw new Error(`Could not find ${suffix} archive in latest release`)
+  }
+
+  const { name, browser_download_url } = asset
+  const checksumFile = assets.find(a => a.name === `${name}.sha256`)
+  const checksumRaw = await fetch(checksumFile.browser_download_url, {
+    headers: { 'user-agent': 'dugite' },
+  }).then(b => b.text())
+
+  const checksum = checksumRaw.trim()
+  return { name, url: browser_download_url, checksum }
+}
 
 fetch(`https://api.github.com/repos/desktop/dugite-native/releases/latest`)
   .then(r => r.text())
@@ -10,22 +27,22 @@ fetch(`https://api.github.com/repos/desktop/dugite-native/releases/latest`)
       console.log(`Updating embedded git config to use version ${tag_name}`)
 
       const output = {
-        'win32-x64': await findWindows64BitRelease(assets),
-        'win32-ia32': await findWindows32BitRelease(assets),
-        'win32-arm64': await findWindowsARM64BitRelease(assets),
-        'darwin-x64': await findMacOSx64BitRelease(assets),
-        'darwin-arm64': await findMacOSARM64BitRelease(assets),
-        'linux-x64': await findLinux64BitRelease(assets),
-        'linux-ia32': await findLinux32BitRelease(assets),
-        'linux-arm': await findLinuxARM32BitRelease(assets),
-        'linux-arm64': await findLinuxARM64BitRelease(assets),
+        'win32-x64': await findDetailsForAsset(assets, 'windows-x64'),
+        'win32-ia32': await findDetailsForAsset(assets, 'windows-x86'),
+        'win32-arm64': await findDetailsForAsset(assets, 'windows-arm64'),
+        'darwin-x64': await findDetailsForAsset(assets, 'macOS-x64'),
+        'darwin-arm64': await findDetailsForAsset(assets, 'macOS-arm64'),
+        'linux-x64': await findDetailsForAsset(assets, 'ubuntu-x64'),
+        'linux-ia32': await findDetailsForAsset(assets, 'ubuntu-x86'),
+        'linux-arm': await findDetailsForAsset(assets, 'ubuntu-arm'),
+        'linux-arm64': await findDetailsForAsset(assets, 'ubuntu-arm64'),
       }
 
       const fileContents = JSON.stringify(output, null, 2)
 
-      const embeddedGitPath = path.join(__dirname, 'embedded-git.json')
+      const embeddedGitPath = join(__dirname, 'embedded-git.json')
 
-      fs.writeFileSync(embeddedGitPath, fileContents, 'utf8')
+      await writeFile(embeddedGitPath, fileContents, 'utf8')
 
       console.log(`Done!`)
       console.log()
@@ -38,88 +55,3 @@ fetch(`https://api.github.com/repos/desktop/dugite-native/releases/latest`)
       console.error('Unable to get latest release', err)
     }
   )
-
-function findWindows64BitRelease(assets) {
-  const asset = assets.find(a => a.name.endsWith('-windows-x64.tar.gz'))
-  if (asset == null) {
-    throw new Error('Could not find Windows 64-bit archive in latest release')
-  }
-  return getDetailsForAsset(assets, asset)
-}
-
-function findWindows32BitRelease(assets) {
-  const asset = assets.find(a => a.name.endsWith('-windows-x86.tar.gz'))
-  if (asset == null) {
-    throw new Error('Could not find Windows 32-bit archive in latest release')
-  }
-  return getDetailsForAsset(assets, asset)
-}
-
-function findWindowsARM64BitRelease(assets) {
-  const asset = assets.find(a => a.name.endsWith('-windows-arm64.tar.gz'))
-  if (asset == null) {
-    throw new Error('Could not find Windows arm64 archive in latest release')
-  }
-  return getDetailsForAsset(assets, asset)
-}
-
-function findMacOSx64BitRelease(assets) {
-  const asset = assets.find(a => a.name.endsWith('-macOS-x64.tar.gz'))
-  if (asset == null) {
-    throw new Error('Could not find MacOS 64-bit archive in latest release')
-  }
-  return getDetailsForAsset(assets, asset)
-}
-
-function findMacOSARM64BitRelease(assets) {
-  const asset = assets.find(a => a.name.endsWith('-macOS-arm64.tar.gz'))
-  if (asset == null) {
-    throw new Error('Could not find MacOS arm64 archive in latest release')
-  }
-  return getDetailsForAsset(assets, asset)
-}
-
-function findLinux64BitRelease(assets) {
-  const asset = assets.find(a => a.name.endsWith('-ubuntu-x64.tar.gz'))
-  if (asset == null) {
-    throw new Error('Could not find Linux 64-bit archive in latest release')
-  }
-  return getDetailsForAsset(assets, asset)
-}
-
-function findLinux32BitRelease(assets) {
-  const asset = assets.find(a => a.name.endsWith('-ubuntu-x86.tar.gz'))
-  if (asset == null) {
-    throw new Error('Could not find Linux 32-bit archive in latest release')
-  }
-  return getDetailsForAsset(assets, asset)
-}
-
-function findLinuxARM64BitRelease(assets) {
-  const asset = assets.find(a => a.name.endsWith('-ubuntu-arm64.tar.gz'))
-  if (asset == null) {
-    throw new Error('Could not find Linux 64-bit archive in latest release')
-  }
-  return getDetailsForAsset(assets, asset)
-}
-
-function findLinuxARM32BitRelease(assets) {
-  const asset = assets.find(a => a.name.endsWith('-ubuntu-arm.tar.gz'))
-  if (asset == null) {
-    throw new Error('Could not find Linux 32-bit archive in latest release')
-  }
-  return getDetailsForAsset(assets, asset)
-}
-
-async function getDetailsForAsset(assets, currentAsset) {
-  const { name } = currentAsset
-  const url = currentAsset.browser_download_url
-  const checksumFile = assets.find(a => a.name === `${name}.sha256`)
-  const checksumRaw = await fetch(checksumFile.browser_download_url, {
-    headers: {
-      'user-agent': 'dugite',
-    },
-  }).then(b => b.text())
-  const checksum = checksumRaw.trim()
-  return { name, url, checksum }
-}
