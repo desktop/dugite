@@ -1,4 +1,4 @@
-const { writeFile } = require('fs/promises')
+const { writeFile, appendFile } = require('fs/promises')
 const { join } = require('path')
 
 async function findDetailsForAsset(assets, suffix) {
@@ -50,6 +50,14 @@ fetch(`https://api.github.com/repos/desktop/dugite-native/releases/latest`)
       console.log(`- commit any changes`)
       console.log(`- update the installed package with \`yarn\``)
       console.log(`- run the test suite with \`yarn test\``)
+
+      if (process.env.GITHUB_ACTIONS) {
+        await appendFile(
+          process.env.GITHUB_OUTPUT,
+          `dugite_version=${tag_name}\n`,
+          'utf8'
+        )
+      }
     },
     err => {
       console.error('Unable to get latest release', err)

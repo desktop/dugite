@@ -17,7 +17,8 @@ jobs:
         with:
           node-version-file: '.node-version'
       - name: Update embedded Git versions
-        run: node script/update-embedded-git.js
+        id: update-embedded-git
+        run: node script/update-embedded-git.js --write-github-output
       - uses: actions/create-github-app-token@v1
         id: generate-token
         with:
@@ -26,11 +27,11 @@ jobs:
       - name: Create update pull request
         uses: peter-evans/create-pull-request@v5
         with:
-          commit-message: Update embedded Git
+          commit-message: Update dugite-native to ${{ steps.update-embedded-git.outputs.dugite_version }}
           token: ${{ steps.generate-token.outputs.token }}
-          title: Update embedded Git
+          title: Update dugite-native to ${{ steps.update-embedded-git.outputs.dugite_version }}
           body: |
-            This PR updates the embedded Git versions to the latest release.
+            This PR updates the embedded Git version to ${{ steps.update-embedded-git.outputs.dugite_version }}.
 
             Initiated by @${{ github.actor }} in ${{ github.server_url}}/${{ github.repository }}/actions/runs/${{ github.run_id }}.
           branch: update-embedded-git-auto
