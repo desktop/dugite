@@ -44,3 +44,4 @@ build/
 
 # git local install
 git/
+lib/ctrlc.node
