@@ -38,7 +38,7 @@ jobs:
         with:
           token: ${{ steps.generate-token.outputs.token }}
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version-file: '.node-version'
           registry-url: 'https://registry.npmjs.org'
@@ -56,11 +56,22 @@ jobs:
           GIT_COMMITTER_NAME: github-actions[bot]
           GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
         run: npm version ${{ github.event.inputs.version }}
-      - name: Show commit
-        run: git log -1
+      - name: Get version
+        id: get_version
+        run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
       - name: Update npm to latest version # Required for OIDC
         run: npm install -g npm@latest
       - name: Publish tag
         run: git push origin HEAD --tags ${{ github.event.inputs['dry-run'] == 'true' && '--dry-run' || ''  }}
       - name: Publish package
         run: npm publish --tag ${{ github.event.inputs.tag }} ${{ github.event.inputs['dry-run'] == 'true' && '--dry-run' || '' }}
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        if: ${{ github.event.inputs['dry-run'] != 'true' }}
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          generate_release_notes: true
+          make_latest: ${{ github.event.inputs.tag == 'latest' }}
+          tag_name: v${{ steps.get_version.outputs.version }}
+          draft: false
+          prerelease: ${{ github.event.inputs.tag != 'latest' }}
