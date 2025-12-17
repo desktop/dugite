@@ -1,5 +1,6 @@
 import { ignoreClosedInputStream } from './ignore-closed-input-stream'
 import { setupEnvironment } from './git-environment'
+import { processTerminator } from './process-termination'
 import { spawn as _spawn } from 'child_process'
 
 /**
@@ -27,6 +28,8 @@ export function spawn(args: string[], path: string, opts?: IGitSpawnOptions) {
   const spawnedProcess = _spawn(gitLocation, args, { env, cwd: path })
 
   ignoreClosedInputStream(spawnedProcess)
+
+  processTerminator(spawnedProcess)
 
   return spawnedProcess
 }
