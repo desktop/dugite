@@ -22,8 +22,27 @@ or
 > yarn add dugite
 ```
 
-Then reference it in your application:
+### Then reference it in your application:
+*Note: Dugite previously used the GitProcess, but this is no longer exported in the latest versions.
+The example below shows the updated recommended usage, followed by the older (deprecated) approach.*
 
+#### Current Usage (Recommended)
+```js
+import { exec, GitError, IGitResult } from 'dugite'
+
+const pathToRepository = 'C:/path/to/git/repository/'
+
+const result = await exec(['status'], pathToRepository)
+if (result.exitCode === 0) {
+  const output = result.stdout
+  // do some things with the output
+} else {
+  const error = result.stderr
+  // error handling
+}
+```
+
+#### Previous Standard
 ```js
 import { exec } from 'dugite'
 
