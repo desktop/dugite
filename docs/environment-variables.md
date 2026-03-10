@@ -2,7 +2,7 @@
 
 There are some ways you can change the behaviour of `dugite` by providing
 environment variables. These are grouped into two categories - when you
-install `dugite` into a package, and when you spawn Git using `GitProcess`.
+install `dugite` into a package, and when you spawn Git using `exec` or `spawn`.
 
 ## Installation
 
