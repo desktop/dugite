@@ -2,58 +2,19 @@
 
 ## Update Git
 
-The most important part of the release process is updating the embedded Git package. This can be done using this one-liner:
+Run the [update-git.yml workflow](https://github.com/desktop/dugite/actions/workflows/update-git.yml) to update the embedded Git version.
 
-```sh
-yarn update-embedded-git
-```
+This workflow will:
 
-This script:
+- retrieve the latest `dugite-native` release from the GitHub API
+- get the checksums embedded in the release
+- generate the `script/embedded-git.json` payload to be used at install time
+- open a pull request with the dugite-native upgrade changes.
 
-- retrieves the latest `dugite-native` release from the GitHub API
-- gets the checksums embedded in the release
-- generates the `script/embedded-git.json` payload to be used at install time
-
-### Note
-
-If you don't want the latest dugite-native release for some reason, you can edit the release URL in `script/update-embedded-git.js` to point to a different GitHub release URL.
-
-```js
-const url = `https://api.github.com/repos/desktop/dugite-native/releases/23544533`
-```
+You must then approve and merge the pull request before continuing to the release process.
 
 ## Release/Publishing
 
-Before running the commands in 'Publishing to NPM',
-create a new release branch of the form `releases/x.x.x`
+Run the [publish.yml workflow](https://github.com/desktop/dugite/actions/workflows/publish.yml) to publish a new release. The workflow will take care of bumping the version number, publishing the package to NPM, and creating a GitHub release.
 
-After running commands in 'Publishing to NPM', the release branch should be pushed. Now, you need to get it reviewed and merged.
-
-After that, don't forget publish the release on the repo.
-
-- Go to https://github.com/desktop/dugite/releases
-- Click click `Draft a New Release`
-- Fill in form
-- Hit `Publish release`
-
-## Publishing to NPM
-
-Releases are done to NPM, and are currently limited to the core team.
-
-```sh
-# to ensure everything is up-to-date
-yarn
-
-yarn build
-
-# if you have not run `yarn build` before, a couple of you cloning auth test will fail.
-yarn test
-
-# you might need to do a different sort of version bump here
-npm version minor
-
-# this will also run the test suite and fail if any errors found
-# this will also run `git push --follow-tags` at the end
-# remember to `npm login`
-npm publish
-```
+Releasing with version 'minor' is typically the way to go (it'll bump from x.y.z to x.(y+1).0), but you can also choose 'patch' (x.y.(z+1)) or 'major' ((x+1).0.0) if you need to.
