@@ -8,6 +8,12 @@ const { createGunzip } = require('zlib')
 const { join } = require('path')
 const assert = require('node:assert')
 
+// Proxy can be configured with or without GLOBAL_AGENT_ prefix
+for (envVar of ['HTTP_PROXY', 'HTTPS_PROXY', 'NO_PROXY']) {
+  if (process.env[envVar] && !process.env["GLOBAL_AGENT_" + envVar]) {
+    process.env["GLOBAL_AGENT_" + envVar] = process.env[envVar]
+  }
+}
 // Ensure that proxy environment variable settings are respected
 globalAgent.bootstrap()
 
