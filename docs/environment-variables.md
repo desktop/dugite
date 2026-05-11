@@ -14,9 +14,11 @@ should be cached to speed up testing.
 If this is not specified, it will fallback to [`os.tmpdir()`](https://nodejs.org/dist/latest-v8.x/docs/api/os.html#os_os_tmpdir)
 which is provided by Node.
 
-If you are connected to the internet using a proxy, make sure that `HTTP_PROXY`
-and `HTTPS_PROXY` are configured correctly. Otherwise the installation will fail
-with a connection error. For more information see: [Controlling proxy behaviour using environment variables](https://github.com/request/request#controlling-proxy-behaviour-using-environment-variables)
+If you are connected to the internet using a proxy, make sure that
+`GLOBAL_AGENT_HTTP_PROXY` or `GLOBAL_AGENT_HTTPS_PROXY` is configured correctly.
+Otherwise the installation will fail with a connection error. You can also use
+`HTTP_PROXY` or `HTTPS_PROXY` as aliases for these environment variables.
+For more information see: [Controlling proxy behaviour using environment variables](https://github.com/gajus/global-agent#environment-variables)
 
 ## Execution
 
