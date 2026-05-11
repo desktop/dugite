@@ -1,12 +1,7 @@
-export {
-  GitProcess,
-  IGitResult,
-  IGitExecutionOptions,
-  IGitTask,
-  GitTaskCancelResult,
-} from './git-process'
-export {
-  GitError,
-  RepositoryDoesNotExistErrorCode,
-  GitNotFoundErrorCode,
-} from './errors'
+export * from './exec'
+export * from './spawn'
+export * from './parse-error'
+export * from './parse-bad-config-value-error-info'
+export { GitError, ExecError } from './errors'
+export * from './git-environment'
+export * from './ignore-closed-input-stream'

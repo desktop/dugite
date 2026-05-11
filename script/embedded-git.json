@@ -1,27 +1,47 @@
 {
   "win32-x64": {
-    "name": "dugite-native-v2.39.2-ddb2ace-windows-x64.tar.gz",
-    "url": "https://github.com/desktop/dugite-native/releases/download/v2.39.2/dugite-native-v2.39.2-ddb2ace-windows-x64.tar.gz",
-    "checksum": "7d5a68de79c7ec981366c9543fc2f2c8e5160f8b41b3039767a046fc59e91367"
+    "name": "dugite-native-v2.47.3-2b6f2f9-windows-x64.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.47.3/dugite-native-v2.47.3-2b6f2f9-windows-x64.tar.gz",
+    "checksum": "97b46bee58c929586349fdec6d0ee3b3378fbe8910518d6fc470d0162c91c3d7"
   },
   "win32-ia32": {
-    "name": "dugite-native-v2.39.2-ddb2ace-windows-x86.tar.gz",
-    "url": "https://github.com/desktop/dugite-native/releases/download/v2.39.2/dugite-native-v2.39.2-ddb2ace-windows-x86.tar.gz",
-    "checksum": "d9b75e5d2cbfc604e96a1b3822ac8b989898af39c9c9ed4bf05355d02f7cc778"
+    "name": "dugite-native-v2.47.3-2b6f2f9-windows-x86.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.47.3/dugite-native-v2.47.3-2b6f2f9-windows-x86.tar.gz",
+    "checksum": "38f714c4fdc7643dbee7751deab4e3ccd897d074ebb7546c0f9beca1bd091fe1"
+  },
+  "win32-arm64": {
+    "name": "dugite-native-v2.47.3-2b6f2f9-windows-arm64.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.47.3/dugite-native-v2.47.3-2b6f2f9-windows-arm64.tar.gz",
+    "checksum": "3ee569e91501b802a980981f61e82e17be4cbdcd0c139da4b6c2ced4bffe4435"
   },
   "darwin-x64": {
-    "name": "dugite-native-v2.39.2-ddb2ace-macOS-x64.tar.gz",
-    "url": "https://github.com/desktop/dugite-native/releases/download/v2.39.2/dugite-native-v2.39.2-ddb2ace-macOS-x64.tar.gz",
-    "checksum": "63861250a026e1b0d7d126375139237c8342b3963b5d73df89912db4cb921d24"
+    "name": "dugite-native-v2.47.3-2b6f2f9-macOS-x64.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.47.3/dugite-native-v2.47.3-2b6f2f9-macOS-x64.tar.gz",
+    "checksum": "46c592fee666d7d94e19b670d57acfcde60447f252f1faaf1cebca4ed492005b"
   },
   "darwin-arm64": {
-    "name": "dugite-native-v2.39.2-ddb2ace-macOS-arm64.tar.gz",
-    "url": "https://github.com/desktop/dugite-native/releases/download/v2.39.2/dugite-native-v2.39.2-ddb2ace-macOS-arm64.tar.gz",
-    "checksum": "09b58004239dad007f7ac53839d8f2ce53b966992fd49244fb163fb98c22c989"
+    "name": "dugite-native-v2.47.3-2b6f2f9-macOS-arm64.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.47.3/dugite-native-v2.47.3-2b6f2f9-macOS-arm64.tar.gz",
+    "checksum": "81e1eee210760a5ca9995dbbdc55e7521673f4ba4d20af46e23679a27d827ada"
   },
   "linux-x64": {
-    "name": "dugite-native-v2.39.2-ddb2ace-ubuntu.tar.gz",
-    "url": "https://github.com/desktop/dugite-native/releases/download/v2.39.2/dugite-native-v2.39.2-ddb2ace-ubuntu.tar.gz",
-    "checksum": "b08c173de92eecf653427810cbc9193efb3b39751690ec21196c79805038e738"
+    "name": "dugite-native-v2.47.3-2b6f2f9-ubuntu-x64.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.47.3/dugite-native-v2.47.3-2b6f2f9-ubuntu-x64.tar.gz",
+    "checksum": "14bc6a09a324c03320d9655830119373ead9ae41c891a9c2a2a6d9ab18750c5b"
+  },
+  "linux-ia32": {
+    "name": "dugite-native-v2.47.3-2b6f2f9-ubuntu-x86.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.47.3/dugite-native-v2.47.3-2b6f2f9-ubuntu-x86.tar.gz",
+    "checksum": "ef1a74d2a4b626f9cd0b43daf1103a1429be39542a0c6bb0fbd26488cda0f374"
+  },
+  "linux-arm": {
+    "name": "dugite-native-v2.47.3-2b6f2f9-ubuntu-arm.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.47.3/dugite-native-v2.47.3-2b6f2f9-ubuntu-arm.tar.gz",
+    "checksum": "b56328beb6260af7fca61c1e286964a0943f9370a46b16c6c0c9d99e39694c30"
+  },
+  "linux-arm64": {
+    "name": "dugite-native-v2.47.3-2b6f2f9-ubuntu-arm64.tar.gz",
+    "url": "https://github.com/desktop/dugite-native/releases/download/v2.47.3/dugite-native-v2.47.3-2b6f2f9-ubuntu-arm64.tar.gz",
+    "checksum": "1775b327f870851f7adc5275579cab3720c74b55b50066717a8bc70c2c6b2b4c"
   }
 }

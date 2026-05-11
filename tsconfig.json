@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "target": "es6",
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "target": "ES2022",
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
@@ -10,7 +10,7 @@
     "sourceMap": true,
     "outDir": "./build",
     "declaration": true,
-    "types": ["jest", "node"]
+    "types": ["node"]
   },
   "exclude": ["node_modules", "build"],
   "include": ["lib/**/*.ts", "script/**/*.ts", "test/**/*.ts"],

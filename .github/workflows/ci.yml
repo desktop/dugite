@@ -17,34 +17,35 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        nodeVersion: [14, 16, 18]
+        nodeVersion: [20]
         arch: [x64]
-        os: [macos-11, windows-2019, ubuntu-22.04]
+        os: [macos-latest, windows-latest, ubuntu-latest]
         include:
-          - os: macos-11
+          - os: macos-latest
             friendlyName: macOS
-          - os: windows-2019
+          - os: windows-latest
             friendlyName: Windows
-          - os: windows-2019
+          - os: windows-latest
             friendlyName: Windows
-            nodeVersion: 16
+            nodeVersion: 20
             arch: x86
-          - os: ubuntu-22.04
+            npm_config_arch: ia32
+          - os: ubuntu-latest
             friendlyName: Linux
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: Install Node.js ${{ matrix.nodeVersion }} (${{ matrix.arch }})
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.nodeVersion }}
           architecture: ${{ matrix.arch }}
       - name: Install and build dependencies
         run: yarn
         env:
-          npm_config_arch: ${{ matrix.arch }}
+          npm_config_arch: ${{ matrix.npm_config_arch }}
       - name: Build
         run: yarn build
       - name: Lint

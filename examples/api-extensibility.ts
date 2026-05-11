@@ -1,5 +1,4 @@
-import { GitProcess, IGitExecutionOptions } from '../lib/'
-import { ChildProcess } from 'child_process'
+import { exec as git, IGitStringExecutionOptions } from '../lib'
 
 const byline = require('byline')
 const ProgressBar = require('progress')
@@ -51,12 +50,12 @@ function setResolvingProgress(percent: number) {
 async function performClone(): Promise<void> {
   const path = 'C:/some/path/on/disk'
 
-  const options: IGitExecutionOptions = {
+  const options: IGitStringExecutionOptions = {
     // enable diagnostics
     env: {
       GIT_HTTP_USER_AGENT: 'dugite/2.12.0',
     },
-    processCallback: (process: ChildProcess) => {
+    processCallback: process => {
       byline(process.stderr).on('data', (chunk: string) => {
         if (chunk.startsWith('Receiving objects: ')) {
           const percent = tryParse(chunk)
@@ -77,7 +76,7 @@ async function performClone(): Promise<void> {
     },
   }
 
-  const result = await GitProcess.exec(
+  const result = await git(
     ['clone', 'https://github.com/dugite/dugite', '--progress'],
     path,
     options

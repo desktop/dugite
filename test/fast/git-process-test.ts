@@ -1,96 +1,95 @@
 import * as path from 'path'
 import * as fs from 'fs'
-import * as crypto from 'crypto'
 
-import {
-  GitProcess,
-  GitError,
-  RepositoryDoesNotExistErrorCode,
-  GitTaskCancelResult,
-} from '../../lib'
-import { GitErrorRegexes } from '../../lib/errors'
+import { exec as git, GitError, parseError } from '../../lib'
+import { ExecError, GitErrorRegexes } from '../../lib/errors'
 import {
   initialize,
   verify,
   initializeWithRemote,
   gitForWindowsVersion,
+  assertHasGitError,
+  createTestDir,
 } from '../helpers'
 
 import { gitVersion } from '../helpers'
-import { setupNoAuth } from '../slow/auth'
-
-const temp = require('temp').track()
+import assert from 'assert'
+import { describe, it } from 'node:test'
+import { tmpdir } from 'os'
+import { randomBytes } from 'crypto'
 
 describe('git-process', () => {
   it('can cancel in-progress git command', async () => {
-    const testRepoPath = temp.mkdirSync('desktop-git-clone-valid')
-    const options = {
-      env: setupNoAuth(),
-    }
-    const task = GitProcess.execTask(
-      ['clone', '--', 'https://github.com/shiftkey/friendly-bassoon.git', '.'],
-      testRepoPath,
-      options
-    )
+    // git-hash-object will wait until stdin is closed so we can use this as
+    // an never-ending process to test the cancellation
+    const ac = new AbortController()
+    const result = await git(['hash-object', '--stdin'], process.cwd(), {
+      signal: ac.signal,
+      processCallback(process) {
+        process.on('spawn', () => ac.abort())
+      },
+    }).catch(e => e)
 
-    const cancelResult = await task.cancel()
-    try {
-      await task.result
-    } catch {}
-    expect(cancelResult).toBe(GitTaskCancelResult.successfulCancel)
+    assert.ok(result instanceof ExecError)
+    assert.equal(result.code, 'ABORT_ERR')
   })
 
-  it('cannot cancel already finished git command', async () => {
-    const testRepoPath = temp.mkdirSync('desktop-git-do-nothing')
-    const task = GitProcess.execTask(['--version'], testRepoPath)
-    await task.result
-
-    const cancelResult = await task.cancel()
-    expect(cancelResult).toBe(GitTaskCancelResult.processAlreadyEnded)
+  it('cannot cancel already finished git command', async t => {
+    const testRepoPath = await createTestDir(t, 'desktop-git-do-nothing')
+    const ac = new AbortController()
+    const { stdout } = await git(['--version'], testRepoPath, {
+      signal: ac.signal,
+    })
+    ac.abort()
+    assert.ok(stdout.includes('git version'))
   })
 
   it('can launch git', async () => {
-    const result = await GitProcess.exec(['--version'], __dirname)
-    expect(result.stderr).toBe('')
-    if (result.stdout.includes('windows')) {
-      expect(result.stdout).toContain(`git version ${gitForWindowsVersion}`)
-    } else {
-      expect(result.stdout).toContain(`git version ${gitVersion}`)
-    }
-    expect(result.exitCode).toBe(0)
+    const result = await git(['--version'], __dirname)
+    assert.equal(result.stderr, '')
+    const version = result.stdout.includes('windows')
+      ? gitForWindowsVersion
+      : gitVersion
+    const expected = `git version ${version}`
+
+    assert.ok(
+      result.stdout.includes(expected),
+      `Expected git version to contain ${expected}, got: ${result}`
+    )
+    assert.equal(result.exitCode, 0)
   })
 
   describe('exitCode', () => {
-    it('returns exit code when folder is empty', async () => {
-      const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
-      const result = await GitProcess.exec(['show', 'HEAD'], testRepoPath)
+    it('returns exit code when folder is empty', async t => {
+      const testRepoPath = await createTestDir(t, 'desktop-git-test-blank')
+      const result = await git(['show', 'HEAD'], testRepoPath)
       verify(result, r => {
-        expect(r.exitCode).toBe(128)
+        assert.equal(r.exitCode, 128)
       })
     })
 
-    it('handles stdin closed errors', async () => {
-      const testRepoPath = temp.mkdirSync('desktop-git-test-blank')
+    it('handles stdin closed errors', async t => {
+      const testRepoPath = await createTestDir(t, 'desktop-git-test-blank')
 
       // Pass an unknown arg to Git, forcing it to terminate immediately
       // and then try to write to stdin. Without the ignoreClosedInputStream
       // workaround this will crash the process (timing related) with an
       // EPIPE/EOF error thrown from process.stdin
-      const result = await GitProcess.exec(['--trololol'], testRepoPath, {
+      const result = await git(['--trololol'], testRepoPath, {
         stdin: '\n'.repeat(1024 * 1024),
       })
       verify(result, r => {
-        expect(r.exitCode).toBe(129)
+        assert.equal(r.exitCode, 129)
       })
     })
 
     describe('diff', () => {
-      it('returns expected error code for initial commit when creating diff', async () => {
-        const testRepoPath = await initialize('blank-no-commits')
+      it('returns expected error code for initial commit when creating diff', async t => {
+        const testRepoPath = await initialize(t, 'blank-no-commits')
 
         const file = path.join(testRepoPath, 'new-file.md')
         fs.writeFileSync(file, 'this is a new file')
-        const result = await GitProcess.exec(
+        const result = await git(
           [
             'diff',
             '--no-index',
@@ -104,29 +103,25 @@ describe('git-process', () => {
         )
 
         verify(result, r => {
-          expect(r.exitCode).toBe(1)
-          expect(r.stdout.length).toBeGreaterThan(0)
+          assert.equal(r.exitCode, 1)
+          assert.ok(r.stdout.length > 0, 'expected output from diff command')
         })
       })
 
-      it('returns expected error code for repository with history when creating diff', async () => {
-        const testRepoPath = await initialize('blank-then-commit')
+      it('returns expected error code for repository with history when creating diff', async t => {
+        const testRepoPath = await initialize(t, 'blank-then-commit')
         const readme = path.join(testRepoPath, 'README.md')
         fs.writeFileSync(readme, 'hello world!')
-        await GitProcess.exec(['add', '.'], testRepoPath)
+        await git(['add', '.'], testRepoPath)
 
-        const commit = await GitProcess.exec(
-          ['commit', '-F', '-'],
-          testRepoPath,
-          {
-            stdin: 'hello world!',
-          }
-        )
-        expect(commit.exitCode).toBe(0)
+        const commit = await git(['commit', '-F', '-'], testRepoPath, {
+          stdin: 'hello world!',
+        })
+        assert.equal(commit.exitCode, 0)
 
         const file = path.join(testRepoPath, 'new-file.md')
         fs.writeFileSync(file, 'this is a new file')
-        const result = await GitProcess.exec(
+        const result = await git(
           [
             'diff',
             '--no-index',
@@ -140,117 +135,84 @@ describe('git-process', () => {
         )
 
         verify(result, r => {
-          expect(r.exitCode).toBe(1)
-          expect(r.stdout.length).toBeGreaterThan(0)
+          assert.equal(r.exitCode, 1)
+          assert.ok(r.stdout.length > 0, 'expected output from diff command')
         })
       })
 
       it('throws error when exceeding the output range', async () => {
-        const testRepoPath = temp.mkdirSync('blank-then-large-file')
+        const cwd = process.cwd()
+        const result = await git(['-h'], cwd, { maxBuffer: 1 }).catch(e => e)
 
-        // NOTE: if we change the default buffer size in git-process
-        // this test may no longer fail as expected - see https://git.io/v1dq3
-        const output = crypto.randomBytes(10 * 1024 * 1024).toString('hex')
-        const file = path.join(testRepoPath, 'new-file.md')
-        fs.writeFileSync(file, output)
-
-        // TODO: convert this to assert the error was thrown
-
-        let throws = false
-        try {
-          await GitProcess.exec(
-            [
-              'diff',
-              '--no-index',
-              '--patch-with-raw',
-              '-z',
-              '--',
-              '/dev/null',
-              'new-file.md',
-            ],
-            testRepoPath
-          )
-        } catch {
-          throws = true
-        }
-        expect(throws).toBe(true)
+        assert.ok(result instanceof ExecError)
+        assert.ok(result.cause instanceof RangeError)
+        assert.equal(result.code, 'ERR_CHILD_PROCESS_STDIO_MAXBUFFER')
       })
     })
 
     describe('show', () => {
-      it('exiting file', async () => {
-        const testRepoPath = await initialize('desktop-show-existing')
+      it('existing file', async t => {
+        const testRepoPath = await initialize(t, 'desktop-show-existing')
         const filePath = path.join(testRepoPath, 'file.txt')
 
         fs.writeFileSync(filePath, 'some content', { encoding: 'utf8' })
 
-        await GitProcess.exec(['add', '.'], testRepoPath)
-        await GitProcess.exec(['commit', '-m', '"added a file"'], testRepoPath)
+        await git(['add', '.'], testRepoPath)
+        await git(['commit', '-m', '"added a file"'], testRepoPath)
 
-        const result = await GitProcess.exec(
-          ['show', ':file.txt'],
-          testRepoPath
-        )
+        const result = await git(['show', ':file.txt'], testRepoPath)
         verify(result, r => {
-          expect(r.exitCode).toBe(0)
-          expect(r.stdout.trim()).toBe('some content')
+          assert.equal(r.exitCode, 0)
+          assert.equal(r.stdout.trim(), 'some content')
         })
       })
-      it('missing from index', async () => {
-        const testRepoPath = await initialize('desktop-show-missing-index')
+      it('missing from index', async t => {
+        const testRepoPath = await initialize(t, 'desktop-show-missing-index')
 
-        const result = await GitProcess.exec(
-          ['show', ':missing.txt'],
-          testRepoPath
-        )
+        const result = await git(['show', ':missing.txt'], testRepoPath)
 
-        expect(result).toHaveGitError(GitError.PathDoesNotExist)
+        assertHasGitError(result, GitError.PathDoesNotExist)
       })
-      it('missing from commitish', async () => {
-        const testRepoPath = await initialize('desktop-show-missing-commitish')
+      it('missing from commitish', async t => {
+        const testRepoPath = await initialize(
+          t,
+          'desktop-show-missing-commitish'
+        )
 
         const filePath = path.join(testRepoPath, 'file.txt')
 
         fs.writeFileSync(filePath, 'some content', { encoding: 'utf8' })
 
-        await GitProcess.exec(['add', '.'], testRepoPath)
-        await GitProcess.exec(['commit', '-m', '"added a file"'], testRepoPath)
+        await git(['add', '.'], testRepoPath)
+        await git(['commit', '-m', '"added a file"'], testRepoPath)
 
-        const result = await GitProcess.exec(
-          ['show', 'HEAD:missing.txt'],
-          testRepoPath
-        )
+        const result = await git(['show', 'HEAD:missing.txt'], testRepoPath)
 
-        expect(result).toHaveGitError(GitError.PathDoesNotExist)
+        assertHasGitError(result, GitError.PathDoesNotExist)
       })
-      it('invalid object name - empty repository', async () => {
+      it('invalid object name - empty repository', async t => {
         const testRepoPath = await initialize(
+          t,
           'desktop-show-invalid-object-empty'
         )
 
-        const result = await GitProcess.exec(
-          ['show', 'HEAD:missing.txt'],
-          testRepoPath
-        )
+        const result = await git(['show', 'HEAD:missing.txt'], testRepoPath)
 
-        expect(result).toHaveGitError(GitError.InvalidObjectName)
+        assertHasGitError(result, GitError.InvalidObjectName)
       })
-      it('outside repository', async () => {
-        const testRepoPath = await initialize('desktop-show-outside')
+      it('outside repository', async t => {
+        const testRepoPath = await initialize(t, 'desktop-show-outside')
 
         const filePath = path.join(testRepoPath, 'file.txt')
 
         fs.writeFileSync(filePath, 'some content', { encoding: 'utf8' })
 
-        await GitProcess.exec(['add', '.'], testRepoPath)
-        await GitProcess.exec(['commit', '-m', '"added a file"'], testRepoPath)
+        await git(['add', '.'], testRepoPath)
+        await git(['commit', '-m', '"added a file"'], testRepoPath)
 
-        const result = await GitProcess.exec(
-          ['show', '--', '/missing.txt'],
-          testRepoPath
-        )
+        const result = await git(['show', '--', '/missing.txt'], testRepoPath)
 
-        expect(result).toHaveGitError(GitError.OutsideRepository)
+        assertHasGitError(result, GitError.OutsideRepository)
       })
     })
   })
@@ -269,41 +231,56 @@ describe('git-process', () => {
       const errorCodesWithoutRegex = difference(errorCodes, regexes)
       const regexWithoutErrorCodes = difference(regexes, errorCodes)
 
-      expect(errorCodesWithoutRegex).toHaveLength(0)
-      expect(regexWithoutErrorCodes).toHaveLength(0)
+      assert.equal(errorCodesWithoutRegex.length, 0)
+      assert.equal(regexWithoutErrorCodes.length, 0)
     })
 
     it('raises error when folder does not exist', async () => {
-      const testRepoPath = path.join(temp.path(), 'desktop-does-not-exist')
+      const testRepoPath = path.join(
+        tmpdir(),
+        'desktop-does-not-exist-' + randomBytes(8).toString('hex')
+      )
 
       let error: Error | null = null
       try {
-        await GitProcess.exec(['show', 'HEAD'], testRepoPath)
+        await git(['show', 'HEAD'], testRepoPath)
       } catch (e) {
         error = e as Error
       }
 
-      expect(error!.message).toBe('Unable to find path to repository on disk.')
-      expect((error as any).code).toBe(RepositoryDoesNotExistErrorCode)
+      assert.ok(error?.message.includes('Git failed to execute.'))
+      assert.equal((error as any).code, 'ENOENT')
     })
 
-    it('can parse errors', () => {
-      const error = GitProcess.parseError('fatal: Authentication failed')
-      expect(error).toBe(GitError.SSHAuthenticationFailed)
+    it('can parse HTTPS auth errors', () => {
+      const error = parseError(
+        "fatal: Authentication failed for 'https://www.github.com/shiftkey/desktop.git/'"
+      )
+      assert.equal(error, GitError.HTTPSAuthenticationFailed)
+    })
+
+    it('can parse HTTP auth errors', () => {
+      const error = parseError(
+        "fatal: Authentication failed for 'http://localhost:3000'"
+      )
+      assert.equal(error, GitError.HTTPSAuthenticationFailed)
+    })
+
+    it('can parse SSH auth errors', () => {
+      const error = parseError('fatal: Authentication failed')
+      assert.equal(error, GitError.SSHAuthenticationFailed)
     })
 
     it('can parse bad revision errors', () => {
-      const error = GitProcess.parseError(
-        "fatal: bad revision 'beta..origin/beta'"
-      )
-      expect(error).toBe(GitError.BadRevision)
+      const error = parseError("fatal: bad revision 'beta..origin/beta'")
+      assert.equal(error, GitError.BadRevision)
     })
 
     it('can parse unrelated histories error', () => {
       const stderr = `fatal: refusing to merge unrelated histories`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.CannotMergeUnrelatedHistories)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.CannotMergeUnrelatedHistories)
     })
 
     it('can parse GH001 push file size error', () => {
@@ -315,8 +292,8 @@ To https://github.com/shiftkey/too-large-repository.git
  ! [remote rejected] master -> master (pre-receive hook declined)
 error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.PushWithFileSizeExceedingLimit)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.PushWithFileSizeExceedingLimit)
     })
 
     it('can parse GH002 branch name error', () => {
@@ -326,8 +303,8 @@ To https://github.com/shiftkey/too-large-repository.git
  ! [remote rejected] aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa -> aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa (pre-receive hook declined)
 error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.HexBranchNameRejected)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.HexBranchNameRejected)
     })
 
     it('can parse GH003 force push error', () => {
@@ -336,8 +313,8 @@ To https://github.com/shiftkey/too-large-repository.git
  ! [remote rejected]  my-cool-branch ->  my-cool-branch (pre-receive hook declined)
 error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.ForcePushRejected)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.ForcePushRejected)
     })
 
     it('can parse GH005 ref length error', () => {
@@ -346,8 +323,8 @@ To https://github.com/shiftkey/too-large-repository.git
 ...`
       // there's probably some output here missing but I couldn't trigger this locally
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.InvalidRefLength)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.InvalidRefLength)
     })
 
     it('can parse GH006 protected branch push error', () => {
@@ -356,8 +333,8 @@ remote: error: At least one approved review is required
 To https://github.com/shiftkey-tester/protected-branches.git
  ! [remote rejected] master -> master (protected branch hook declined)
 error: failed to push some refs to 'https://github.com/shiftkey-tester/protected-branches.git'`
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.ProtectedBranchRequiresReview)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.ProtectedBranchRequiresReview)
     })
 
     it('can parse GH006 protected branch force push error', () => {
@@ -367,8 +344,8 @@ To https://github.com/shiftkey/too-large-repository.git
  ! [remote rejected] master -> master (protected branch hook declined)
 error: failed to push some refs to 'https://github.com/shiftkey/too-large-repository.git'`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.ProtectedBranchForcePush)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.ProtectedBranchForcePush)
     })
 
     it('can parse GH006 protected branch delete error', () => {
@@ -378,8 +355,8 @@ To https://github.com/tierninho-tester/trterdgdfgdf.git
   ! [remote rejected] dupe (protected branch hook declined)
 error: failed to push some refs to 'https://github.com/tierninho-tester/trterdgdfgdf.git'`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.ProtectedBranchDeleteRejected)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.ProtectedBranchDeleteRejected)
     })
 
     it('can parse GH006 required status check error', () => {
@@ -389,8 +366,8 @@ To https://github.com/Raul6469/EclipseMaven.git
   ! [remote rejected] master -> master (protected branch hook declined)
 error: failed to push some refs to 'https://github.com/Raul6469/EclipseMaven.git`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.ProtectedBranchRequiredStatus)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.ProtectedBranchRequiredStatus)
     })
 
     it('can parse GH007 push with private email error', () => {
@@ -398,53 +375,53 @@ error: failed to push some refs to 'https://github.com/Raul6469/EclipseMaven.git
 remote: You can make your email public or disable this protection by visiting:
 remote: http://github.com/settings/emails`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.PushWithPrivateEmail)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.PushWithPrivateEmail)
     })
 
     it('can parse LFS attribute does not match error', () => {
       const stderr = `The filter.lfs.clean attribute should be "git-lfs clean -- %f" but is "git lfs clean %f"`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.LFSAttributeDoesNotMatch)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.LFSAttributeDoesNotMatch)
     })
 
     it('can parse rename Branch error', () => {
       const stderr = `error: refname refs/heads/adding-renamefailed-error not found
       fatal: Branch rename failed`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.BranchRenameFailed)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.BranchRenameFailed)
     })
 
     it('can parse path does not exist error - neither on disk nor in the index', () => {
       const stderr =
         "fatal: path 'missing.txt' does not exist (neither on disk nor in the index).\n"
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.PathDoesNotExist)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.PathDoesNotExist)
     })
 
     it('can parse path does not exist error - in commitish', () => {
       const stderr = "fatal: path 'missing.txt' does not exist in 'HEAD'\n"
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.PathDoesNotExist)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.PathDoesNotExist)
     })
 
     it('can parse invalid object name error', () => {
       const stderr = "fatal: invalid object name 'HEAD'.\n"
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.InvalidObjectName)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.InvalidObjectName)
     })
 
     it('can parse is outside repository error', () => {
       const stderr =
         "fatal: /missing.txt: '/missing.txt' is outside repository\n"
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.OutsideRepository)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.OutsideRepository)
     })
 
     it('can parse lock file exists error', () => {
@@ -456,53 +433,53 @@ are terminated then try again. If it still fails, a git process
 may have crashed in this repository earlier:
 remove the file manually to continue.`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.LockFileAlreadyExists)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.LockFileAlreadyExists)
     })
 
     it('can parse the previous not found repository error', () => {
       const stderr =
         'fatal: Not a git repository (or any of the parent directories): .git'
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.NotAGitRepository)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.NotAGitRepository)
     })
 
     it('can parse the current found repository error', () => {
       const stderr =
         'fatal: not a git repository (or any of the parent directories): .git'
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.NotAGitRepository)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.NotAGitRepository)
     })
 
     it('can parse the no merge to abort error', () => {
       const stderr = 'fatal: There is no merge to abort (MERGE_HEAD missing).\n'
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.NoMergeToAbort)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.NoMergeToAbort)
     })
 
     it('can parse the pulling non-existent remote branch error', () => {
       const stderr =
         "Your configuration specifies to merge with the ref 'refs/heads/tierninho-patch-1'\nfrom the remote, but no such ref was fetched.\n"
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.NoExistingRemoteBranch)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.NoExistingRemoteBranch)
     })
 
     it('can parse the local files overwritten error', () => {
       let stderr =
         'error: Your local changes to the following files would be overwritten by checkout:\n'
 
-      let error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.LocalChangesOverwritten)
+      let error = parseError(stderr)
+      assert.equal(error, GitError.LocalChangesOverwritten)
 
       stderr =
         'error: The following untracked working tree files would be overwritten by checkout:\n'
 
-      error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.LocalChangesOverwritten)
+      error = parseError(stderr)
+      assert.equal(error, GitError.LocalChangesOverwritten)
     })
 
     it('can parse the unresovled conflicts error', () => {
@@ -510,8 +487,8 @@ remove the file manually to continue.`
 You must edit all merge conflicts and then
 mark them as resolved using git add`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.UnresolvedConflicts)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.UnresolvedConflicts)
     })
 
     it('can parse the failed to sign data error within a rebase', () => {
@@ -519,111 +496,107 @@ mark them as resolved using git add`
       Rebasing (2/4)
       error: gpg failed to sign the data`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.GPGFailedToSignData)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.GPGFailedToSignData)
     })
 
     it('can parse the could not resolve host error', () => {
       const stderr = `"Cloning into '/cloneablepath/'...\nfatal: unable to access 'https://github.com/Daniel-McCarthy/dugite.git/': Could not resolve host: github.com\n"`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.HostDown)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.HostDown)
     })
 
-    it('can parse an error when merging with local changes', async () => {
-      const repoPath = await initialize('desktop-merge-with-local-changes')
+    it('can parse an error when merging with local changes', async t => {
+      const repoPath = await initialize(t, 'desktop-merge-with-local-changes')
       const readmePath = path.join(repoPath, 'Readme.md')
 
       // Add a commit to the default branch.
       fs.writeFileSync(readmePath, '# README', { encoding: 'utf8' })
-      await GitProcess.exec(['add', '.'], repoPath)
-      await GitProcess.exec(['commit', '-m', '"added README"'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"added README"'], repoPath)
 
       // Create another branch and add commit.
-      await GitProcess.exec(['checkout', '-b', 'some-other-branch'], repoPath)
+      await git(['checkout', '-b', 'some-other-branch'], repoPath)
       fs.writeFileSync(readmePath, '# README modified in branch', {
         encoding: 'utf8',
       })
-      await GitProcess.exec(['add', '.'], repoPath)
-      await GitProcess.exec(['commit', '-m', '"updated README"'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"updated README"'], repoPath)
 
       // Go back to the default branch and modify a file.
-      await GitProcess.exec(['checkout', '-'], repoPath)
+      await git(['checkout', '-'], repoPath)
       fs.writeFileSync(readmePath, '# README modified in master', {
         encoding: 'utf8',
       })
 
       // Execute a merge.
-      const result = await GitProcess.exec(
-        ['merge', 'some-other-branch'],
-        repoPath
-      )
+      const result = await git(['merge', 'some-other-branch'], repoPath)
 
-      expect(result).toHaveGitError(GitError.MergeWithLocalChanges)
+      assertHasGitError(result, GitError.MergeWithLocalChanges)
     })
 
-    it('can parse an error when renasing with local changes', async () => {
-      const repoPath = await initialize('desktop-merge-with-local-changes')
+    it('can parse an error when renasing with local changes', async t => {
+      const repoPath = await initialize(t, 'desktop-merge-with-local-changes')
       const readmePath = path.join(repoPath, 'Readme.md')
 
       // Add a commit to the default branch.
       fs.writeFileSync(readmePath, '# README', { encoding: 'utf8' })
-      await GitProcess.exec(['add', '.'], repoPath)
-      await GitProcess.exec(['commit', '-m', '"added README"'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"added README"'], repoPath)
 
       // Create another branch and add commit.
-      await GitProcess.exec(['checkout', '-b', 'some-other-branch'], repoPath)
+      await git(['checkout', '-b', 'some-other-branch'], repoPath)
       fs.writeFileSync(readmePath, '# README modified in branch', {
         encoding: 'utf8',
       })
-      await GitProcess.exec(['add', '.'], repoPath)
-      await GitProcess.exec(['commit', '-m', '"updated README"'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"updated README"'], repoPath)
 
       // Go back to the default branch and modify a file.
-      await GitProcess.exec(['checkout', '-'], repoPath)
+      await git(['checkout', '-'], repoPath)
       fs.writeFileSync(readmePath, '# README modified in master', {
         encoding: 'utf8',
       })
 
       // Execute a rebase.
-      const result = await GitProcess.exec(
-        ['rebase', 'some-other-branch'],
-        repoPath
-      )
+      const result = await git(['rebase', 'some-other-branch'], repoPath)
 
-      expect(result).toHaveGitError(GitError.RebaseWithLocalChanges)
+      assertHasGitError(result, GitError.RebaseWithLocalChanges)
     })
 
-    it('can parse an error when pulling with merge with local changes', async () => {
+    it('can parse an error when pulling with merge with local changes', async t => {
       const { path: repoPath, remote: remoteRepositoryPath } =
         await initializeWithRemote(
+          t,
           'desktop-pullrebase-with-local-changes',
           null
         )
       const { path: forkRepoPath } = await initializeWithRemote(
+        t,
         'desktop-pullrebase-with-local-changes-fork',
         remoteRepositoryPath
       )
-      await GitProcess.exec(['config', 'pull.rebase', 'false'], forkRepoPath)
+      await git(['config', 'pull.rebase', 'false'], forkRepoPath)
       const readmePath = path.join(repoPath, 'Readme.md')
       const readmePathInFork = path.join(forkRepoPath, 'Readme.md')
 
       // Add a commit to the default branch.
       fs.writeFileSync(readmePath, '# README', { encoding: 'utf8' })
-      await GitProcess.exec(['add', '.'], repoPath)
-      await GitProcess.exec(['commit', '-m', '"added README"'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"added README"'], repoPath)
 
       // Push the commit and fetch it from the fork.
-      await GitProcess.exec(['push', 'origin', 'HEAD', '-u'], repoPath)
-      await GitProcess.exec(['pull', 'origin', 'HEAD'], forkRepoPath)
+      await git(['push', 'origin', 'HEAD', '-u'], repoPath)
+      await git(['pull', 'origin', 'HEAD'], forkRepoPath)
 
       // Add another commit and push it
       fs.writeFileSync(readmePath, '# README modified from upstream', {
         encoding: 'utf8',
       })
-      await GitProcess.exec(['add', '.'], repoPath)
-      await GitProcess.exec(['commit', '-m', '"updated README"'], repoPath)
-      await GitProcess.exec(['push', 'origin'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"updated README"'], repoPath)
+      await git(['push', 'origin'], repoPath)
 
       // Modify locally the Readme file in the fork.
       fs.writeFileSync(readmePathInFork, '# README modified from fork', {
@@ -631,44 +604,43 @@ mark them as resolved using git add`
       })
 
       // Pull from the fork
-      const result = await GitProcess.exec(
-        ['pull', 'origin', 'HEAD'],
-        forkRepoPath
-      )
+      const result = await git(['pull', 'origin', 'HEAD'], forkRepoPath)
 
-      expect(result).toHaveGitError(GitError.MergeWithLocalChanges)
+      assertHasGitError(result, GitError.MergeWithLocalChanges)
     })
 
-    it('can parse an error when pulling with rebase with local changes', async () => {
+    it('can parse an error when pulling with rebase with local changes', async t => {
       const { path: repoPath, remote: remoteRepositoryPath } =
         await initializeWithRemote(
+          t,
           'desktop-pullrebase-with-local-changes',
           null
         )
       const { path: forkRepoPath } = await initializeWithRemote(
+        t,
         'desktop-pullrebase-with-local-changes-fork',
         remoteRepositoryPath
       )
-      await GitProcess.exec(['config', 'pull.rebase', 'true'], forkRepoPath)
+      await git(['config', 'pull.rebase', 'true'], forkRepoPath)
       const readmePath = path.join(repoPath, 'Readme.md')
       const readmePathInFork = path.join(forkRepoPath, 'Readme.md')
 
       // Add a commit to the default branch.
       fs.writeFileSync(readmePath, '# README', { encoding: 'utf8' })
-      await GitProcess.exec(['add', '.'], repoPath)
-      await GitProcess.exec(['commit', '-m', '"added README"'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"added README"'], repoPath)
 
       // Push the commit and fetch it from the fork.
-      await GitProcess.exec(['push', 'origin', 'HEAD', '-u'], repoPath)
-      await GitProcess.exec(['pull', 'origin', 'HEAD'], forkRepoPath)
+      await git(['push', 'origin', 'HEAD', '-u'], repoPath)
+      await git(['pull', 'origin', 'HEAD'], forkRepoPath)
 
       // Add another commit and push it
       fs.writeFileSync(readmePath, '# README modified from upstream', {
         encoding: 'utf8',
       })
-      await GitProcess.exec(['add', '.'], repoPath)
-      await GitProcess.exec(['commit', '-m', '"updated README"'], repoPath)
-      await GitProcess.exec(['push', 'origin'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"updated README"'], repoPath)
+      await git(['push', 'origin'], repoPath)
 
       // Modify locally the Readme file in the fork.
       fs.writeFileSync(readmePathInFork, '# README modified from fork', {
@@ -676,101 +648,164 @@ mark them as resolved using git add`
       })
 
       // Pull from the fork
-      const result = await GitProcess.exec(
-        ['pull', 'origin', 'HEAD'],
-        forkRepoPath
-      )
+      const result = await git(['pull', 'origin', 'HEAD'], forkRepoPath)
 
-      expect(result).toHaveGitError(GitError.RebaseWithLocalChanges)
+      assertHasGitError(result, GitError.RebaseWithLocalChanges)
     })
 
-    it('can parse an error when there is a conflict while merging', async () => {
-      const repoPath = await initialize('desktop-pullrebase-with-local-changes')
+    it('can parse an error when there is a conflict while merging', async t => {
+      const repoPath = await initialize(
+        t,
+        'desktop-pullrebase-with-local-changes'
+      )
       const readmePath = path.join(repoPath, 'Readme.md')
 
       // Create a commit on the default branch.
       fs.writeFileSync(readmePath, '# README', { encoding: 'utf8' })
-      await GitProcess.exec(['add', '.'], repoPath)
-      await GitProcess.exec(['commit', '-m', '"initial commit"'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"initial commit"'], repoPath)
 
       // Create a branch and add another commit.
-      await GitProcess.exec(['checkout', '-b', 'my-branch'], repoPath)
+      await git(['checkout', '-b', 'my-branch'], repoPath)
       fs.writeFileSync(readmePath, '# README from my-branch', {
         encoding: 'utf8',
       })
-      await GitProcess.exec(['add', '.'], repoPath)
-      await GitProcess.exec(
-        ['commit', '-m', '"modify README in my-branch"'],
-        repoPath
-      )
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"modify README in my-branch"'], repoPath)
 
       // Go back to the default branch and add a commit that conflicts.
-      await GitProcess.exec(['checkout', '-'], repoPath)
+      await git(['checkout', '-'], repoPath)
       fs.writeFileSync(readmePath, '# README from default', {
         encoding: 'utf8',
       })
-      await GitProcess.exec(['add', '.'], repoPath)
-      await GitProcess.exec(
+      await git(['add', '.'], repoPath)
+      await git(
         ['commit', '-m', '"modifiy README in default branch"'],
         repoPath
       )
 
       // Try to merge the branch.
-      const result = await GitProcess.exec(['merge', 'my-branch'], repoPath)
+      const result = await git(['merge', 'my-branch'], repoPath)
 
-      expect(result).toHaveGitError(GitError.MergeConflicts)
+      assertHasGitError(result, GitError.MergeConflicts)
     })
 
-    it('can parse an error when there is a conflict while rebasing', async () => {
-      const repoPath = await initialize('desktop-pullrebase-with-local-changes')
+    it('can parse an error when there is a conflict while rebasing', async t => {
+      const repoPath = await initialize(
+        t,
+        'desktop-pullrebase-with-local-changes'
+      )
       const readmePath = path.join(repoPath, 'Readme.md')
 
       // Create a commit on the default branch.
       fs.writeFileSync(readmePath, '# README', { encoding: 'utf8' })
-      await GitProcess.exec(['add', '.'], repoPath)
-      await GitProcess.exec(['commit', '-m', '"initial commit"'], repoPath)
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"initial commit"'], repoPath)
 
       // Create a branch and add another commit.
-      await GitProcess.exec(['checkout', '-b', 'my-branch'], repoPath)
+      await git(['checkout', '-b', 'my-branch'], repoPath)
       fs.writeFileSync(readmePath, '# README from my-branch', {
         encoding: 'utf8',
       })
-      await GitProcess.exec(['add', '.'], repoPath)
-      await GitProcess.exec(
-        ['commit', '-m', '"modify README in my-branch"'],
-        repoPath
-      )
+      await git(['add', '.'], repoPath)
+      await git(['commit', '-m', '"modify README in my-branch"'], repoPath)
 
       // Go back to the default branch and add a commit that conflicts.
-      await GitProcess.exec(['checkout', '-'], repoPath)
+      await git(['checkout', '-'], repoPath)
       fs.writeFileSync(readmePath, '# README from default', {
         encoding: 'utf8',
       })
-      await GitProcess.exec(['add', '.'], repoPath)
-      await GitProcess.exec(
+      await git(['add', '.'], repoPath)
+      await git(
         ['commit', '-m', '"modifiy README in default branch"'],
         repoPath
       )
 
       // Try to merge the branch.
-      const result = await GitProcess.exec(['rebase', 'my-branch'], repoPath)
+      const result = await git(['rebase', 'my-branch'], repoPath)
 
-      expect(result).toHaveGitError(GitError.RebaseConflicts)
+      assertHasGitError(result, GitError.RebaseConflicts)
     })
 
     it('can parse conflict modify delete error', () => {
       const stderr =
         'CONFLICT (modify/delete): a/path/to/a/file.md deleted in HEAD and modified in 1234567 (A commit message). Version 1234567 (A commit message) of a/path/to/a/file.md left in tree.'
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.ConflictModifyDeletedInBranch)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.ConflictModifyDeletedInBranch)
     })
 
     it('can parse path exists but not in ref', () => {
       const stderr = `fatal: path 'README.md' exists on disk, but not in '4b825dc642cb6eb9a060e54bf8d69288fbee4904'`
 
-      const error = GitProcess.parseError(stderr)
-      expect(error).toBe(GitError.PathExistsButNotInRef)
+      const error = parseError(stderr)
+      assert.equal(error, GitError.PathExistsButNotInRef)
+    })
+
+    it('can parse github remote secret detected on push error', () => {
+      const stderr = `Enumerating objects: 8, done.
+Counting objects:  12% (1/8)
+Counting objects:  25% (2/8)
+Counting objects:  37% (3/8)
+Counting objects:  50% (4/8)
+Counting objects:  62% (5/8)
+Counting objects:  75% (6/8)
+Counting objects:  87% (7/8)
+Counting objects: 100% (8/8)
+Counting objects: 100% (8/8), done.
+Delta compression using up to 10 threads
+Compressing objects:  25% (1/4)
+Compressing objects:  50% (2/4)
+Compressing objects:  75% (3/4)
+Compressing objects: 100% (4/4)
+Compressing objects: 100% (4/4), done.
+Writing objects:  16% (1/6)
+Writing objects:  33% (2/6)
+Writing objects:  50% (3/6)
+Writing objects:  66% (4/6)
+Writing objects:  83% (5/6)
+Writing objects: 100% (6/6)
+Writing objects: 100% (6/6), 618 bytes | 618.00 KiB/s, done.
+Total 6 (delta 1), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas:   0% (0/1)        
+remote: Resolving deltas: 100% (1/1)        
+remote: Resolving deltas: 100% (1/1), done.        
+remote: error: GH013: Repository rule violations found for refs/heads/main.        
+remote: 
+remote: - GITHUB PUSH PROTECTION        
+remote:   —————————————————————————————————————————        
+remote:     Resolve the following violations before pushing again        
+remote: 
+remote:     - Push cannot contain secrets        
+remote: 
+remote:             
+remote:      (?) Learn how to resolve a blocked push        
+remote:      https://docs.github.com/code-security/secret-scanning/working-with-secret-scanning-and-push-protection/working-with-push-protection-from-the-command-line#resolving-a-blocked-push        
+remote:             
+remote:             
+remote:       —— GitHub Personal Access Token ——————————————————————        
+remote:        locations:        
+remote:          - commit: a6cf64dbe7fcefb6d90238a8d13d831db5dec3e9        
+remote:            path: README.md:4        
+remote:          - commit: 34800b208dd1432b6d7bff2789e09a3c89ab037d        
+remote:            path: README.md:4        
+remote:          - commit: a6cf64dbe7fcefb6d90238a8d13d831db5dec3e9        
+remote:            path: README.md:5        
+remote:          - commit: a6cf64dbe7fcefb6d90238a8d13d831db5dec3e9        
+remote:            path: README.md:6        
+remote:             
+remote:        (?) To push, remove secret from commit(s) or follow this URL to allow the secret.        
+remote:        https://github.com/tidy-dev/public_playground/security/secret-scanning/unblock-secret/2w2db5WJQCitzO0A2UDh0yyB3Ob        
+remote:             
+remote: 
+remote: 
+To https://github.com/tidy-dev/public_playground.git
+ ! [remote rejected] main -> main (push declined due to repository rule violations)
+error: failed to push some refs to 'https://github.com/tidy-dev/public_playground.git'
+`
+
+      const error = parseError(stderr)
+      assert.equal(error, GitError.PushWithSecretDetected)
     })
   })
 })

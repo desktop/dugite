@@ -1,24 +1,27 @@
-import { GitProcess, IGitResult, GitError } from '../lib'
+import assert from 'assert'
+import { IGitResult, GitError, exec, parseError } from '../lib'
+import { TestContext } from 'node:test'
+import { mkdtemp, rm } from 'fs/promises'
+import { join } from 'path'
+import { tmpdir } from 'os'
 
 // NOTE: bump these versions to the latest stable releases
-export const gitVersion = '2.39.2'
-export const gitForWindowsVersion = '2.39.2.windows.1'
-export const gitLfsVersion = '3.3.0'
-
-const temp = require('temp').track()
+export const gitVersion = '2.47.3'
+export const gitForWindowsVersion = '2.47.3.windows.1'
+export const gitLfsVersion = '3.6.1'
+export const gitCredentialManagerVersion = '2.6.1'
 
 export async function initialize(
+  t: TestContext,
   repositoryName: string,
   defaultBranch?: string
 ): Promise<string> {
-  const testRepoPath = temp.mkdirSync(`desktop-git-test-${repositoryName}`)
+  const prefix = `desktop-git-test-${repositoryName}`
+  const testRepoPath = await createTestDir(t, prefix)
   const branchArgs = defaultBranch !== undefined ? ['-b', defaultBranch] : []
-  await GitProcess.exec(['init', ...branchArgs], testRepoPath)
-  await GitProcess.exec(
-    ['config', 'user.email', '"some.user@email.com"'],
-    testRepoPath
-  )
-  await GitProcess.exec(['config', 'user.name', '"Some User"'], testRepoPath)
+  await exec(['init', ...branchArgs], testRepoPath)
+  await exec(['config', 'user.email', '"some.user@email.com"'], testRepoPath)
+  await exec(['config', 'user.name', '"Some User"'], testRepoPath)
   return testRepoPath
 }
 
@@ -30,12 +33,16 @@ export async function initialize(
  * @param remotePath        The path of the remote reposiry (when null a new repository will get created)
  */
 export async function initializeWithRemote(
+  t: TestContext,
   repositoryName: string,
   remotePath: string | null
 ): Promise<{ path: string; remote: string }> {
   if (remotePath === null) {
-    const path = temp.mkdirSync(`desktop-git-test-remote-${repositoryName}`)
-    await GitProcess.exec(['init', '--bare'], path)
+    const path = await createTestDir(
+      t,
+      `desktop-git-test-remote-${repositoryName}`
+    )
+    await exec(['init', '--bare'], path)
     remotePath = path
   }
 
@@ -43,15 +50,15 @@ export async function initializeWithRemote(
     throw new Error('for TypeScript')
   }
 
-  const testRepoPath = await initialize(repositoryName)
-  await GitProcess.exec(['remote', 'add', 'origin', remotePath], testRepoPath)
+  const testRepoPath = await initialize(t, repositoryName)
+  await exec(['remote', 'add', 'origin', remotePath], testRepoPath)
 
   return { path: testRepoPath, remote: remotePath }
 }
 
-export function verify(
-  result: IGitResult,
-  callback: (result: IGitResult) => void
+export function verify<T extends IGitResult>(
+  result: T,
+  callback: (result: T) => void
 ) {
   try {
     callback(result)
@@ -60,8 +67,8 @@ export function verify(
       'error encountered while verifying; poking at response from Git:'
     )
     console.log(` - exitCode: ${result.exitCode}`)
-    console.log(` - stdout: ${result.stdout.trim()}`)
-    console.log(` - stderr: ${result.stderr.trim()}`)
+    console.log(` - stdout: ${result.stdout}`)
+    console.log(` - stderr: ${result.stderr}`)
     console.log()
     throw e
   }
@@ -84,48 +91,24 @@ function getFriendlyGitError(gitError: GitError): string {
   return found[0]
 }
 
-expect.extend({
-  toHaveGitError(result: IGitResult, expectedError: GitError) {
-    let gitError = GitProcess.parseError(result.stderr)
-    if (gitError === null) {
-      gitError = GitProcess.parseError(result.stdout)
-    }
+export const assertHasGitError = (
+  result: IGitResult,
+  expectedError: GitError
+) => {
+  const gitError =
+    parseError(result.stderr.toString()) ?? parseError(result.stdout.toString())
 
-    const message = () => {
-      return [
-        this.utils.matcherHint(
-          `${this.isNot ? '.not' : ''}.toHaveGitError`,
-          'result',
-          'gitError'
-        ),
-        '',
-        'Expected',
-        `  ${this.utils.printExpected(getFriendlyGitError(expectedError))}`,
-        'Received:',
-        `  ${this.utils.printReceived(
-          gitError ? getFriendlyGitError(gitError) : null
-        )}`,
-      ].join('\n')
-    }
+  assert.equal(
+    gitError,
+    expectedError,
+    `Expected error ${getFriendlyGitError(expectedError)}, got ${
+      gitError ? getFriendlyGitError(gitError) : 'none'
+    }`
+  )
+}
 
-    if (gitError === expectedError) {
-      return {
-        pass: true,
-        message,
-      }
-    }
-
-    return {
-      pass: false,
-      message,
-    }
-  },
-})
-
-declare global {
-  namespace jest {
-    interface Matchers<R = IGitResult> {
-      toHaveGitError(result: GitError): CustomMatcherResult
-    }
-  }
+export const createTestDir = async (t: TestContext, prefix: string) => {
+  const dir = await mkdtemp(join(tmpdir(), prefix))
+  t.after(() => rm(dir, { recursive: true, force: true }))
+  return dir
 }

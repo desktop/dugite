@@ -1,5 +1,6 @@
 /** The git errors which can be parsed from failed git commands. */
 export enum GitError {
+  BadConfigValue,
   SSHKeyAuditUnverified,
   SSHAuthenticationFailed,
   SSHPermissionDenied,
@@ -60,13 +61,16 @@ export enum GitError {
   MergeCommitNoMainlineOption,
   UnsafeDirectory,
   PathExistsButNotInRef,
+  PushWithSecretDetected,
 }
 
 /** A mapping from regexes to the git error they identify. */
 export const GitErrorRegexes: { [regexp: string]: GitError } = {
+  "fatal: bad (?:numeric|boolean) config value '(.+)' for '(.+)'":
+    GitError.BadConfigValue,
   'ERROR: ([\\s\\S]+?)\\n+\\[EPOLICYKEYAGE\\]\\n+fatal: Could not read from remote repository.':
     GitError.SSHKeyAuditUnverified,
-  "fatal: Authentication failed for 'https://":
+  "fatal: Authentication failed for 'https?://":
     GitError.HTTPSAuthenticationFailed,
   'fatal: Authentication failed': GitError.SSHAuthenticationFailed,
   'fatal: Could not read from remote repository.': GitError.SSHPermissionDenied,
@@ -164,13 +168,52 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
     GitError.UnsafeDirectory,
   "fatal: path '(.+)' exists on disk, but not in '(.+)'":
     GitError.PathExistsButNotInRef,
+  'GITHUB PUSH PROTECTION[.\\s\\S]+Push cannot contain secrets':
+    GitError.PushWithSecretDetected,
 }
 
-/**
- * The error code for when git cannot be found. This most likely indicates a
- * problem with dugite itself.
- */
-export const GitNotFoundErrorCode = 'git-not-found-error'
+export class ExecError extends Error {
+  /**
+   * The error.code property is a string label that identifies the kind of error
+   *
+   * See https://nodejs.org/api/errors.html#errorcode
+   */
+  public readonly code?: string
 
-/** The error code for when the path to a repository doesn't exist. */
-export const RepositoryDoesNotExistErrorCode = 'repository-does-not-exist-error'
+  /**
+   * The signal that terminated the process
+   */
+  public readonly signal?: string
+
+  /**
+   * Whether the child process successfully received a signal from
+   * subprocess.kill(). The killed property does not indicate that the child
+   * process has been terminated.
+   */
+  public readonly killed?: boolean
+
+  constructor(
+    public readonly message: string,
+    public readonly stdout: Buffer | string,
+    public readonly stderr: Buffer | string,
+    cause?: unknown
+  ) {
+    super(message, { cause })
+
+    if (cause && typeof cause === 'object') {
+      if ('code' in cause) {
+        if (typeof cause.code === 'string') {
+          this.code = cause.code
+        }
+      }
+
+      if ('signal' in cause && typeof cause.signal === 'string') {
+        this.signal = cause.signal
+      }
+
+      if ('killed' in cause && typeof cause.killed === 'boolean') {
+        this.killed = cause.killed
+      }
+    }
+  }
+}

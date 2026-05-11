@@ -1,11 +1,11 @@
-import * as Fs from 'fs'
 import * as Path from 'path'
-
 import { ChildProcess } from 'child_process'
-import { GitProcess } from '../../lib'
 
-import { gitForWindowsVersion, gitVersion } from '../helpers'
-const temp = require('temp').track()
+import { createTestDir, gitForWindowsVersion, gitVersion } from '../helpers'
+import assert from 'assert'
+import { describe, it } from 'node:test'
+import { appendFile } from 'fs/promises'
+import { exec, spawn } from '../../lib'
 
 const maximumStringSize = 268435441
 
@@ -37,33 +37,37 @@ function bufferOutput(
   })
 }
 
-describe('GitProcess.spawn', () => {
+describe('spawn', () => {
   it('can launch git', async () => {
-    const process = GitProcess.spawn(['--version'], __dirname)
+    const process = spawn(['--version'], __dirname)
     const result = await bufferOutput(process)
-    if (result.includes('windows')) {
-      expect(result).toContain(`git version ${gitForWindowsVersion}`)
-    } else {
-      expect(result).toContain(`git version ${gitVersion}`)
-    }
+    const version = result.includes('windows')
+      ? gitForWindowsVersion
+      : gitVersion
+    const expected = `git version ${version}`
+
+    assert.ok(
+      result.includes(expected),
+      `Expected git version to contain ${expected}, got: ${result}`
+    )
   })
 
-  it('returns expected exit codes', done => {
-    const directory = temp.mkdirSync('desktop-not-a-repo')
-    const process = GitProcess.spawn(['status'], directory)
-    process.on('exit', (code, signal) => {
-      if (code === 0) {
-        done(new Error('the exit code returned was zero which was unexpected'))
-      } else {
-        done()
-      }
+  it('returns expected exit codes', async t => {
+    const directory = await createTestDir(t, 'desktop-not-a-repo')
+    const process = spawn(['status'], directory)
+    const code = await new Promise<number | null>(resolve => {
+      process.on('exit', code => {
+        resolve(code)
+      })
     })
+
+    assert.notEqual(code, 0)
   })
 
-  it('can fail safely with a diff exceeding the string length', done => {
-    const testRepoPath = temp.mkdirSync('desktop-git-spwawn-empty')
+  it('can fail safely with a diff exceeding the string length', async t => {
+    const testRepoPath = await createTestDir(t, 'desktop-git-spwawn-empty')
 
-    GitProcess.exec(['init'], testRepoPath)
+    exec(['init'], testRepoPath)
 
     // write this file in two parts to ensure we don't trip the string length limits
     const filePath = Path.join(testRepoPath, 'file.txt')
@@ -77,9 +81,10 @@ describe('GitProcess.spawn', () => {
     const secondBuffer = Buffer.alloc(secondBufferLength)
     secondBuffer.fill('b')
 
-    Fs.appendFileSync(filePath, firstBuffer.toString('utf-8'))
-    Fs.appendFileSync(filePath, secondBuffer.toString('utf-8'))
-    const process = GitProcess.spawn(
+    await appendFile(filePath, firstBuffer)
+    await appendFile(filePath, secondBuffer)
+
+    const process = spawn(
       [
         'diff',
         '--no-index',
@@ -92,14 +97,6 @@ describe('GitProcess.spawn', () => {
       testRepoPath
     )
 
-    bufferOutput(process)
-      .then(o => {
-        done(
-          new Error('The diff was returned as-is, which should never happen')
-        )
-      })
-      .catch(err => {
-        done()
-      })
+    await assert.rejects(bufferOutput(process), 'Expected diff to fail')
   })
 })

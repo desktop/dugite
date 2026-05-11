@@ -4,35 +4,13 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Jest Fast Tests",
-      "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": ["--silent", "--config", "${workspaceFolder}/jest.fast.config.js"],
+      "name": "Debug current test file",
+      "args": ["--import", "tsx", "--test", "${relativeFile}"],
       "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
       "env": {
-        "LOCAL_GIT_DIRECTORY": "./git/"
-      },
-      "internalConsoleOptions": "neverOpen"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Jest Slow Tests",
-      "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": ["--silent", "--config", "${workspaceFolder}/jest.slow.config.js"],
-      "console": "integratedTerminal",
-      "env": {
-        "LOCAL_GIT_DIRECTORY": "./git/"
-      },
-      "internalConsoleOptions": "neverOpen"
-    },
-    {
-      "type": "node",
-      "request": "launch",
-      "name": "Jest External Tests",
-      "program": "${workspaceFolder}/node_modules/.bin/jest",
-      "args": ["--silent", "--config", "${workspaceFolder}/jest.external.config.js"],
-      "console": "integratedTerminal",
-      "internalConsoleOptions": "neverOpen"
+        "LOCAL_GIT_DIRECTORY": "${workspaceFolder}/git"
+      }
     }
   ]
 }
