@@ -1,0 +1,44 @@
+name: Update Git
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update-git:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.node-version'
+      - name: Update embedded Git versions
+        id: update-embedded-git
+        run: node script/update-embedded-git.js
+      - uses: actions/create-github-app-token@v1
+        id: generate-token
+        with:
+          app-id: ${{ vars.RELEASES_APP_ID }}
+          private-key: ${{ secrets.RELEASES_APP_KEY }}
+      - name: Create update pull request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: Update dugite-native to ${{ steps.update-embedded-git.outputs.dugite_version }}
+          token: ${{ steps.generate-token.outputs.token }}
+          title: Update dugite-native to ${{ steps.update-embedded-git.outputs.dugite_version }}
+          body: |
+            This PR updates the embedded Git version to ${{ steps.update-embedded-git.outputs.dugite_version }}.
+
+            This contains
+
+            - Git: ${{ steps.update-embedded-git.outputs.gitVersion }}
+            - Git for Windows: ${{ steps.update-embedded-git.outputs.gitForWindowsVersion }}
+            - Git LFS: ${{ steps.update-embedded-git.outputs.gitLfsVersion }}
+            - Git Credential Manager: ${{ steps.update-embedded-git.outputs.gitCredentialManagerVersion }}
+
+            Initiated by @${{ github.actor }} in ${{ github.server_url}}/${{ github.repository }}/actions/runs/${{ github.run_id }}.
+          branch: bump-dugite-native-${{ steps.update-embedded-git.outputs.dugite_version }}

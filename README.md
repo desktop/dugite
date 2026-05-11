@@ -4,6 +4,10 @@ This project provides bindings for Node applications to interact with Git reposi
 
 The source is in TypeScript, but can be consumed by any JavaScript application.
 
+## Migrating from 2.x to 3.x
+
+See the migration guide in the [3.0.0 release](https://github.com/desktop/dugite/releases/tag/v3.0.0) for details on breaking changes and how to update your code.
+
 ### Getting Started
 
 Add it to your project:
@@ -21,17 +25,15 @@ or
 Then reference it in your application:
 
 ```js
-import { GitProcess, GitError, IGitResult } from 'dugite'
+import { exec } from 'dugite'
 
 const pathToRepository = 'C:/path/to/git/repository/'
 
-const result = await GitProcess.exec(['status'], pathToRepository)
-if (result.exitCode === 0) {
-  const output = result.stdout
-  // do some things with the output
+const { exitCode, stdout, stderr } = await exec(['status'], pathToRepository)
+if (exitCode === 0) {
+  console.log(stdout)
 } else {
-  const error = result.stderr
-  // error handling
+  console.error(stderr)
 }
 ```
 
