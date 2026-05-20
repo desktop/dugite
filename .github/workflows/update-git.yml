@@ -19,10 +19,10 @@ jobs:
       - name: Update embedded Git versions
         id: update-embedded-git
         run: node script/update-embedded-git.js
-      - uses: actions/create-github-app-token@v1
+      - uses: actions/create-github-app-token@v3
         id: generate-token
         with:
-          app-id: ${{ vars.RELEASES_APP_ID }}
+          client-id: ${{ vars.RELEASES_APP_ID }}
           private-key: ${{ secrets.RELEASES_APP_KEY }}
       - name: Create update pull request
         env:
