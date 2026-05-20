@@ -66,12 +66,11 @@ jobs:
       - name: Publish package
         run: npm publish --tag ${{ github.event.inputs.tag }} ${{ github.event.inputs['dry-run'] == 'true' && '--dry-run' || '' }}
       - name: Publish release
-        uses: softprops/action-gh-release@v2
         if: ${{ github.event.inputs['dry-run'] != 'true' }}
-        with:
-          token: ${{ steps.generate-token.outputs.token }}
-          generate_release_notes: true
-          make_latest: ${{ github.event.inputs.tag == 'latest' }}
-          tag_name: v${{ steps.get_version.outputs.version }}
-          draft: false
-          prerelease: ${{ github.event.inputs.tag != 'latest' }}
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+        run: |
+          gh release create "v${{ steps.get_version.outputs.version }}" \
+            --generate-notes \
+            ${{ github.event.inputs.tag != 'latest' && '--prerelease' || '--latest' }} \
+            --title "v${{ steps.get_version.outputs.version }}"
