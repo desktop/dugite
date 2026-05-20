@@ -25,20 +25,38 @@ jobs:
           app-id: ${{ vars.RELEASES_APP_ID }}
           private-key: ${{ secrets.RELEASES_APP_KEY }}
       - name: Create update pull request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          commit-message: Update dugite-native to ${{ steps.update-embedded-git.outputs.dugite_version }}
-          token: ${{ steps.generate-token.outputs.token }}
-          title: Update dugite-native to ${{ steps.update-embedded-git.outputs.dugite_version }}
-          body: |
-            This PR updates the embedded Git version to ${{ steps.update-embedded-git.outputs.dugite_version }}.
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          DUGITE_VERSION: ${{ steps.update-embedded-git.outputs.dugite_version }}
+          GIT_VERSION: ${{ steps.update-embedded-git.outputs.gitVersion }}
+          GIT_FOR_WINDOWS_VERSION: ${{ steps.update-embedded-git.outputs.gitForWindowsVersion }}
+          GIT_LFS_VERSION: ${{ steps.update-embedded-git.outputs.gitLfsVersion }}
+          GIT_CREDENTIAL_MANAGER_VERSION: ${{ steps.update-embedded-git.outputs.gitCredentialManagerVersion }}
+        run: |
+          branch="bump-dugite-native-${DUGITE_VERSION}"
+          git checkout -b "$branch"
+          git add -A
+          git commit -m "Update dugite-native to ${DUGITE_VERSION}"
+          git push -f origin "$branch"
 
-            This contains
+          body=$(cat <<EOF
+          This PR updates the embedded Git version to ${DUGITE_VERSION}.
 
-            - Git: ${{ steps.update-embedded-git.outputs.gitVersion }}
-            - Git for Windows: ${{ steps.update-embedded-git.outputs.gitForWindowsVersion }}
-            - Git LFS: ${{ steps.update-embedded-git.outputs.gitLfsVersion }}
-            - Git Credential Manager: ${{ steps.update-embedded-git.outputs.gitCredentialManagerVersion }}
+          This contains
 
-            Initiated by @${{ github.actor }} in ${{ github.server_url}}/${{ github.repository }}/actions/runs/${{ github.run_id }}.
-          branch: bump-dugite-native-${{ steps.update-embedded-git.outputs.dugite_version }}
+          - Git: ${GIT_VERSION}
+          - Git for Windows: ${GIT_FOR_WINDOWS_VERSION}
+          - Git LFS: ${GIT_LFS_VERSION}
+          - Git Credential Manager: ${GIT_CREDENTIAL_MANAGER_VERSION}
+
+          Initiated by @${{ github.actor }} in ${{ github.server_url}}/${{ github.repository }}/actions/runs/${{ github.run_id }}.
+          EOF
+          )
+
+          # Create PR if one doesn't already exist for this branch
+          if ! gh pr view "$branch" &>/dev/null; then
+            gh pr create \
+              --title "Update dugite-native to ${DUGITE_VERSION}" \
+              --body "$body" \
+              --head "$branch"
+          fi
