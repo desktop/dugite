@@ -42,6 +42,8 @@ jobs:
           GIT_AUTHOR_EMAIL: ${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com
           GIT_COMMITTER_NAME: dugite-releases[bot]
           GIT_COMMITTER_EMAIL: 241944550+dugite-releases[bot]@users.noreply.github.com
+          GITHUB_ACTOR: ${{ github.actor }}
+          RUN_URL: ${{ github.server_url}}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           branch="bump-dugite-native-${DUGITE_VERSION}"
           git checkout -b "$branch"
@@ -49,8 +51,7 @@ jobs:
           git commit -m "Update dugite-native to ${DUGITE_VERSION}"
           git push -f origin "$branch"
 
-          body=$(cat <<EOF
-          This PR updates the embedded Git version to ${DUGITE_VERSION}.
+          body="This PR updates the embedded Git version to ${DUGITE_VERSION}.
 
           This contains
 
@@ -59,9 +60,10 @@ jobs:
           - Git LFS: ${GIT_LFS_VERSION}
           - Git Credential Manager: ${GIT_CREDENTIAL_MANAGER_VERSION}
 
-          Initiated by @${{ github.actor }} in ${{ github.server_url}}/${{ github.repository }}/actions/runs/${{ github.run_id }}.
-          EOF
-          )
+          Initiated by @${GITHUB_ACTOR} in ${RUN_URL}."
+
+          # Strip leading whitespace from each line
+          body=$(echo "$body" | sed 's/^          //')
 
           # Create PR if one doesn't already exist for this branch
           if ! gh pr view "$branch" &>/dev/null; then
