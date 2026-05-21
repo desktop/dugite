@@ -19,26 +19,56 @@ jobs:
       - name: Update embedded Git versions
         id: update-embedded-git
         run: node script/update-embedded-git.js
-      - uses: actions/create-github-app-token@v1
+      - uses: actions/create-github-app-token@v3
         id: generate-token
         with:
-          app-id: ${{ vars.RELEASES_APP_ID }}
+          client-id: ${{ vars.RELEASES_APP_ID }}
           private-key: ${{ secrets.RELEASES_APP_KEY }}
+      - name: Get author name
+        id: get_author
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo name=`gh api users/${{ github.actor }} | jq -j .name` >> $GITHUB_OUTPUT
       - name: Create update pull request
-        uses: peter-evans/create-pull-request@v5
-        with:
-          commit-message: Update dugite-native to ${{ steps.update-embedded-git.outputs.dugite_version }}
-          token: ${{ steps.generate-token.outputs.token }}
-          title: Update dugite-native to ${{ steps.update-embedded-git.outputs.dugite_version }}
-          body: |
-            This PR updates the embedded Git version to ${{ steps.update-embedded-git.outputs.dugite_version }}.
+        env:
+          GH_TOKEN: ${{ steps.generate-token.outputs.token }}
+          DUGITE_VERSION: ${{ steps.update-embedded-git.outputs.dugite_version }}
+          GIT_VERSION: ${{ steps.update-embedded-git.outputs.gitVersion }}
+          GIT_FOR_WINDOWS_VERSION: ${{ steps.update-embedded-git.outputs.gitForWindowsVersion }}
+          GIT_LFS_VERSION: ${{ steps.update-embedded-git.outputs.gitLfsVersion }}
+          GIT_CREDENTIAL_MANAGER_VERSION: ${{ steps.update-embedded-git.outputs.gitCredentialManagerVersion }}
+          GIT_AUTHOR_NAME: ${{ steps.get_author.outputs.name || github.actor }}
+          GIT_AUTHOR_EMAIL: ${{ github.actor_id }}+${{ github.actor }}@users.noreply.github.com
+          GIT_COMMITTER_NAME: dugite-releases[bot]
+          GIT_COMMITTER_EMAIL: 241944550+dugite-releases[bot]@users.noreply.github.com
+          GITHUB_ACTOR: ${{ github.actor }}
+          RUN_URL: ${{ github.server_url}}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          branch="bump-dugite-native-${DUGITE_VERSION}"
+          git checkout -b "$branch"
+          git add -A
+          git commit -m "Update dugite-native to ${DUGITE_VERSION}"
+          git push -f origin "$branch"
 
-            This contains
+          body="This PR updates the embedded Git version to ${DUGITE_VERSION}.
 
-            - Git: ${{ steps.update-embedded-git.outputs.gitVersion }}
-            - Git for Windows: ${{ steps.update-embedded-git.outputs.gitForWindowsVersion }}
-            - Git LFS: ${{ steps.update-embedded-git.outputs.gitLfsVersion }}
-            - Git Credential Manager: ${{ steps.update-embedded-git.outputs.gitCredentialManagerVersion }}
+          This contains
 
-            Initiated by @${{ github.actor }} in ${{ github.server_url}}/${{ github.repository }}/actions/runs/${{ github.run_id }}.
-          branch: bump-dugite-native-${{ steps.update-embedded-git.outputs.dugite_version }}
+          - Git: ${GIT_VERSION}
+          - Git for Windows: ${GIT_FOR_WINDOWS_VERSION}
+          - Git LFS: ${GIT_LFS_VERSION}
+          - Git Credential Manager: ${GIT_CREDENTIAL_MANAGER_VERSION}
+
+          Initiated by @${GITHUB_ACTOR} in ${RUN_URL}."
+
+          # Strip leading whitespace from each line
+          body=$(echo "$body" | sed 's/^          //')
+
+          # Create PR if one doesn't already exist for this branch
+          if ! gh pr view "$branch" &>/dev/null; then
+            gh pr create \
+              --title "Update dugite-native to ${DUGITE_VERSION}" \
+              --body "$body" \
+              --head "$branch"
+          fi
