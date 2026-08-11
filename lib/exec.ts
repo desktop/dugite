@@ -2,6 +2,7 @@ import { ChildProcess, execFile, ExecFileOptions } from 'child_process'
 import { setupEnvironment } from './git-environment'
 import { ExecError } from './errors'
 import { ignoreClosedInputStream } from './ignore-closed-input-stream'
+import { processTerminator } from './process-termination'
 
 export interface IGitResult {
   /** The standard output from git. */
@@ -172,6 +173,8 @@ export function exec(
     })
 
     ignoreClosedInputStream(cp)
+
+    processTerminator(cp)
 
     if (options?.stdin !== undefined && cp.stdin) {
       // See https://github.com/nodejs/node/blob/7b5ffa46fe4d2868c1662694da06eb55ec744bde/test/parallel/test-stdin-pipe-large.js
