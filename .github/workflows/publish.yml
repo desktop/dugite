@@ -59,8 +59,8 @@ jobs:
       - name: Get version
         id: get_version
         run: echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
-      - name: Update npm to latest version # Required for OIDC
-        run: npm install -g npm@latest
+      - name: Update npm to latest Node 20-compatible version # Required for OIDC
+        run: npm install -g npm@11
       - name: Check for existing release
         if: ${{ github.event.inputs['dry-run'] != 'true' }}
         env:
