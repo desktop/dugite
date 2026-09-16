@@ -5,6 +5,15 @@ by Git. `dugite` comes with a collection of known errors, and you can
 pass the standard error output from your process to see if it maps to known
 error messages.
 
+The first matching pattern determines the returned `GitError`; if no pattern
+matches, the result is `null`. More specific conflict patterns for rebase and
+revert take precedence over generic merge-conflict output.
+
+Revert conflict detection accepts both current and legacy conflict advice,
+including `git revert --no-commit`. It still requires the conflict advice, rather
+than treating every failed revert as a conflict. Rebase and pull-with-rebase
+checks recognize unstaged changes, staged changes, or both.
+
 For example:
 
 ```ts

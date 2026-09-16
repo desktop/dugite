@@ -64,7 +64,7 @@ export enum GitError {
   PushWithSecretDetected,
 }
 
-/** A mapping from regexes to the git error they identify. */
+/** A mapping from regexes to the git error they identify, in priority order. */
 export const GitErrorRegexes: { [regexp: string]: GitError } = {
   "fatal: bad (?:numeric|boolean) config value '(.+)' for '(.+)'":
     GitError.BadConfigValue,
@@ -82,6 +82,8 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
     GitError.HostDown,
   'Resolve all conflicts manually, mark them as resolved with':
     GitError.RebaseConflicts,
+  'error: could not revert [^\\r\\n]+\\r?\\nhint: [Aa]fter resolving the conflicts, mark (?:the corrected paths\\r?\\nhint: with \'git add <paths>\' or \'git rm <paths>\'|them with\\r?\\nhint: "git add/rm <pathspec>", then run\\r?\\nhint: "git revert --continue"\\.)':
+    GitError.RevertConflicts,
   '(Merge conflict|Automatic merge failed; fix conflicts and then commit the result)':
     GitError.MergeConflicts,
   "fatal: repository '(.+)' not found": GitError.HTTPSRepositoryNotFound,
@@ -92,8 +94,6 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
     GitError.BranchDeletionFailed,
   '\\[remote rejected\\] (.+) \\(deletion of the current branch prohibited\\)':
     GitError.DefaultBranchDeletionFailed,
-  "error: could not revert .*\nhint: after resolving the conflicts, mark the corrected paths\nhint: with 'git add <paths>' or 'git rm <paths>'\nhint: and commit the result with 'git commit'":
-    GitError.RevertConflicts,
   "Applying: .*\nNo changes - did you forget to use 'git add'\\?\nIf there is nothing left to stage, chances are that something else\n.*":
     GitError.EmptyRebasePatch,
   'There are no candidates for (rebasing|merging) among the refs that you just fetched.\nGenerally this means that you provided a wildcard refspec which had no\nmatches on the remote end.':
@@ -123,7 +123,7 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
   'fatal: refusing to merge unrelated histories':
     GitError.CannotMergeUnrelatedHistories,
   'The .+ attribute should be .+ but is .+': GitError.LFSAttributeDoesNotMatch,
-  'fatal: Branch rename failed': GitError.BranchRenameFailed,
+  'fatal: [Bb]ranch rename failed': GitError.BranchRenameFailed,
   "fatal: path '(.+)' does not exist .+": GitError.PathDoesNotExist,
   "fatal: invalid object name '(.+)'.": GitError.InvalidObjectName,
   "fatal: .+: '(.+)' is outside repository": GitError.OutsideRepository,
@@ -160,7 +160,7 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
   "fatal: tag '(.+)' already exists": GitError.TagAlreadyExists,
   'error: Your local changes to the following files would be overwritten by merge:\n':
     GitError.MergeWithLocalChanges,
-  'error: cannot (pull with rebase|rebase): You have unstaged changes\\.\n\\s*error: [Pp]lease commit or stash them\\.':
+  'error: cannot (pull with rebase|rebase): (?:You have unstaged changes\\.|Your index contains uncommitted changes\\.)(?:\\r?\\nerror: additionally, your index contains uncommitted changes\\.)?\\r?\\n\\s*error: [Pp]lease commit or stash them\\.':
     GitError.RebaseWithLocalChanges,
   'error: commit (.+) is a merge but no -m option was given':
     GitError.MergeCommitNoMainlineOption,
