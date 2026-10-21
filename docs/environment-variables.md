@@ -31,9 +31,8 @@ you can enable this by setting these two environment variables.
 
 On Windows, the embedded distribution uses `ucrt64` on x64, `mingw32` on x86,
 and `clangarm64` on ARM64. Dugite sets `GIT_EXEC_PATH` to
-`<git-directory>/<architecture-folder>/libexec/git-core` and prepends
-`<git-directory>/<architecture-folder>/bin` and `<git-directory>/usr/bin`
-to `PATH`. When using a custom distribution with a different layout, set
+`<git-directory>/<architecture-folder>/libexec/git-core`. When using a custom
+distribution with a different layout, set
 `GIT_EXEC_PATH` explicitly and ensure its tools are available on `PATH`.
 
 To simplify this setup, you can use the `find-git-exec` module.

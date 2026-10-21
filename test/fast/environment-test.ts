@@ -34,7 +34,7 @@ describe('Windows Git environment', () => {
         )
         assert.equal(
           env.PATH,
-          `${gitDir}\\${subfolder}\\bin;${gitDir}\\usr\\bin;existing-path`
+          `${gitDir}\\${subfolder}\\bin;${gitDir}\\${subfolder}\\usr\\bin;existing-path`
         )
 
         const customExecPath = path.resolve('custom-git-core')
@@ -85,13 +85,12 @@ describe('environment variables', () => {
   })
 
   if (process.platform === 'win32') {
-    it('resolves installed Git helpers and shell tools', async () => {
+    it('resolves installed Git helpers', async () => {
       const { env, gitLocation } = setupEnvironment({}, {})
-      const [gitBin, usrBin] = env.PATH!.split(';')
+      const [gitBin] = env.PATH!.split(';')
       await Promise.all([
         access(gitLocation),
         access(path.join(gitBin, 'git-credential-manager.exe')),
-        access(path.join(usrBin, 'sh.exe')),
         access(path.join(env.GIT_EXEC_PATH!, 'git-lfs.exe')),
       ])
     })

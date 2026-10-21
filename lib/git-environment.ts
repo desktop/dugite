@@ -100,7 +100,7 @@ export function setupEnvironment(
   if (process.platform === 'win32') {
     env.set(
       'PATH',
-      `${gitDir}\\${getWin32GitSubfolder()}\\bin;${gitDir}\\usr\\bin;${
+      `${gitDir}\\${getWin32GitSubfolder()}\\bin;${gitDir}\\${getWin32GitSubfolder()}\\usr\\bin;${
         env.get('PATH') ?? ''
       }`
     )
