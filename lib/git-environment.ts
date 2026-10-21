@@ -3,7 +3,7 @@ import { EnvMap } from './env-map'
 
 function getWin32GitSubfolder(): string {
   if (process.arch === 'x64') {
-    return 'mingw64'
+    return 'ucrt64'
   } else if (process.arch === 'arm64') {
     return 'clangarm64'
   } else {
@@ -100,7 +100,7 @@ export function setupEnvironment(
   if (process.platform === 'win32') {
     env.set(
       'PATH',
-      `${gitDir}\\${getWin32GitSubfolder()}\\bin;${gitDir}\\${getWin32GitSubfolder()}\\usr\\bin;${
+      `${gitDir}\\${getWin32GitSubfolder()}\\bin;${gitDir}\\usr\\bin;${
         env.get('PATH') ?? ''
       }`
     )

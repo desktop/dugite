@@ -3,6 +3,56 @@ import { setupEnvironment } from '../../lib/git-environment'
 import { describe, it } from 'node:test'
 import { exec } from '../../lib'
 import { createTestDir } from '../helpers'
+import * as path from 'path'
+import { access } from 'fs/promises'
+
+describe('Windows Git environment', () => {
+  for (const [arch, subfolder] of [
+    ['x64', 'ucrt64'],
+    ['ia32', 'mingw32'],
+    ['arm64', 'clangarm64'],
+  ]) {
+    it(`resolves the ${arch} bundle paths`, () => {
+      const platformDescriptor = Object.getOwnPropertyDescriptor(
+        process,
+        'platform'
+      )!
+      const archDescriptor = Object.getOwnPropertyDescriptor(process, 'arch')!
+      try {
+        Object.defineProperty(process, 'platform', { value: 'win32' })
+        Object.defineProperty(process, 'arch', { value: arch })
+
+        const gitDir = path.resolve('git')
+        const { env, gitLocation } = setupEnvironment(
+          { LOCAL_GIT_DIRECTORY: gitDir, GIT_EXEC_PATH: '' },
+          { PATH: 'existing-path' }
+        )
+        assert.equal(gitLocation, path.join(gitDir, 'cmd', 'git.exe'))
+        assert.equal(
+          env.GIT_EXEC_PATH,
+          path.join(gitDir, subfolder, 'libexec', 'git-core')
+        )
+        assert.equal(
+          env.PATH,
+          `${gitDir}\\${subfolder}\\bin;${gitDir}\\usr\\bin;existing-path`
+        )
+
+        const customExecPath = path.resolve('custom-git-core')
+        const custom = setupEnvironment(
+          {
+            LOCAL_GIT_DIRECTORY: gitDir,
+            GIT_EXEC_PATH: customExecPath,
+          },
+          {}
+        )
+        assert.equal(custom.env.GIT_EXEC_PATH, customExecPath)
+      } finally {
+        Object.defineProperty(process, 'platform', platformDescriptor)
+        Object.defineProperty(process, 'arch', archDescriptor)
+      }
+    })
+  }
+})
 
 describe('environment variables', () => {
   it('can set them', async t => {
@@ -35,6 +85,17 @@ describe('environment variables', () => {
   })
 
   if (process.platform === 'win32') {
+    it('resolves installed Git helpers and shell tools', async () => {
+      const { env, gitLocation } = setupEnvironment({}, {})
+      const [gitBin, usrBin] = env.PATH!.split(';')
+      await Promise.all([
+        access(gitLocation),
+        access(path.join(gitBin, 'git-credential-manager.exe')),
+        access(path.join(usrBin, 'sh.exe')),
+        access(path.join(env.GIT_EXEC_PATH!, 'git-lfs.exe')),
+      ])
+    })
+
     it('preserves case of path environment', () => {
       const { env } = setupEnvironment(
         { PATH: 'custom-path' },
