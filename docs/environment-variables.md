@@ -24,10 +24,16 @@ If you have a separate Git distribution you would prefer to use with `dugite`,
 you can enable this by setting these two environment variables.
 
  - `LOCAL_GIT_DIRECTORY` - this represents the root location of Git (i.e. the
-    directory containing `bin/git`)
+    directory containing `bin/git`, or `cmd/git.exe` on Windows)
  - `GIT_EXEC_PATH` - this represents where Git's subprograms are located (Git
     can be compiled to use a given path, and some distributors will move these
     programs to a different location)
+
+On Windows, the embedded distribution uses `ucrt64` on x64, `mingw32` on x86,
+and `clangarm64` on ARM64. Dugite sets `GIT_EXEC_PATH` to
+`<git-directory>/<architecture-folder>/libexec/git-core`. When using a custom
+distribution with a different layout, set
+`GIT_EXEC_PATH` explicitly and ensure its tools are available on `PATH`.
 
 To simplify this setup, you can use the `find-git-exec` module.
 

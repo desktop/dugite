@@ -3,7 +3,7 @@ import { EnvMap } from './env-map'
 
 function getWin32GitSubfolder(): string {
   if (process.arch === 'x64') {
-    return 'mingw64'
+    return 'ucrt64'
   } else if (process.arch === 'arm64') {
     return 'clangarm64'
   } else {
