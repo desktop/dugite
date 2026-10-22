@@ -386,6 +386,14 @@ remote: http://github.com/settings/emails`
       assert.equal(error, GitError.LFSAttributeDoesNotMatch)
     })
 
+    it('can parse LFS attribute does not match warning with lowercase "the"', () => {
+      const stderr = `warning: the "filter.lfs.clean" attribute should be "git-lfs clean -- %f" but is "incorrect-clean-command"
+Run \`git lfs install --force\` to reset Git configuration.`
+
+      const error = parseError(stderr)
+      assert.equal(error, GitError.LFSAttributeDoesNotMatch)
+    })
+
     it('can parse rename Branch error', () => {
       const stderr = `error: refname refs/heads/adding-renamefailed-error not found
       fatal: Branch rename failed`

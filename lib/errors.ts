@@ -122,7 +122,8 @@ export const GitErrorRegexes: { [regexp: string]: GitError } = {
     GitError.NotAGitRepository,
   'fatal: refusing to merge unrelated histories':
     GitError.CannotMergeUnrelatedHistories,
-  'The .+ attribute should be .+ but is .+': GitError.LFSAttributeDoesNotMatch,
+  '[Tt]he .+ attribute should be .+ but is .+':
+    GitError.LFSAttributeDoesNotMatch,
   'fatal: Branch rename failed': GitError.BranchRenameFailed,
   "fatal: path '(.+)' does not exist .+": GitError.PathDoesNotExist,
   "fatal: invalid object name '(.+)'.": GitError.InvalidObjectName,
